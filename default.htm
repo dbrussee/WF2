@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/redmond/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+    <script src="script/B/B2_0-Core.js"></script>
+    <script src="script/B/B2_0-Dialog.js"></script>
+    <script src="script/B/B2_0-Table.js"></script>
+    <script src="script/B/B2_0-Menu.js"></script>
+    <script src="script/B/B2_0-Growl.js"></script>
+    <script src="script/workflow.js"></script>
+    <script src="script/workflowUI.js"></script>
+    <script src="script/app.js"></script>
+    <link rel="stylesheet" href="style/main.css">
+
+    <script>
+        function init() {
+            initWF();
+            WF.pushTransaction();
+            var prev = WF.addItem(200, 200, "pill", "Start");
+            var itm = WF.addItem(320, 200, "box", "Work");
+            itm.addBlockedBy(prev);
+            prev = itm;
+            itm = WF.addItem(440, 200, "diamond", "Ok?");
+            itm.doneCodes['Y'] = {code:'Y',value:'Yes - Ok'}
+            itm.doneCodes['N'] = {code:'N',value:'Nope'}
+            itm.addBlockedBy(prev);
+            prev = itm;
+            itm = WF.addItem(560, 140, "pill", "Step 2");
+            itm.addBlockedBy(prev, "Y");
+            itm = WF.addItem(560, 260, "stop", "Stop");
+            itm.addBlockedBy(prev, "N");
+            //console.dir(WF.flow.items);
+            WF.popTransaction();
+        }
+    </script>
+</head>
+<body onload='init()'>
+
+    <div id='canvasContainer'>
+
+    </div>
+    <div id='messageContainer'>
+        <span id='locToastMessage'></span>
+    </div>
+    <div id='formContainer'>
+        <form id='frmWF' style='width:100%' onsubmit='return false;'>
+            <table class='form'>
+                <tr><th style='width:32%;'>WF Title:</th>
+                    <td>
+                        <input onkeyup='app.updateWFTitle(this)' name='wf_title'>
+                        <button style='font-size:.7em' onclick='app.askToAddNewItem()'>Add Item</button>
+                    </td>
+                </tr>
+            </table>
+            <hr>
+            <span id='itemEditor' style='display:none'>
+            <table class='form'>
+                <tr><th class='anchor' onclick='app.mode="design";app.editItem()'>Item&nbsp;Title:</th><td>
+                    <span id='item_title'></span>
+                </td></tr>
+                <tr><th style='vertical-align:top'>Complete:</th><td style='vertical-align:top'>
+                    <label><input id='item_not_completed_option' type='radio' checked onchange='app.updateItemComplete(this)' name='item_complete' value=''>Not completed</label>
+                    <span id='locCompleteOptions'></span>
+                </td></tr>
+                <tr id='locCannotUncompleteMessage'><td colspan='2' style='color:brown'>One or more items depending on this are already completed.</td></tr>
+            </table>
+            <hr>
+            </span>
+            <span id='itemDetailEditor' style='display:none;'>
+            <table class='form'>
+                <tr><th style='width:32%;' class='anchor' onclick='app.mode="work";app.editItem()'>Item&nbsp;Title:</th><td>
+                    <input onkeyup='app.updateItemTitle(this)' name='det_item_title'>
+                    <button style='font-size:.7em;' onclick='app.askToDeleteItem()'>delete</button>
+                </td></tr>
+                <tr><th>Shape:</th><td><select onchange='app.updateItemShape(this)' name='item_shape'>
+                        <option value='box'>Box</option>
+                        <option value='circle'>Circle</option>
+                        <option value='diamond'>Diamond</option>
+                        <option value='stop'>Stop</option>
+                        <option value='pill'>Pill</option>
+                    </td>
+                </tr>
+                <tr><th style='vertical-align:top'>Done&nbsp;Codes:</th><td>&nbsp;</td>
+                <tr><td colspan='2'>
+                    <table id='tbl_done_codes'><tr>
+                        <th style='width:55px'>Code</th>
+                        <th>Value <button style='font-size:.7em;' onclick='app.editDoneCode()'>add</button></th>
+                    </tr></table>
+                </td></tr>
+                <tr><th style='vertical-align:top'>Blocked&nbsp;till:</th><td style='vertical-align:top'>
+                    <label><input id='item_block_type_all' type='radio' checked onchange='app.updateBlockType(this)' name='item_block_type' value='all'>All</label>
+                    <label><input id='item_block_type_any' type='radio' onchange='app.updateBlockType(this)' name='item_block_type' value='any'>Any</label>
+                    &nbsp;'Blocked Bys' are done
+                </td></tr>
+                <tr><td colspan='2'>
+                    <table style='width:400px'>
+                        <td style='vertical-align:top;'>
+                            <span style='color:navy;'>Blocked By...</span>
+                            <button style='font-size:.7em;' onclick='app.askToAddLink("blockby")'>Add</button>
+                            <span id='locBlockedByList'></span>
+                        </td>
+                        <td style='width:50%; vertical-align:top;'>
+                            <span style='color:navy;'>Blocks...</span>
+                            <button style='font-size:.7em;' onclick='app.askToAddLink("blocks")'>Add</button>
+                            <span id='locBlocksList'></span>
+                        </td>
+                    </table>
+                </td></tr>
+            </table>
+            <hr>
+        </span>
+        </form>
+        <form onsubmit='return false;' id='locConfirmDelete' style='display:none'>
+            &nbsp; ... <button onclick='app.cancelAction()'>Cancel</button>
+            or <button onclick='app.confirmDeleteItem()'>Confirm Delete</button>
+        </form>
+        <form onsubmit='return false;' id='locConfirmRemoveLink' style='display:none'>
+            <span id='locConfirmRemoveLinkMessage'></span><br/>
+            &nbsp; ... <button onclick='app.cancelAction();'>Cancel</button>
+            or <button onclick='app.confirmRemoveLink()'>Confirm</button>
+        </form>
+        <form onsubmit='return false;' id='locConfirmAddLink' style='display:none'>
+            <span id='locConfirmAddLinkMessage'></span><br/>
+            &nbsp; ... <button onclick='app.cancelAction();'>Cancel</button>
+        </form>
+        <form onsubmit='return false;' id='locConfirmAddItem' style='display:none'>
+            Click on an open spot to create a new item there<br/>
+            &nbsp; ... <button onclick='app.cancelAction();'>Cancel</button>
+        </form>
+        <form onsubmit='return false;' id='locEditDoneCode' style='display:none'>
+            Set code and value for this 'done' option. Setting the code to blank will remove it.<br/>
+            &nbsp; ... Code: <input id='txtEditDoneCode' size='4'><br/>
+            &nbsp; ... Vaue: <input id='txtEditDoneValue' size='20'><br/>
+            &nbsp; ... <button onclick='app.setDoneCode()'>Save</button>
+            or <button onclick='app.cancelAction();'>Cancel</button>
+        </form>
+        <form onsubmit='return false;' id='locEditLink' style='display:none'>
+            <span id='locEditLinkMessage'></span><br/>
+            <table id='tbl_link_codes'><tr>
+                <th style='width:1.5em;'>&nbsp;</th>
+                <th style='width:55px'>Code</th>
+                <th>Value</th>
+            </tr></table>
+            &nbsp; ... <button onclick='app.saveEditedLink()'>Save</button>
+            or <button onclick='app.cancelAction();'>Cancel</button>
+        </form>
+    </div>
+</body>
+</html>
