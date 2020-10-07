@@ -202,11 +202,19 @@ app.saveEditedLink = function() {
     var frm = document.getElementById("locEditLink");
     var chks = frm.elements['editLinkRow[]'];
     var rslt = "";
-    for (var i = 0; i < chks.length; i++) {
-        var chk = chks[i];
-        if (chk.checked) {
-            if (rslt != "") rslt += ",";
-            rslt += chk.value;
+    if (chks == undefined) {
+        rslt = "";
+    } else {
+        if (chks.length == undefined) { // Not a list... just a ceheckbox
+            rslt = chks.value;
+        } else {
+            for (var i = 0; i < chks.length; i++) {
+                var chk = chks[i];
+                if (chk.checked) {
+                    if (rslt != "") rslt += ",";
+                    rslt += chk.value;
+                }
+            }
         }
     }
     if (rslt == "") rslt = null;
@@ -229,8 +237,10 @@ app.editLink = function(type,toItem) {
     }
     var tbl = document.getElementById("tbl_link_codes");
     while (tbl.rows.length > 1) tbl.deleteRow(1);
+    var numCodes = 0;
     for (var key in blockingItem.doneCodes) {
         var oneCode = blockingItem.doneCodes[key];
+        numCodes++;
         var chk = false; // See if this code is already marked as an allowed code
         var allowCodes = blockedItem.blockedBy[blockingItem.id].allowCodes;
         if (allowCodes != null) {
@@ -250,13 +260,15 @@ app.editLink = function(type,toItem) {
         td = tr.insertCell();
         td.innerHTML = oneCode.value;
         td.className = "anchor";
-   }
-
-
-    var msg = "Edit link from '" + blockingItem.title + "' to '" + blockedItem.title + "'";
-    app.pendingAction = {action:"editLink", blocked:blockedItem, blocking:blockingItem};
-    document.getElementById("locEditLink").style.display = "";
-    document.getElementById("locEditLinkMessage").innerHTML = msg;
+    }
+    if (numCodes == 0) {
+        app.askToRemoveLink(type, toItem.id);
+    } else {
+        var msg = "Edit link from '" + blockingItem.title + "' to '" + blockedItem.title + "'";
+        app.pendingAction = {action:"editLink", blocked:blockedItem, blocking:blockingItem};
+        document.getElementById("locEditLink").style.display = "";
+        document.getElementById("locEditLinkMessage").innerHTML = msg;
+    }
 }
 app.askToRemoveLink = function(type, id) {
     app.cancelAction();
@@ -331,6 +343,8 @@ app.cancelAction = function() {
     document.getElementById("locConfirmAddItem").style.display = "none";
     document.getElementById("locEditDoneCode").style.display = "none";
     document.getElementById("locEditLink").style.display = "none";  
+    document.getElementById("locLoadLocal").style.display = "none";  
+    document.getElementById("locSaveLocal").style.display = "none";  
 }
 app.updateWFTitle = function(el) {
     WF.flow.title = el.value;
@@ -364,6 +378,58 @@ app.updateItemComplete = function(el) {
     }
     app.editItem();
     WF.drawCanvas();
+}
+app.askToSaveFlow = function() {
+    app.cancelAction();
+    document.getElementById("locSaveLocal").style.display = "";
+}
+app.askToLoadFlow = function() {
+    app.cancelAction();
+    document.getElementById("locLoadLocal").style.display = "";
+}
+app.saveLocal = function(spot) {
+    var tag = "WF2_FLOW_" + spot;
+    if (spot == undefined) {
+        tag = "WF2_FLOW_WORKING";
+    }
+    localStorage.setItem(tag, JSON.stringify(WF.flow));
+    if (spot != undefined) app.toast("Saved flow to local spot " + (spot + 1));
+    app.cancelAction();
+}
+app.loadLocal = function(spot) {
+    var tag = "WF2_FLOW_" + spot;
+    if (spot == undefined) {
+        tag = "WF2_FLOW_WORKING";
+    }
+    var json = localStorage.getItem(tag);
+    WF.flow = {
+        title: "Workflow Sample",
+        items: {}
+    }
+    try {
+        var tmpFlow = JSON.parse(json);
+        WF.pushTransaction();
+        WF.flow.title = tmpFlow.title;
+        for (var id in tmpFlow.items) {
+            var tmpItm = tmpFlow.items[id];
+            var itm = WF.addItem(tmpItm.x, tmpItm.y, tmpItm.shape, tmpItm.title);
+            itm.id = tmpItm.id;
+            itm.completed = tmpItm.completed;
+            itm.doneCodes = tmpItm.doneCodes;
+            itm.doneCode = tmpItm.doneCode;
+            itm.unblockIfAnyCompleted = tmpItm.unblockIfAnyCompleted;
+            itm.blockedBy = tmpItm.blockedBy;
+            itm.blocks = tmpItm.blocks;
+        }
+        WF.popTransaction();
+    } catch {
+        WF.popTransaction(); // Probably failed after push transaction
+        WF.pushTransaction();
+        WF.addItem(400, 200, "pill", "Start");
+        WF.popTransaction();
+    }
+    if (spot != undefined) app.toast("Saved flow to local spot " + (spot + 1));
+    app.cancelAction();
 }
 
 app.isCollectionEmpty = function(col) {

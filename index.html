@@ -21,6 +21,7 @@
     <script>
         function init() {
             initWF();
+            /*
             WF.pushTransaction();
             var prev = WF.addItem(200, 200, "pill", "Start");
             var itm = WF.addItem(320, 200, "box", "Work");
@@ -37,6 +38,8 @@
             itm.addBlockedBy(prev, "N");
             //console.dir(WF.flow.items);
             WF.popTransaction();
+            */
+            app.loadLocal();
         }
     </script>
 </head>
@@ -55,6 +58,8 @@
                     <td>
                         <input onkeyup='app.updateWFTitle(this)' name='wf_title'>
                         <button style='font-size:.7em' onclick='app.askToAddNewItem()'>Add Item</button>
+                        <button style='font-size:.7em' onclick='app.askToSaveFlow()'>Save</button>
+                        <button style='font-size:.7em' onclick='app.askToLoadFlow()'>Load</button>
                     </td>
                 </tr>
             </table>
@@ -86,8 +91,8 @@
                         <option value='pill'>Pill</option>
                     </td>
                 </tr>
-                <tr><th style='vertical-align:top'>Done&nbsp;Codes:</th><td>&nbsp;</td>
-                <tr><td colspan='2'>
+                <tr><th style='vertical-align:top'>Done&nbsp;Codes:</th><td style='font-size:.8em'>(listed below)</td>
+                <tr><td colspan='2' style='padding-left:2em;'>
                     <table id='tbl_done_codes'><tr>
                         <th style='width:55px'>Code</th>
                         <th>Value <button style='font-size:.7em;' onclick='app.editDoneCode()'>add</button></th>
@@ -116,33 +121,59 @@
             <hr>
         </span>
         </form>
-        <form onsubmit='return false;' id='locConfirmDelete' style='display:none'>
+        <form class='popForm' onsubmit='return false;' id='locSaveLocal' style='display:none'>
+            <button onclick='app.saveLocal(0)'>1</button>
+            <button onclick='app.saveLocal(1)'>2</button>
+            <button onclick='app.saveLocal(2)'>3</button>
+            <button onclick='app.saveLocal(3)'>4</button>
+            <button onclick='app.saveLocal(4)'>5</button>
+            <button onclick='app.saveLocal(5)'>6</button>
+            <button onclick='app.saveLocal(6)'>7</button>
+            <button onclick='app.saveLocal(7)'>8</button>
+            <button onclick='app.saveLocal(8)'>9</button>
+            <button onclick='app.saveLocal(9)'>10</button><br/>
+            &nbsp; ... <button onclick='app.cancelAction()'>Cancel</button>
+        </form>
+        <form class='popForm' onsubmit='return false;' id='locLoadLocal' style='display:none'>
+            <button onclick='app.loadLocal(0)'>1</button>
+            <button onclick='app.loadLocal(1)'>2</button>
+            <button onclick='app.loadLocal(2)'>3</button>
+            <button onclick='app.loadLocal(3)'>4</button>
+            <button onclick='app.loadLocal(4)'>5</button>
+            <button onclick='app.loadLocal(5)'>6</button>
+            <button onclick='app.loadLocal(6)'>7</button>
+            <button onclick='app.loadLocal(7)'>8</button>
+            <button onclick='app.loadLocal(8)'>9</button>
+            <button onclick='app.loadLocal(9)'>10</button><br/>
+            &nbsp; ... <button onclick='app.cancelAction()'>Cancel</button>
+        </form>
+        <form class='popForm' onsubmit='return false;' id='locConfirmDelete' style='display:none'>
             &nbsp; ... <button onclick='app.cancelAction()'>Cancel</button>
             or <button onclick='app.confirmDeleteItem()'>Confirm Delete</button>
         </form>
-        <form onsubmit='return false;' id='locConfirmRemoveLink' style='display:none'>
+        <form class='popForm' onsubmit='return false;' id='locConfirmRemoveLink' style='display:none'>
             <span id='locConfirmRemoveLinkMessage'></span><br/>
             &nbsp; ... <button onclick='app.cancelAction();'>Cancel</button>
             or <button onclick='app.confirmRemoveLink()'>Confirm</button>
         </form>
-        <form onsubmit='return false;' id='locConfirmAddLink' style='display:none'>
+        <form class='popForm' onsubmit='return false;' id='locConfirmAddLink' style='display:none'>
             <span id='locConfirmAddLinkMessage'></span><br/>
             &nbsp; ... <button onclick='app.cancelAction();'>Cancel</button>
         </form>
-        <form onsubmit='return false;' id='locConfirmAddItem' style='display:none'>
+        <form class='popForm' onsubmit='return false;' id='locConfirmAddItem' style='display:none'>
             Click on an open spot to create a new item there<br/>
             &nbsp; ... <button onclick='app.cancelAction();'>Cancel</button>
         </form>
-        <form onsubmit='return false;' id='locEditDoneCode' style='display:none'>
+        <form class='popForm' onsubmit='return false;' id='locEditDoneCode' style='display:none'>
             Set code and value for this 'done' option. Setting the code to blank will remove it.<br/>
             &nbsp; ... Code: <input id='txtEditDoneCode' size='4'><br/>
             &nbsp; ... Vaue: <input id='txtEditDoneValue' size='20'><br/>
             &nbsp; ... <button onclick='app.setDoneCode()'>Save</button>
             or <button onclick='app.cancelAction();'>Cancel</button>
         </form>
-        <form onsubmit='return false;' id='locEditLink' style='display:none'>
+        <form class='popForm' onsubmit='return false;' id='locEditLink' style='display:none'>
             <span id='locEditLinkMessage'></span><br/>
-            <table id='tbl_link_codes'><tr>
+            <table style='margin-left:2em' id='tbl_link_codes'><tr>
                 <th style='width:1.5em;'>&nbsp;</th>
                 <th style='width:55px'>Code</th>
                 <th>Value</th>

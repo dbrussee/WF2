@@ -141,6 +141,7 @@ WF.addItem = function(x, y, shape, title) {
     return itm;
 }
 WF.drawCanvas = function() {
+    app.saveLocal(); // Working 
     WFUI.drawCanvas(WF.flow.items);
 }
 function initWF() {

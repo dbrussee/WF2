@@ -65,6 +65,13 @@ table.form td {
 span.anchor:hover {
     color: green;
 }
+form.popForm {
+    background-color: gainsboro;
+    padding: .5em;
+    margin: .5em;
+    border: 1px solid navy;
+    border-radius: .4em;
+}
 
 table#tbl_done_codes,
 table#tbl_link_codes {
