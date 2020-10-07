@@ -122,6 +122,7 @@
         </span>
         </form>
         <form class='popForm' onsubmit='return false;' id='locSaveLocal' style='display:none'>
+            Click a button to save to that storage location:<br/>
             <button onclick='app.saveLocal(0)'>1</button>
             <button onclick='app.saveLocal(1)'>2</button>
             <button onclick='app.saveLocal(2)'>3</button>
@@ -132,9 +133,12 @@
             <button onclick='app.saveLocal(7)'>8</button>
             <button onclick='app.saveLocal(8)'>9</button>
             <button onclick='app.saveLocal(9)'>10</button><br/>
+            <br/>Copy from the box below to send to another user:<br/>
+            <textarea id='locSaveToClipboard' readonly style='width:100%;height:6em;'></textarea>
             &nbsp; ... <button onclick='app.cancelAction()'>Cancel</button>
         </form>
         <form class='popForm' onsubmit='return false;' id='locLoadLocal' style='display:none'>
+            Click a button to load from that storage location:<br/>
             <button onclick='app.loadLocal(0)'>1</button>
             <button onclick='app.loadLocal(1)'>2</button>
             <button onclick='app.loadLocal(2)'>3</button>
@@ -145,7 +149,10 @@
             <button onclick='app.loadLocal(7)'>8</button>
             <button onclick='app.loadLocal(8)'>9</button>
             <button onclick='app.loadLocal(9)'>10</button><br/>
-            &nbsp; ... <button onclick='app.cancelAction()'>Cancel</button>
+            <br/>Paste into the box below to load data from another user:<br/>
+            <textarea id='locLoadFromClipboard' style='width:100%;height:6em;'></textarea><br/>
+            &nbsp; ... <button onclick='app.loadFromTextbox()'>Load from textbox</button>
+            or <button onclick='app.cancelAction()'>Cancel</button>
         </form>
         <form class='popForm' onsubmit='return false;' id='locConfirmDelete' style='display:none'>
             &nbsp; ... <button onclick='app.cancelAction()'>Cancel</button>

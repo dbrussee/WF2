@@ -382,6 +382,7 @@ app.updateItemComplete = function(el) {
 app.askToSaveFlow = function() {
     app.cancelAction();
     document.getElementById("locSaveLocal").style.display = "";
+    document.getElementById("locSaveToClipboard").value = JSON.stringify(WF.flow);
 }
 app.askToLoadFlow = function() {
     app.cancelAction();
@@ -395,6 +396,39 @@ app.saveLocal = function(spot) {
     localStorage.setItem(tag, JSON.stringify(WF.flow));
     if (spot != undefined) app.toast("Saved flow to local spot " + (spot + 1));
     app.cancelAction();
+}
+app.loadFromTextbox = function() {
+    app.saveLocal();
+    var json = document.getElementById("locLoadFromClipboard").value.trim();
+    if (json == "") json = "This should not load";
+    WF.flow = {
+        title: "Workflow Sample",
+        items: {}
+    }
+    try {
+        var tmpFlow = JSON.parse(json);
+        WF.pushTransaction();
+        WF.flow.title = tmpFlow.title;
+        for (var id in tmpFlow.items) {
+            var tmpItm = tmpFlow.items[id];
+            var itm = WF.addItem(tmpItm.x, tmpItm.y, tmpItm.shape, tmpItm.title);
+            itm.id = tmpItm.id;
+            itm.completed = tmpItm.completed;
+            itm.doneCodes = tmpItm.doneCodes;
+            itm.doneCode = tmpItm.doneCode;
+            itm.unblockIfAnyCompleted = tmpItm.unblockIfAnyCompleted;
+            itm.blockedBy = tmpItm.blockedBy;
+            itm.blocks = tmpItm.blocks;
+        }
+        WF.popTransaction();
+        app.toast("Loaded!");
+        app.cancelAction();
+    } catch {
+        app.loadLocal(); // Restore what was there
+        app.toast("Error loading contents of text area", true);
+        WF.popTransaction(); // Probably failed after push transaction
+    }
+
 }
 app.loadLocal = function(spot) {
     var tag = "WF2_FLOW_" + spot;
