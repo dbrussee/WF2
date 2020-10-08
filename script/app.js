@@ -1,6 +1,34 @@
 window.app = {
     pendingAction: null,
+    editing: false,
     mode: "work" // or "design"
+}
+app.toggleMode = function(mode) {
+    if (mode == undefined) {
+        if (app.mode == "work") {
+            app.mode = "design";
+        } else {
+            app.mode = "work";
+        }
+    } else {
+        app.mode = mode;
+    }
+    document.getElementById("locModeName").innerHTML = app.mode;
+    app.cancelAction();
+    app.editItem();
+    /*
+    if (Object.keys(WF.flow.items).length == 0) {
+        app.askToLoadFlow();
+    } else {
+        if (app.editing) {
+            app.editItem();
+        } else {
+            WF.pickedItem = WF.flow.items[Object.keys(WF.flow.items)[0]];
+            WF.drawCanvas();
+            WF.dispatchEvent("itempicked", {item:WF.pickedItem});
+        }
+    }
+    */
 }
 app.toast = function(msg, isError) {
     if (isError == undefined) isError = false;
@@ -27,11 +55,13 @@ app.askToAddNewItem = function() {
     app.cancelAction();
     app.hideEditor();
     app.pendingAction = {action:"addItem"};
+    var sel = document.getElementById("selNewItemShape");
+    sel.value = (Object.keys(WF.flow.items).length == 0 ? "pill" : "box");
     document.getElementById("locConfirmAddItem").style.display = "";
 }
 app.confirmAddNewItem = function(x, y) {
     WF.pushTransaction();
-    var type = (Object.keys(WF.flow.items).length == 0 ? "pill" : "box");
+    var type = document.getElementById("selNewItemShape").value;
     WF.pickedItem = WF.addItem(x, y, type, "New");
     WF.popTransaction();
     app.mode = "design";
@@ -39,14 +69,35 @@ app.confirmAddNewItem = function(x, y) {
 }
 
 app.editItem = function() {
+    app.editing = true;
+    app.cancelAction();
     if (app.mode == "design") {
         document.getElementById("itemEditor").style.display = "none";
-        document.getElementById("itemDetailEditor").style.display = "";
+        if (Object.keys(WF.flow.items).length == 0 || WF.pickedItem == null) {
+            document.getElementById("itemBlankEditor").style.display = "";
+            document.getElementById("itemDetailEditor").style.display = "none";
+        } else {
+            document.getElementById("itemBlankEditor").style.display = "none";
+            document.getElementById("itemDetailEditor").style.display = "";
+        }
     } else {
-        document.getElementById("itemEditor").style.display = "";
+        if (Object.keys(WF.flow.items).length == 0) {
+            document.getElementById("itemEditor").style.display = "none";
+            document.getElementById("itemBlankEditor").style.display = "none";
+            app.editing = false;
+            app.askToLoadFlow();
+        } else {
+            document.getElementById("itemEditor").style.display = "";
+            document.getElementById("itemBlankEditor").style.display = "none";
+        }
         document.getElementById("itemDetailEditor").style.display = "none";
     }
+    if (!app.editing) return;
     var itm = WF.pickedItem;
+    if (itm == null) {
+        app.hideEditor();
+        return;
+    }
     var frm = document.getElementById("frmWF");
     frm.elements.namedItem("det_item_title").value = itm.title;
     document.getElementById("item_title").innerHTML = itm.title;
@@ -133,9 +184,9 @@ app.editItem = function() {
         link += " <span class='anchor' onclick='app.askToRemoveLink(\"blocks\"," + other.id + ")' style='color:red;font-weight:bold'>X<span>";
         loc.innerHTML += "<br/>" + link;
     }
-    app.cancelAction();
 }
 app.hideEditor = function() {
+    app.editing = false;
     document.getElementById("itemEditor").style.display = "none";
     document.getElementById("itemDetailEditor").style.display = "none";
 }
@@ -224,7 +275,7 @@ app.saveEditedLink = function() {
     //app.toast(rslt);
 }
 app.editLink = function(type,toItem) {
-    app.cancelAction();
+    app.cancelAction(true);
     var blockedItem = null;
     var blockingItem = null;
     toItem = WF.flow.items[toItem];
@@ -331,10 +382,13 @@ app.confirmDeleteItem = function() {
     }
     delete WF.flow.items[itm.id];
     WF.popTransaction()
-    app.hideEditor();
+    app.editItem();
     app.cancelAction();
+    //if (Object.keys(WF.flow.items).length == 0) {
+    //    app.askToLoadFlow();
+    //}
 }
-app.cancelAction = function() {
+app.cancelAction = function(loadNewIfEmpty) {
     app.pendingAction = null;
     document.getElementById("locConfirmDelete").style.display = "none";
     document.getElementById("locConfirmRemoveLink").style.display = "none";
@@ -344,7 +398,11 @@ app.cancelAction = function() {
     document.getElementById("locEditDoneCode").style.display = "none";
     document.getElementById("locEditLink").style.display = "none";  
     document.getElementById("locLoadLocal").style.display = "none";  
-    document.getElementById("locSaveLocal").style.display = "none";  
+    document.getElementById("locSaveLocal").style.display = "none"; 
+    //if (loadNewIfEmpty == undefined || loadNewIfEmpty)
+    //if (Object.keys(WF.flow.items).length == 0) {
+    //    app.editItem();
+    //} 
 }
 app.updateWFTitle = function(el) {
     WF.flow.title = el.value;
@@ -464,6 +522,12 @@ app.loadLocal = function(spot) {
     }
     if (spot != undefined) app.toast("Saved flow to local spot " + (spot + 1));
     app.cancelAction();
+    if (Object.keys(WF.flow.items).length == 0) {
+        if (app.mode == "work") {
+            app.askToLoadFlow();
+        }
+    }
+
 }
 
 app.isCollectionEmpty = function(col) {

@@ -154,17 +154,17 @@ function initWF() {
     can.width = 800;
     document.getElementById("canvasContainer").appendChild(can);
     // Get the device pixel ratio, falling back to 1.
-    var dpr = window.devicePixelRatio || 1;
+    //var dpr = window.devicePixelRatio || 1;
     // Get the size of the canvas in CSS pixels.
-    var rect = can.getBoundingClientRect();
+    //var rect = can.getBoundingClientRect();
     // Give the canvas pixel dimensions of their CSS
     // size * the device pixel ratio.
-    can.width = rect.width * dpr;
-    can.height = rect.height * dpr;
+    //can.width = rect.width * dpr;
+    //can.height = rect.height * dpr;
     WFUI.ctx = can.getContext('2d');
     // Scale all drawing operations by the dpr, so you
     // don't have to worry about the difference.
-    WFUI.ctx.scale(dpr, dpr);
+    //WFUI.ctx.scale(dpr, dpr);
 
     WF.eventTarget = document.createTextNode(null); // Dummy target for events
     // Pass EventTarget interface calls to DOM EventTarget object
@@ -178,12 +178,11 @@ function initWF() {
     WF.addEventListener("itempicked", function(e) {
         if (e.detail.item == null) {
             //app.toast("Clicked open area");
-            app.hideEditor();
             app.pendingAction = null;
         } else {
             //app.toast("Clicked: " + e.detail.item.title);
-            app.editItem();
         }
+        app.editItem();
     });
     WF.addEventListener("linkadded", function(e) {
         //WorkflowUI.drawConnector(e.detail.blockedByStep, e.detail.blockedStep);
@@ -284,6 +283,7 @@ function initWF() {
         can.style.cursor = "default";
     });
     can.addEventListener("mousemove", function(event) {
+        if (app.mode == "work") return;
         var can = WFUI.canvas;
         if (WF.pickedItem == null) return; // Nothing picked... nothing to drag
         if (WFUI.dragstart == null) return; // Still nothing to drag
@@ -294,6 +294,7 @@ function initWF() {
         WF.pickedItem.x = event.offsetX;
         WF.pickedItem.y = event.offsetY;
         WF.drawCanvas();
+
         //app.toast("Dragging " + WF.pickedItem.title);
 /*
         var moved = false;
@@ -339,6 +340,7 @@ function initWF() {
         }
 */
     });
+    app.toggleMode("work");
 
     
 }

@@ -49,21 +49,24 @@
 
     </div>
     <div id='messageContainer'>
+        Mode: <span class='anchor' onclick='app.toggleMode()' id='locModeName'>work</span> |
         <span id='locToastMessage'></span>
     </div>
     <div id='formContainer'>
         <form id='frmWF' style='width:100%' onsubmit='return false;'>
-            <table class='form'>
-                <tr><th style='width:32%;'>WF Title:</th>
-                    <td>
+            <table class='form' style='width:300px'>
+                <tr><th style='vertical-align:top;'>&nbsp;WF&nbsp;Title:</th>
+                    <td style='vertical-align:top;'>
                         <input onkeyup='app.updateWFTitle(this)' name='wf_title'>
-                        <button style='font-size:.7em' onclick='app.askToAddNewItem()'>Add Item</button>
                         <button style='font-size:.7em' onclick='app.askToSaveFlow()'>Save</button>
                         <button style='font-size:.7em' onclick='app.askToLoadFlow()'>Load</button>
                     </td>
                 </tr>
             </table>
             <hr>
+            <span id='itemBlankEditor' style='display:none'>
+                <button style='font-size:.7em' onclick='app.askToAddNewItem()'>Add Item</button>
+            </span>
             <span id='itemEditor' style='display:none'>
             <table class='form'>
                 <tr><th class='anchor' onclick='app.mode="design";app.editItem()'>Item&nbsp;Title:</th><td>
@@ -79,9 +82,11 @@
             </span>
             <span id='itemDetailEditor' style='display:none;'>
             <table class='form'>
-                <tr><th style='width:32%;' class='anchor' onclick='app.mode="work";app.editItem()'>Item&nbsp;Title:</th><td>
+                <tr><th>&nbsp;
+                    <span class='anchor' onclick='app.askToDeleteItem()' style='color:red;font-weight:bold'>X</span>
+                    Item&nbsp;Title:</th><td>
                     <input onkeyup='app.updateItemTitle(this)' name='det_item_title'>
-                    <button style='font-size:.7em;' onclick='app.askToDeleteItem()'>delete</button>
+                    <button style='font-size:.7em' onclick='app.askToAddNewItem()'>Add Item</button>
                 </td></tr>
                 <tr><th>Shape:</th><td><select onchange='app.updateItemShape(this)' name='item_shape'>
                         <option value='box'>Box</option>
@@ -89,6 +94,7 @@
                         <option value='diamond'>Diamond</option>
                         <option value='stop'>Stop</option>
                         <option value='pill'>Pill</option>
+                    </select>
                     </td>
                 </tr>
                 <tr><th style='vertical-align:top'>Done&nbsp;Codes:</th><td style='font-size:.8em'>(listed below)</td>
@@ -168,7 +174,14 @@
             &nbsp; ... <button onclick='app.cancelAction();'>Cancel</button>
         </form>
         <form class='popForm' onsubmit='return false;' id='locConfirmAddItem' style='display:none'>
-            Click on an open spot to create a new item there<br/>
+            Pick new item shape: <select id='selNewItemShape'>
+                <option value='box'>Box</option>
+                <option value='circle'>Circle</option>
+                <option value='diamond'>Diamond</option>
+                <option value='stop'>Stop</option>
+                <option value='pill'>Pill</option>
+            </select><br/>
+            Click on an open spot to create the new item there<br/>
             &nbsp; ... <button onclick='app.cancelAction();'>Cancel</button>
         </form>
         <form class='popForm' onsubmit='return false;' id='locEditDoneCode' style='display:none'>
