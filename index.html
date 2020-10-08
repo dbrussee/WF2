@@ -48,11 +48,10 @@
     <div id='canvasContainer'>
 
     </div>
-    <div id='messageContainer'>
-        Mode: <span class='anchor' onclick='app.toggleMode()' id='locModeName'>work</span> |
-        <span id='locToastMessage'></span>
-    </div>
     <div id='formContainer'>
+        <div style='position:absolute;top:.2em;right:.5em;text-align:right;'>
+        Mode: <span class='anchor' onclick='app.toggleMode()' id='locModeName'>work</span>
+        </div>
         <form id='frmWF' style='width:100%' onsubmit='return false;'>
             <table class='form' style='width:300px'>
                 <tr><th style='vertical-align:top;'>&nbsp;WF&nbsp;Title:</th>
@@ -83,7 +82,7 @@
             <span id='itemDetailEditor' style='display:none;'>
             <table class='form'>
                 <tr><th>&nbsp;
-                    <span class='anchor' onclick='app.askToDeleteItem()' style='color:red;font-weight:bold'>X</span>
+                    <span class='anchor' onclick='app.askToDeleteItem()' style='color:red;font-weight:bold'>&times;</span>
                     Item&nbsp;Title:</th><td>
                     <input onkeyup='app.updateItemTitle(this)' name='det_item_title'>
                     <button style='font-size:.7em' onclick='app.askToAddNewItem()'>Add Item</button>
@@ -127,6 +126,7 @@
             <hr>
         </span>
         </form>
+    
         <form class='popForm' onsubmit='return false;' id='locSaveLocal' style='display:none'>
             Click a button to save to that storage location:<br/>
             <button onclick='app.saveLocal(0)'>1</button>
@@ -201,6 +201,10 @@
             &nbsp; ... <button onclick='app.saveEditedLink()'>Save</button>
             or <button onclick='app.cancelAction();'>Cancel</button>
         </form>
+        <div id='messageContainer'>
+            <span id='locToastMessage'></span>
+        </div>
+
     </div>
 </body>
 </html>

@@ -14,7 +14,7 @@ body * {
     position: absolute;
     background-color: darkolivegreen;
     top: 0; left: 0;
-    height: calc(100vh - 2em);
+    height: 100vh;
     width: calc(100vw - 400px);
     overflow: scroll;
     padding: .3em;
@@ -24,18 +24,6 @@ canvas {
     position: relative;
     background-color: whitesmoke;
     margin: .3em auto;
-}
-#messageContainer {
-    background-color: gainsboro;
-    color: black;
-    border-top: .15em solid navy;
-    position: absolute;
-    top: calc(100vh - 2em); left: 0;
-    height: 3em;
-    width: calc(100vw - 400px);
-    overflow: auto;
-    padding: .3em;
-    vertical-align: middle;
 }
 
 #formContainer {

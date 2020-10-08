@@ -169,9 +169,11 @@ app.editItem = function() {
         var title = other.title;
         var allowCodes = itm.blockedBy[other.id].allowCodes;
         if (allowCodes != null) title += " (" + allowCodes + ")";
-        var link = "<span class='anchor' onclick='app.editLink(\"blockedby\"," + other.id + ")'>" + title + "</span>";
-        link += " <span class='anchor' onclick='app.askToRemoveLink(\"blockBy\"," + other.id + ")' style='color:red;font-weight:bold'>X<span>";
-        loc.innerHTML += "<br/>" + link;
+        var link = "<div style='width:100%; padding-bottom:.2em; margin-bottom:.3em; border-bottom:1px dotted silver;'>";
+        link += "<span class='anchor' onclick='app.askToRemoveLink(\"blockBy\"," + other.id + ")' style='color:red;font-weight:bold'>&times;</span>";
+        link += " <span class='anchor' onclick='app.editLink(\"blockedby\"," + other.id + ")'>" + title + "</span>";
+        link += "</div>";
+        loc.innerHTML += link;
     }
     var loc = document.getElementById("locBlocksList");
     loc.innerHTML = "";
@@ -180,9 +182,11 @@ app.editItem = function() {
         var title = other.title;
         var allowCodes = other.blockedBy[itm.id].allowCodes;
         if (allowCodes != null) title += " (" + allowCodes + ")";
-        var link = "<span class='anchor' onclick='app.editLink(\"blocks\"," + other.id + ")'>" + title + "</span>";
-        link += " <span class='anchor' onclick='app.askToRemoveLink(\"blocks\"," + other.id + ")' style='color:red;font-weight:bold'>X<span>";
-        loc.innerHTML += "<br/>" + link;
+        var link = "<div style='width:100%; padding-bottom:.2em; margin-bottom:.3em; border-bottom:1px dotted silver;'>";
+        link += "<span class='anchor' onclick='app.askToRemoveLink(\"blocks\"," + other.id + ")' style='color:red;font-weight:bold'>&times;</span>";
+        link += " <span class='anchor' onclick='app.editLink(\"blocks\"," + other.id + ")'>" + title + "</span>";
+        link += "</div>";
+        loc.innerHTML += link;
     }
 }
 app.hideEditor = function() {
@@ -295,7 +299,8 @@ app.editLink = function(type,toItem) {
         var chk = false; // See if this code is already marked as an allowed code
         var allowCodes = blockedItem.blockedBy[blockingItem.id].allowCodes;
         if (allowCodes != null) {
-            if (allowCodes.indexOf(key) >= 0) chk = true;
+            var lst = allowCodes.split(",");
+            if (lst.indexOf(key) >= 0) chk = true;
         }
         var tr = tbl.insertRow();
         var td = tr.insertCell();
@@ -452,7 +457,7 @@ app.saveLocal = function(spot) {
         tag = "WF2_FLOW_WORKING";
     }
     localStorage.setItem(tag, JSON.stringify(WF.flow));
-    if (spot != undefined) app.toast("Saved flow to local spot " + (spot + 1));
+    //if (spot != undefined) app.toast("Saved flow to local spot " + (spot + 1));
     app.cancelAction();
 }
 app.loadFromTextbox = function() {
@@ -520,7 +525,7 @@ app.loadLocal = function(spot) {
         WF.addItem(400, 200, "pill", "Start");
         WF.popTransaction();
     }
-    if (spot != undefined) app.toast("Saved flow to local spot " + (spot + 1));
+    if (spot != undefined) app.toast("Loaded flow from local spot " + (spot + 1));
     app.cancelAction();
     if (Object.keys(WF.flow.items).length == 0) {
         if (app.mode == "work") {
