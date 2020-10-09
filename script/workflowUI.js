@@ -28,11 +28,30 @@ WFUI.drawCanvas = function(items) {
             ctx.restore();
 
             var txt = "";
+            var foundDoneCode = false;
             if (bby.allowCodes != null) {
-                txt = bby.allowCodes;
+                var lst = bby.allowCodes.split(",");
+                for (var acnum = 0; acnum < lst.length; acnum++) {
+                    if (txt != "") txt += ",";
+                    var code = lst[acnum];
+                    if (code == bstep.doneCode) {
+                        foundDoneCode = true;
+                        txt += "[" + code + "]";
+                    } else {
+                        txt += code;
+                    }
+                }
                 if (txt == "") txt = "??";
             }
-            WFUI.drawArrowAtEnd(itm.x, itm.y, bstep.x, bstep.y, txt);
+            var arrowDone = false;
+            if (bstep.completed) {
+                if (bstep.doneCode == null) {
+                    arrowDone = true;
+                } else {
+                    arrowDone = foundDoneCode;
+                }
+            }
+            WFUI.drawArrowAtEnd(itm.x, itm.y, bstep.x, bstep.y, txt, arrowDone);
         }
     }
 
@@ -280,7 +299,7 @@ WFUI.drawSidedShape = function(x, y, sides, r) {
     ctx.restore();
 }
 
-WFUI.drawArrowAtEnd = function(x1, y1, x2, y2, txt) {
+WFUI.drawArrowAtEnd = function(x1, y1, x2, y2, txt, completed) {
     if (txt == undefined) txt = "";
     var alen = WFUI.arrowSize.length;
     var awid = WFUI.arrowSize.width;
@@ -298,7 +317,7 @@ WFUI.drawArrowAtEnd = function(x1, y1, x2, y2, txt) {
     ctx.strokeStyle = "black";
     ctx.lineWidth = 2;
     ctx.stroke();
-    ctx.fillStyle = "white";
+    ctx.fillStyle = (completed ? "lightgreen" : "white");
     ctx.fill();
 
     if (txt != "") {

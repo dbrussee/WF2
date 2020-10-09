@@ -341,15 +341,22 @@ app.confirmAddLink = function(itm) {
         if (itm == WF.pickedItem) {
             app.toast("You cannot link an item to itself", true);
         } else {
-            if (app.pendingAction.type == "blocks") {
+            var hasDoneCodes = false;
+            var action = app.pendingAction.type;
+            if (action == "blocks") {
                 added = WF.pickedItem.addBlock(itm);
+                if (Object.keys(WF.pickedItem.doneCodes).length > 0)  hasDoneCodes = true;
             } else {
                 added = WF.pickedItem.addBlockedBy(itm);
+                if (Object.keys(itm.doneCodes).length > 0)  hasDoneCodes = true;
             }
             if (added) {
                 WF.drawCanvas();
                 app.editItem();
-                app.cancelAction();            
+                app.cancelAction(); 
+                if (hasDoneCodes) {
+                    app.editLink(action, itm.id);
+                }
             } else {
                 if (!added) app.toast("Link already present", true);
             }
@@ -372,6 +379,21 @@ app.confirmRemoveLink = function() {
     app.editItem();
     app.cancelAction();
 }
+app.askToStartNew = function() {
+    app.cancelAction();
+    document.getElementById("locConfirmStartNew").style.display = "";
+}
+app.confirmStartNew = function() {
+    WF.flow = {
+        title: "Workflow",
+        items: {}
+    }
+    app.cancelAction();
+    document.getElementById("wf_title").value = WF.flow.title;
+    WF.drawCanvas();
+    app.toggleMode("design");
+    app.askToAddNewItem();
+}
 app.askToDeleteItem = function() {
     app.cancelAction();
     app.pendingAction = {action:"deleteItem"};
@@ -386,7 +408,8 @@ app.confirmDeleteItem = function() {
         other.removeBlock(itm);
     }
     delete WF.flow.items[itm.id];
-    WF.popTransaction()
+    WF.popTransaction();
+    WF.pickedItem = null;
     app.editItem();
     app.cancelAction();
     //if (Object.keys(WF.flow.items).length == 0) {
@@ -404,6 +427,7 @@ app.cancelAction = function(loadNewIfEmpty) {
     document.getElementById("locEditLink").style.display = "none";  
     document.getElementById("locLoadLocal").style.display = "none";  
     document.getElementById("locSaveLocal").style.display = "none"; 
+    document.getElementById("locConfirmStartNew").style.display = "none"; 
     //if (loadNewIfEmpty == undefined || loadNewIfEmpty)
     //if (Object.keys(WF.flow.items).length == 0) {
     //    app.editItem();
@@ -491,7 +515,7 @@ app.loadFromTextbox = function() {
         app.toast("Error loading contents of text area", true);
         WF.popTransaction(); // Probably failed after push transaction
     }
-
+    document.getElementById("wf_title").value = WF.flow.title;
 }
 app.loadLocal = function(spot) {
     var tag = "WF2_FLOW_" + spot;
@@ -500,7 +524,7 @@ app.loadLocal = function(spot) {
     }
     var json = localStorage.getItem(tag);
     WF.flow = {
-        title: "Workflow Sample",
+        title: "Workflow",
         items: {}
     }
     try {
@@ -525,8 +549,10 @@ app.loadLocal = function(spot) {
         WF.addItem(400, 200, "pill", "Start");
         WF.popTransaction();
     }
+    document.getElementById("wf_title").value = WF.flow.title;
     if (spot != undefined) app.toast("Loaded flow from local spot " + (spot + 1));
     app.cancelAction();
+
     if (Object.keys(WF.flow.items).length == 0) {
         if (app.mode == "work") {
             app.askToLoadFlow();

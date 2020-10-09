@@ -56,7 +56,8 @@
             <table class='form' style='width:300px'>
                 <tr><th style='vertical-align:top;'>&nbsp;WF&nbsp;Title:</th>
                     <td style='vertical-align:top;'>
-                        <input onkeyup='app.updateWFTitle(this)' name='wf_title'>
+                        <input onkeyup='app.updateWFTitle(this)' id='wf_title' name='wf_title'>
+                        <button style='font-size:.7em' onclick='app.askToStartNew()'>New</button>
                         <button style='font-size:.7em' onclick='app.askToSaveFlow()'>Save</button>
                         <button style='font-size:.7em' onclick='app.askToLoadFlow()'>Load</button>
                     </td>
@@ -168,6 +169,11 @@
             <span id='locConfirmRemoveLinkMessage'></span><br/>
             &nbsp; ... <button onclick='app.cancelAction();'>Cancel</button>
             or <button onclick='app.confirmRemoveLink()'>Confirm</button>
+        </form>
+        <form class='popForm' onsubmit='return false;' id='locConfirmStartNew' style='display:none'>
+            Be sure you have saved your work!!<br/>
+            &nbsp; ... <button onclick='app.cancelAction();'>Cancel</button>
+            or <button onclick='app.confirmStartNew()'>Clear and Start New</button>
         </form>
         <form class='popForm' onsubmit='return false;' id='locConfirmAddLink' style='display:none'>
             <span id='locConfirmAddLinkMessage'></span><br/>
