@@ -2,6 +2,7 @@ window.app = {
     colors: {
         halo: "olivedrab",
         doneFill: "lightcyan",
+        pillDone: "lightgreen",
         blockedFill: "snow",
         activeFill: "gold",
         dragFill: "khaki"

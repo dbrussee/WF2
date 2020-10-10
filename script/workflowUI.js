@@ -169,6 +169,8 @@ WFUI.drawShapePill = function(itm, draggingItem) {
     ctx.arcTo(pillLeft, pillTop + pillHeight, pillLeft, pillTop + (pillHeight/2), pillHeight/2);
     ctx.arcTo(pillLeft, pillTop, pillLeft + (pillHeight/2), pillTop, pillHeight/2);
     ctx.closePath();
+    if (itm.completed && app.isCollectionEmpty(itm.blocks)) ctx.fillStyle = app.colors.pillDone;
+
     ctx.fill();
     ctx.stroke();
     ctx.restore();
