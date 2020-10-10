@@ -205,9 +205,6 @@
             &nbsp; ... <button onclick='app.saveEditedLink()'>Save</button>
             or <button onclick='app.cancelAction();'>Cancel</button>
         </form>
-        <div id='messageContainer'>
-            <span id='locToastMessage'></span>
-        </div>
         <div id='locInstructionsWorking' style='display:none; padding:.3em'>
             You are in <b class='anchor' onclick='app.toggleMode()'>work</b> mode. 
                 To change modes at any time, click on the link
@@ -227,6 +224,9 @@
 
             <button onclick='app.askToAddNewItem()'>Add Item</button>
 
+        </div>
+        <div id='messageContainer'>
+            <span id='locToastMessage'></span>
         </div>
 
     </div>
