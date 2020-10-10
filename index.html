@@ -53,10 +53,10 @@
         Mode: <span class='anchor' onclick='app.toggleMode()' id='locModeName'>work</span>
         </div>
         <form id='frmWF' style='width:100%' onsubmit='return false;'>
-            <table class='form' style='width:300px'>
-                <tr><th style='vertical-align:top;'>&nbsp;WF&nbsp;Title:</th>
+            <table id='topForm' class='form' style='width:400px; margin:0 auto;'>
+                <tr><th style='vertical-align:top; width:80px'>&nbsp;WF&nbsp;Title:</th>
                     <td style='vertical-align:top;'>
-                        <input onkeyup='app.updateWFTitle(this)' id='wf_title' name='wf_title'>
+                        <input onkeyup='app.updateWFTitle(this)' id='wf_title' name='wf_title'><br/>
                         <button style='font-size:.7em' onclick='app.askToStartNew()'>New</button>
                         <button style='font-size:.7em' onclick='app.askToSaveFlow()'>Save</button>
                         <button style='font-size:.7em' onclick='app.askToLoadFlow()'>Load</button>
@@ -76,7 +76,7 @@
                     <label><input id='item_not_completed_option' type='radio' checked onchange='app.updateItemComplete(this)' name='item_complete' value=''>Not completed</label>
                     <span id='locCompleteOptions'></span>
                 </td></tr>
-                <tr id='locCannotUncompleteMessage'><td colspan='2' style='color:brown'>One or more items depending on this are already completed.</td></tr>
+                <tr style='display:none' id='locCannotUncompleteMessage'><td colspan='2' style='color:brown'>One or more items depending on this are already completed.</td></tr>
             </table>
             <hr>
             </span>
@@ -180,6 +180,7 @@
             &nbsp; ... <button onclick='app.cancelAction();'>Cancel</button>
         </form>
         <form class='popForm' onsubmit='return false;' id='locConfirmAddItem' style='display:none'>
+            Name of new item: <input id='txtNewItemName' placeholder='New'><br/>
             Pick new item shape: <select id='selNewItemShape'>
                 <option value='box'>Box</option>
                 <option value='circle'>Circle</option>

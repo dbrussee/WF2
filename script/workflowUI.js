@@ -20,6 +20,7 @@ WFUI.drawCanvas = function(items) {
         //for (var cnum = 0; cnum < itm.blockedBy.length; cnum++) {
             var bby = itm.blockedBy[cnum];
             var bstep = WF.flow.items[cnum];
+            //if (bstep == undefined) continue;
             ctx.save();
             ctx.beginPath();
             ctx.moveTo(itm.x, itm.y);
@@ -101,10 +102,11 @@ WFUI.drawShapeStop = function(itm, draggingItem) {
     //ctx.lineWidth = 2;
     //ctx.strokeStyle = "red";
     WFUI.drawSidedShape(x, y, 8, r);
+    if (itm.completed) ctx.fillStyle = "firebrick";
     ctx.fill();
     ctx.stroke();
     ctx.restore();
-    WFUI.addTextToShape(itm, "bold 10pt Arial");  
+    WFUI.addTextToShape(itm, "bold 10pt Arial", (itm.completed ? "white" : "black"));  
 }
 WFUI.drawShapeCircle = function(itm, draggingItem) {
     var ctx = WFUI.ctx;
@@ -208,7 +210,7 @@ WFUI.setStyle = function(ctx, itm, draggingItem) {
             ctx.shadowColor = "yellow";
         }
         if (itm.completed) {
-            if (!itm.canChangeComplete()) ctx.setLineDash([3,3]);
+            //if (!itm.canChangeComplete()) ctx.setLineDash([3,3]);
             ctx.fillStyle = "palegreen";
         } else {
             ctx.fillStyle = itm.isBlocked() ? "silver" : "white";
@@ -216,10 +218,11 @@ WFUI.setStyle = function(ctx, itm, draggingItem) {
     }
 
 }
-WFUI.addTextToShape = function(itm, font) {
+WFUI.addTextToShape = function(itm, font, color) {
+    if (color == undefined) color = "black";
     if (font == undefined) font = "9pt Arial";
     //WFUI.addText(itm.title, itm.x, itm.y + 5, font);
-    WFUI.wrapText(itm.title, itm.x, itm.y, WFUI.shapeWidth - 6, "black", 10, "Arial");
+    WFUI.wrapText(itm.title, itm.x, itm.y, WFUI.shapeWidth - 6, color, 10, "Arial");
 }
 WFUI.wrapText = function(text, x, y, maxWidth, color, fontSize, fontFace){
     var words = text.split(' ');
