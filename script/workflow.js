@@ -182,7 +182,12 @@ function initWF() {
         } else {
             //app.toast("Clicked: " + e.detail.item.title);
         }
-        app.editItem();
+        if (WF.pickedItem == null) {
+            app.hideEditor();
+            app.cancelAction(true);
+        } else {
+            app.editItem();
+        }
     });
     WF.addEventListener("linkadded", function(e) {
         //WorkflowUI.drawConnector(e.detail.blockedByStep, e.detail.blockedStep);

@@ -53,7 +53,7 @@ table.form td {
 span.anchor:hover {
     color: green;
 }
-form.popForm {
+.popForm {
     background-color: gainsboro;
     padding: .5em;
     margin: .5em;

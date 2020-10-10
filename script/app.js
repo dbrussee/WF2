@@ -1,4 +1,11 @@
 window.app = {
+    colors: {
+        halo: "olivedrab",
+        doneFill: "lightcyan",
+        blockedFill: "snow",
+        activeFill: "gold",
+        dragFill: "khaki"
+    },
     pendingAction: null,
     editing: false,
     mode: "work" // or "design"
@@ -15,21 +22,12 @@ app.toggleMode = function(mode) {
     }
     document.getElementById("topForm").style.backgroundColor = (app.mode == "work" ? "gainsboro" : "transparent");
     document.getElementById("locModeName").innerHTML = app.mode;
-    app.cancelAction();
-    app.editItem();
-    /*
-    if (Object.keys(WF.flow.items).length == 0) {
-        app.askToLoadFlow();
+    if (WF.pickedItem == null) {
+        app.cancelAction(true);
     } else {
-        if (app.editing) {
-            app.editItem();
-        } else {
-            WF.pickedItem = WF.flow.items[Object.keys(WF.flow.items)[0]];
-            WF.drawCanvas();
-            WF.dispatchEvent("itempicked", {item:WF.pickedItem});
-        }
+        app.cancelAction(false);
+        app.editItem();
     }
-    */
 }
 app.toast = function(msg, isError) {
     if (isError == undefined) isError = false;
@@ -53,11 +51,13 @@ app.toast = function(msg, isError) {
 app.askToAddNewItem = function() {
     WF.pickedItem = null;
     WF.drawCanvas();
-    app.cancelAction();
     app.hideEditor();
+    app.cancelAction(false);
     app.pendingAction = {action:"addItem"};
     var sel = document.getElementById("selNewItemShape");
     sel.value = (app.isCollectionEmpty(WF.flow.items) ? "pill" : "box");
+    document.getElementById("txtNewItemName").value = "";
+
     document.getElementById("locConfirmAddItem").style.display = "";
 }
 app.confirmAddNewItem = function(x, y) {
@@ -77,21 +77,17 @@ app.editItem = function() {
     if (app.mode == "design") {
         document.getElementById("itemEditor").style.display = "none";
         if (app.isCollectionEmpty(WF.flow.items) || WF.pickedItem == null) {
-            document.getElementById("itemBlankEditor").style.display = "";
             document.getElementById("itemDetailEditor").style.display = "none";
         } else {
-            document.getElementById("itemBlankEditor").style.display = "none";
             document.getElementById("itemDetailEditor").style.display = "";
         }
     } else {
         if (app.isCollectionEmpty(WF.flow.items)) {
             document.getElementById("itemEditor").style.display = "none";
-            document.getElementById("itemBlankEditor").style.display = "none";
             app.editing = false;
-            app.askToLoadFlow();
+            //app.askToLoadFlow();
         } else {
             document.getElementById("itemEditor").style.display = "";
-            document.getElementById("itemBlankEditor").style.display = "none";
         }
         document.getElementById("itemDetailEditor").style.display = "none";
     }
@@ -246,7 +242,7 @@ app.setDoneCode = function() {
     WF.drawCanvas();
 }
 app.askToAddLink = function(type) {
-    app.cancelAction();
+    app.cancelAction(false);
     app.pendingAction = {action:"addLink", type:type};
     document.getElementById("locConfirmAddLink").style.display = "";
     var msg = "Add " + (type == "blocks" ? "blocking " : "blocked by ") + " link to ";
@@ -282,7 +278,7 @@ app.saveEditedLink = function() {
     //app.toast(rslt);
 }
 app.editLink = function(type,toItem) {
-    app.cancelAction(true);
+    app.cancelAction();
     var blockedItem = null;
     var blockingItem = null;
     toItem = WF.flow.items[toItem];
@@ -330,7 +326,7 @@ app.editLink = function(type,toItem) {
     }
 }
 app.askToRemoveLink = function(type, id) {
-    app.cancelAction();
+    app.cancelAction(false);
     app.pendingAction = {action:"removeLink", type:type, id:id};
     document.getElementById("locConfirmRemoveLink").style.display = "";
     var msg = "Remove " + (type == "blocks" ? "blocking " : "blocked by ") + " link to ";
@@ -383,7 +379,7 @@ app.confirmRemoveLink = function() {
     app.cancelAction();
 }
 app.askToStartNew = function() {
-    app.cancelAction();
+    app.cancelAction(false);
     document.getElementById("locConfirmStartNew").style.display = "";
 }
 app.confirmStartNew = function() {
@@ -399,7 +395,7 @@ app.confirmStartNew = function() {
     app.askToAddNewItem();
 }
 app.askToDeleteItem = function() {
-    app.cancelAction();
+    app.cancelAction(false);
     app.pendingAction = {action:"deleteItem"};
     document.getElementById("locConfirmDelete").style.display = "";
 }
@@ -420,7 +416,9 @@ app.confirmDeleteItem = function() {
     //    app.askToLoadFlow();
     //}
 }
-app.cancelAction = function(loadNewIfEmpty) {
+app.cancelAction = function(showInstructions) {
+    var forceInstructions = (showInstructions != undefined);
+    if (showInstructions == undefined) showInstructions = false;
     app.pendingAction = null;
     document.getElementById("locConfirmDelete").style.display = "none";
     document.getElementById("locConfirmRemoveLink").style.display = "none";
@@ -432,10 +430,21 @@ app.cancelAction = function(loadNewIfEmpty) {
     document.getElementById("locLoadLocal").style.display = "none";  
     document.getElementById("locSaveLocal").style.display = "none"; 
     document.getElementById("locConfirmStartNew").style.display = "none"; 
-    //if (loadNewIfEmpty == undefined || loadNewIfEmpty)
-    //if (Object.keys(WF.flow.items).length == 0) {
-    //    app.editItem();
-    //} 
+    document.getElementById("locInstructionsWorking").style.display = "none";
+    document.getElementById("locInstructionsDesign").style.display = "none";
+    var show = false;
+    if (forceInstructions && showInstructions) {
+        show = true;
+    } else if (!forceInstructions && WF.pickedItem == null) {
+        show = true;
+    }
+    if (show) {
+        if (app.mode == "work") {
+            document.getElementById("locInstructionsWorking").style.display = "";
+        } else {
+            document.getElementById("locInstructionsDesign").style.display = "";                    
+        }
+    }
 }
 app.updateWFTitle = function(el) {
     WF.flow.title = el.value;
@@ -472,12 +481,18 @@ app.updateItemComplete = function(el) {
     WF.drawCanvas();
 }
 app.askToSaveFlow = function() {
-    app.cancelAction();
+    WF.pickedItem = null;
+    WF.drawCanvas();
+    app.hideEditor();
+    app.cancelAction(false);
     document.getElementById("locSaveLocal").style.display = "";
     document.getElementById("locSaveToClipboard").value = JSON.stringify(WF.flow);
 }
 app.askToLoadFlow = function() {
-    app.cancelAction();
+    WF.pickedItem = null;
+    WF.drawCanvas();
+    app.hideEditor();
+    app.cancelAction(false);
     document.getElementById("locLoadLocal").style.display = "";
 }
 app.saveLocal = function(spot) {
@@ -516,14 +531,14 @@ app.loadFromTextbox = function() {
         }
         WF.popTransaction();
         app.toast("Loaded!");
-        app.cancelAction();
+        app.cancelAction(true);
     } catch {
         app.loadLocal(); // Restore what was there
         app.toast("Error loading contents of text area", true);
         WF.popTransaction(); // Probably failed after push transaction
     }
     document.getElementById("wf_title").value = WF.flow.title;
-    app.editItem();
+    //app.editItem();
 }
 app.loadLocal = function(spot) {
     var tag = "WF2_FLOW_" + spot;
@@ -556,19 +571,24 @@ app.loadLocal = function(spot) {
     } catch {
         WF.popTransaction(); // Probably failed after push transaction
         WF.pushTransaction();
-        WF.addItem(400, 200, "pill", "Start");
+        var itm1 = WF.addItem(260, 200, "pill", "Start");
+        var itm2 = WF.addItem(400, 200, "box", "Do Something");
+        itm2.addBlockedBy(itm1);
+        var itm3 = WF.addItem(540, 200, "pill", "End");
+        itm3.addBlockedBy(itm2);
+
         WF.popTransaction();
     }
     document.getElementById("wf_title").value = WF.flow.title;
     if (spot != undefined) app.toast("Loaded flow from local spot " + (spot + 1));
-    app.cancelAction();
+    app.cancelAction(true);
 
     if (app.isCollectionEmpty(WF.flow.items)) {
         if (app.mode == "work") {
             app.askToLoadFlow();
         }
     }
-    app.editItem();
+    //app.editItem();
 }
 app.setFutureItemsIncomplete = function(itm) {
     var calledWithItem = (!itm == undefined);
@@ -580,7 +600,7 @@ app.setFutureItemsIncomplete = function(itm) {
             if (bby.unblockIfAnyCompleted) {
                 for (var key2 in bby.blockedBy) {
                     var backone = WF.flow.items[key2];
-                    if (backone.id != bby.id) {
+                    if (backone.id != itm.id) {
                         if (backone.completed) {
                             okToCancel = false;
                             break;

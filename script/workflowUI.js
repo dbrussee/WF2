@@ -17,16 +17,8 @@ WFUI.drawCanvas = function(items) {
     for (var id in items) {
         var itm = WF.flow.items[id];
         for (var cnum in itm.blockedBy) {
-        //for (var cnum = 0; cnum < itm.blockedBy.length; cnum++) {
             var bby = itm.blockedBy[cnum];
             var bstep = WF.flow.items[cnum];
-            //if (bstep == undefined) continue;
-            ctx.save();
-            ctx.beginPath();
-            ctx.moveTo(itm.x, itm.y);
-            ctx.lineTo(bstep.x, bstep.y);
-            ctx.stroke();
-            ctx.restore();
 
             var txt = "";
             var foundDoneCode = false;
@@ -52,6 +44,16 @@ WFUI.drawCanvas = function(items) {
                     arrowDone = foundDoneCode;
                 }
             }
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(itm.x, itm.y);
+            ctx.lineTo(bstep.x, bstep.y);
+            ctx.strokeStyle = (arrowDone ? "blue" : "black");
+            ctx.lineWidth = (arrowDone ? 3 : 1);
+            ctx.stroke();
+            ctx.restore();
+
             WFUI.drawArrowAtEnd(itm.x, itm.y, bstep.x, bstep.y, txt, arrowDone);
         }
     }
@@ -199,21 +201,23 @@ WFUI.setStyle = function(ctx, itm, draggingItem) {
         itm = {completed:false, blockedBy:[]}
     }
     if (itm == draggingItem) {
+        ctx.lineWidth = 2;
         ctx.shadowOffsetX = 8;
         ctx.shadowOffsetY = 8;
         ctx.shadowBlur = 5;
         ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
-        ctx.fillStyle = "khaki";
+        ctx.fillStyle = app.colors.dragFill;
     } else {
         if (itm == WF.pickedItem) {
             ctx.shadowBlur = 25;
-            ctx.shadowColor = "yellow";
+            ctx.shadowColor = app.colors.halo;
         }
+        ctx.lineWidth = .5;
         if (itm.completed) {
             //if (!itm.canChangeComplete()) ctx.setLineDash([3,3]);
-            ctx.fillStyle = "palegreen";
+            ctx.fillStyle = app.colors.doneFill;
         } else {
-            ctx.fillStyle = itm.isBlocked() ? "silver" : "white";
+            ctx.fillStyle = itm.isBlocked() ? app.colors.blockedFill : app.colors.activeFill;
         }
     }
 
@@ -318,27 +322,30 @@ WFUI.drawArrowAtEnd = function(x1, y1, x2, y2, txt, completed) {
     ctx.lineTo(0, -awid/2);
     ctx.closePath();
     ctx.strokeStyle = "black";
-    ctx.lineWidth = 2;
+    ctx.lineWidth = (completed ? 3 : 2);
     ctx.stroke();
-    ctx.fillStyle = (completed ? "lightgreen" : "white");
+    ctx.fillStyle = (completed ? "lightskyblue" : "white");
     ctx.fill();
+    ctx.rotate(-angle);
 
     if (txt != "") {
         ctx.font = "9pt Arial";
         var metrics = ctx.measureText(txt);
         var txtx = -(metrics.width / 2);
         var txty = -awid;
-        ctx.rotate(-angle);
+        ctx.save();
         ctx.strokeStyle = "white";
         ctx.fillStyle = "white";
-        var bclr = "white";
+        var bclr = "rgba(255, 255, 255, .9)";
         var clr = "navy";
         if (txt == "??") {
             bclr = "red";
             clr = "yellow";
         }
         ctx.fillStyle = bclr;
-        ctx.fillRect(txtx - 2, txty + 2, metrics.width + 4, -13);
+        ctx.fillRect(txtx - 2, txty + 3, metrics.width + 4, -14);
+        ctx.restore();
+
         ctx.fillStyle = clr;
         ctx.fillText(txt, txtx, txty);
     }

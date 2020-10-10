@@ -64,9 +64,6 @@
                 </tr>
             </table>
             <hr>
-            <span id='itemBlankEditor' style='display:none'>
-                <button style='font-size:.7em' onclick='app.askToAddNewItem()'>Add Item</button>
-            </span>
             <span id='itemEditor' style='display:none'>
             <table class='form'>
                 <tr><th class='anchor' onclick='app.mode="design";app.editItem()'>Item&nbsp;Title:</th><td>
@@ -210,6 +207,26 @@
         </form>
         <div id='messageContainer'>
             <span id='locToastMessage'></span>
+        </div>
+        <div id='locInstructionsWorking' style='display:none; padding:.3em'>
+            You are in <b class='anchor' onclick='app.toggleMode()'>work</b> mode. 
+                To change modes at any time, click on the link
+                at the top right of this screen.
+            <p>In <b>work</b> mode, you can only set items as complete or incomplete. 
+                Click an item in the diagram and then select the status in
+                this area when the choices are displayed.
+            </p>
+        </div>
+        <div id='locInstructionsDesign' style='display:none; padding:.3em'>
+            You are in <b class='anchor' onclick='app.toggleMode()'>design</b> mode. 
+                To change modes at any time, click on the link
+                at the top right of this screen.
+            <p>In <b>design</b> mode, you edit the items in the workflow and move the items
+                around on the screen for a visually pleasing 'flow'.
+            </p>
+
+            <button onclick='app.askToAddNewItem()'>Add Item</button>
+
         </div>
 
     </div>
