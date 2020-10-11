@@ -504,7 +504,7 @@ app.saveLocal = function(spot) {
         tag = "WF2_FLOW_WORKING";
     }
     localStorage.setItem(tag, JSON.stringify(WF.flow));
-    //if (spot != undefined) app.toast("Saved flow to local spot " + (spot + 1));
+    if (spot != undefined) app.toast("Saved flow to local spot " + (spot + 1));
     app.cancelAction();
 }
 app.loadFromTextbox = function() {

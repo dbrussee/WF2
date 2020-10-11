@@ -12,6 +12,67 @@ var WF = {
     inTransaction: false,
     eventTarget: null
 }
+WF.handleMouseMove = function(event) {
+    if (app.mode == "work") return;
+    var can = WFUI.canvas;
+    if (WF.pickedItem == null) return; // Nothing picked... nothing to drag
+    if (WFUI.dragstart == null) return; // Still nothing to drag
+    if (WFUI.dragstart.item == null) {
+        // Just started dragging
+        WFUI.dragstart.item = WF.pickedItem;
+    }
+    WF.pickedItem.x = event.offsetX;
+    WF.pickedItem.y = event.offsetY;
+    WF.drawCanvas();
+}
+WF.handleMouseUp = function(event) {
+    var can = WFUI.canvas;
+    if (WFUI.dragstart != null) {
+        if (WFUI.dragstart.item != null) {
+            var newx = parseInt((WF.pickedItem.x + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
+            var newy = parseInt((WF.pickedItem.y + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
+            WF.pickedItem.x = newx;
+            WF.pickedItem.y = newy;
+            WFUI.dragstart.item = null;
+            WF.drawCanvas();
+        }
+        WFUI.dragstart = null;
+    }
+}
+WF.handleMouseDown = function(event) {
+    var can = WFUI.canvas;
+    // Inidicate where the drag started.
+    // NOTE: Dragging does not commence until movement is made
+    WFUI.dragstart = {
+        item:null //, 
+    };
+
+    var x = event.offsetX;
+    var y = event.offsetY;
+
+    var itm = WFUI.getItemUnderXY(x, y);
+    if (app.pendingAction != null) {
+        if (app.pendingAction.action == "addLink") {
+            app.confirmAddLink(itm);
+            return;
+        } else if (app.pendingAction.action == "addItem") {
+            if (itm == null) {
+                    var newx = parseInt((x + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
+                    var newy = parseInt((y + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
+                    app.confirmAddNewItem(newx, newy);
+                return;
+            } else {
+                app.toast("Add item action cancelled because you clicked on an item");
+                app.cancelAction();
+            }
+        }
+    }
+
+    var prev = WF.pickedItem;
+    WF.pickedItem = itm;
+    WF.drawCanvas();
+    WF.dispatchEvent("itempicked", {item:itm, prev:prev});
+}
 WF.pushTransaction = function() {
     WF.transactionLevel++;
     WF.inTransaction = true;
@@ -196,154 +257,28 @@ function initWF() {
         //WorkflowUI.drawCanvas(this);
     });
 
-
+    can.addEventListener("touchstart", function(event) {
+        WF.handleMouseDown(event)
+    });
     can.addEventListener("mousedown", function(event) {
-        var can = WFUI.canvas;
-        // Inidicate where the drag started.
-        // NOTE: Dragging does not commence until movement is made
-        WFUI.dragstart = {
-            item:null //, 
-        };
-
-        var x = event.offsetX;
-        var y = event.offsetY;
-
-        var itm = WFUI.getItemUnderXY(x, y);
-        if (app.pendingAction != null) {
-            if (app.pendingAction.action == "addLink") {
-                app.confirmAddLink(itm);
-                return;
-            } else if (app.pendingAction.action == "addItem") {
-                if (itm == null) {
-                        var newx = parseInt((x + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
-                        var newy = parseInt((y + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
-                        app.confirmAddNewItem(newx, newy);
-                    return;
-                } else {
-                    app.toast("Add item action cancelled because you clicked on an item");
-                    app.cancelAction();
-                }
-            }
-        }
-
-        var prev = WF.pickedItem;
-        WF.pickedItem = itm;
-        WF.drawCanvas();
-        WF.dispatchEvent("itempicked", {item:itm, prev:prev});
-/*
-        if (WorkflowUI.pickedSpot != null) {
-            WorkflowUI.clearPickedSpot();
-        }
-        WorkflowUI.pickedSpot = WorkflowUI.rowColForXY(x, y);
-        var step = WorkflowUI.stepUnderXY(page.wflow, x, y);
-        if (step != null) {
-            WorkflowUI.pickedSpot = null;
-            if (WorkflowUI.pickAction == null) {
-                page.wflow.flow.pickedStep = step;
-                WorkflowUI.highlightStep(can, step, true);
-                WorkflowUI.masterFlow.dispatchEvent("steppicked", {step:step});
-            } else {
-                var act = WorkflowUI.pickAction;
-                WorkflowUI.masterFlow.dispatchEvent("actioncompleted", {source:page.wflow.flow.pickedStep, step:step, action:act});
-                //WorkflowUI.pickAction = null;
-            }
-        } else {
-            //WorkflowUI.pickAction = null; // Reset any pending actions
-            if (WorkflowUI.pickAction != null) {
-                var act = WorkflowUI.pickAction;
-                WorkflowUI.pickAction = null;
-                WorkflowUI.masterFlow.dispatchEvent("actionaborted", {action:act});
-            }
-            page.wflow.flow.pickedStep = null;
-            if (event.button == 0) {
-                WorkflowUI.pickAction = null;
-                WorkflowUI.markPickedSpot();
-                WorkflowUI.masterFlow.dispatchEvent("emptyspotpicked", {spot:WorkflowUI.pickedSpot});
-            } else {
-                WorkflowUI.pickAction = null;
-                WorkflowUI.masterFlow.dispatchEvent("clear", {});
-            }
-        }
-*/
-        
+        WF.handleMouseDown(event);
+    });
+    can.addEventListener("touchend", function(event) {
+        WF.handleMouseUp(event);
     });
     can.addEventListener("mouseup", function(event) {
-        var can = WFUI.canvas;
-        if (WFUI.dragstart != null) {
-            if (WFUI.dragstart.item != null) {
-                var newx = parseInt((WF.pickedItem.x + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
-                var newy = parseInt((WF.pickedItem.y + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
-                WF.pickedItem.x = newx;
-                WF.pickedItem.y = newy;
-                WFUI.dragstart.item = null;
-                WF.drawCanvas();
-                //app.toast("Dropped " + WF.pickedItem.title);
-            }
-            WFUI.dragstart = null;
-        }
+        WF.handleMouseUp(event);
     });
     can.addEventListener("mouseout", function(event) {
         var can = WFUI.canvas;
         WFUI.dragstart = null;
         can.style.cursor = "default";
     });
+    can.addEventListener("touchmouve", function(event) {
+        WF.handleMouseMove(event);
+    })
     can.addEventListener("mousemove", function(event) {
-        if (app.mode == "work") return;
-        var can = WFUI.canvas;
-        if (WF.pickedItem == null) return; // Nothing picked... nothing to drag
-        if (WFUI.dragstart == null) return; // Still nothing to drag
-        if (WFUI.dragstart.item == null) {
-            // Just started dragging
-            WFUI.dragstart.item = WF.pickedItem;
-        }
-        WF.pickedItem.x = event.offsetX;
-        WF.pickedItem.y = event.offsetY;
-        WF.drawCanvas();
-
-        //app.toast("Dragging " + WF.pickedItem.title);
-/*
-        var moved = false;
-        if (moveX > (WorkflowUI.stepImageWidth + WorkflowUI.stepImageColumnGutter)) {
-            var pre = page.wflow.flow.pickedStep.location.col;
-            WorkflowUI.masterFlow.move(page.wflow.flow.pickedStep, "H", 1);
-            if (page.wflow.flow.pickedStep.location.col != pre) {
-                //debug("Moving step " + page.wflow.flow.pickedStep.title + " right");
-                WorkflowUI.dragstart.x = event.clientX;
-                moved = true;
-            }
-        }
-        if (moveX < ((WorkflowUI.stepImageWidth + WorkflowUI.stepImageColumnGutter) * -1)) {
-            var pre = page.wflow.flow.pickedStep.location.col;
-            WorkflowUI.masterFlow.move(page.wflow.flow.pickedStep, "H", -1);
-            if (page.wflow.flow.pickedStep.location.col != pre) {
-                //debug("Moving step " + page.wflow.flow.pickedStep.title + " left");
-                WorkflowUI.dragstart.x = event.clientX;
-                moved = true;
-            }
-        }
-        if (moveY > WorkflowUI.stepImageWidth + 20) {
-            var pre = page.wflow.flow.pickedStep.location.row;
-            WorkflowUI.masterFlow.move(page.wflow.flow.pickedStep, "V", 1);
-            if (page.wflow.flow.pickedStep.location.row != pre) {
-                //debug("Moving step " + page.wflow.flow.pickedStep.title + " down");
-                WorkflowUI.dragstart.y = event.clientY;
-                moved = true;
-            }
-        }
-        if (moveY < ((WorkflowUI.stepImageWidth + 20) * -1)) {
-            var pre = page.wflow.flow.pickedStep.location.row;
-            WorkflowUI.masterFlow.move(page.wflow.flow.pickedStep, "V", -1);
-            if (page.wflow.flow.pickedStep.location.row != pre) {
-                //debug("Moving step " + page.wflow.flow.pickedStep.title + " down");
-                WorkflowUI.dragstart.y = event.clientY;
-                moved = true;
-            }
-        }
-        if (moved) {
-            WorkflowUI.drawCanvas();
-            WorkflowUI.highlightStep(WorkflowUI.canvas, page.wflow.flow.pickedStep, true);
-        }
-*/
+        WF.handleMouseMove(event);
     });
     app.toggleMode("work");
 
