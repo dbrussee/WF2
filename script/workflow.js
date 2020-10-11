@@ -13,6 +13,7 @@ var WF = {
     eventTarget: null
 }
 WF.handleMouseMove = function(event) {
+    event.preventDefault();
     if (app.mode == "work") return;
     var can = WFUI.canvas;
     if (WF.pickedItem == null) return; // Nothing picked... nothing to drag
@@ -26,6 +27,7 @@ WF.handleMouseMove = function(event) {
     WF.drawCanvas();
 }
 WF.handleMouseUp = function(event) {
+    event.preventDefault();
     var can = WFUI.canvas;
     if (WFUI.dragstart != null) {
         if (WFUI.dragstart.item != null) {
@@ -40,6 +42,7 @@ WF.handleMouseUp = function(event) {
     }
 }
 WF.handleMouseDown = function(event) {
+    event.preventDefault();
     var can = WFUI.canvas;
     // Inidicate where the drag started.
     // NOTE: Dragging does not commence until movement is made
@@ -258,15 +261,19 @@ function initWF() {
     });
 
     can.addEventListener("touchstart", function(event) {
+        event.preventDefault();
         WF.handleMouseDown(event)
     });
     can.addEventListener("mousedown", function(event) {
+        event.preventDefault();
         WF.handleMouseDown(event);
     });
     can.addEventListener("touchend", function(event) {
+        event.preventDefault();
         WF.handleMouseUp(event);
     });
     can.addEventListener("mouseup", function(event) {
+        event.preventDefault();
         WF.handleMouseUp(event);
     });
     can.addEventListener("mouseout", function(event) {
@@ -275,9 +282,11 @@ function initWF() {
         can.style.cursor = "default";
     });
     can.addEventListener("touchmouve", function(event) {
+        event.preventDefault();
         WF.handleMouseMove(event);
     })
     can.addEventListener("mousemove", function(event) {
+        event.preventDefault();
         WF.handleMouseMove(event);
     });
     app.toggleMode("work");
