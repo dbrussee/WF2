@@ -227,7 +227,19 @@ app.setDoneCode = function() {
         }
     } else {
         if (newCode == "") {
+            // I the item was completed with this code, throw an error
+            if (WF.pickedItem.doneCode == act.code) {
+                app.toast("Done code '" + act.code + "' cannot be deleted because it is set as this items done code", true);
+                return;
+            }
             delete codes[act.code];
+            // Remove anywhere it was used
+            for (var id in WF.pickedItem.blockedBy) {
+                var link = WF.pickedItem.blockedBy[id];
+                if (link.allowCodes != null && link.allowCodes[act.code] != undefined) {
+                    delete link.allowCodes[act.code];
+                }
+            }
             app.editItem();
         } else {
             if (newCode == act.code) {
@@ -238,6 +250,19 @@ app.setDoneCode = function() {
             } else {
                 delete codes[act.code];
                 codes[newCode] = {code:newCode, value:newVal}
+                // Reploace old witth new everywhere it is referenced
+                for (var id in WF.pickedItem.blocks) {
+                    var blkitm = WF.flow.items[id];
+                    var link = blkitm.blockedBy[WF.pickedItem.id];
+                    if (link.allowCodes != null) {
+                        var curList = link.allowCodes.split(",");
+                        if (curList.indexOf(act.code) >= 0) {
+                            var newList = curList.filter(cod => cod != act.code);
+                            newList.push(newCode);
+                            link.allowCodes = newList.join(",");
+                        }
+                    }
+                }
                 app.editItem();
             }
         }
@@ -535,6 +560,7 @@ app.loadFromTextbox = function() {
         WF.popTransaction();
         app.toast("Loaded!");
         app.cancelAction(true);
+        app.repositionCanvas();
     } catch {
         app.loadLocal(); // Restore what was there
         app.toast("Error loading contents of text area", true);
@@ -591,7 +617,7 @@ app.loadLocal = function(spot) {
             app.askToLoadFlow();
         }
     }
-    //app.editItem();
+    app.repositionCanvas();
 }
 app.setFutureItemsIncomplete = function(itm) {
     var calledWithItem = (!itm == undefined);
@@ -623,7 +649,7 @@ app.setFutureItemsIncomplete = function(itm) {
     if (!calledWithItem && WF.pickedItem.completed) {
         // If the only item left does not have any blocks
         // then it can just be completed
-        if (app.isCollectionEmpty(WF.pickedItem.doneCodes)) {
+        if (app.collectionSize(WF.pickedItem.doneCodes) < 2) {
             // Simple complete true/false
             for (var bid in WF.pickedItem.blocks) {
                 var blk = WF.flow.items[bid];
@@ -655,6 +681,7 @@ app.setFutureItemsIncomplete = function(itm) {
             for (var id in WF.pickedItem.blocks) {
                 var blk = WF.flow.items[id];
                 var link = blk.blockedBy[WF.pickedItem.id];
+                if (link.allowCodes == null) continue;
                 var acodes = link.allowCodes.split(",");
                 if (acodes.indexOf(done) >= 0) {
                     if (app.isCollectionEmpty(blk.blocks)) {
@@ -684,6 +711,12 @@ app.setFutureItemsIncomplete = function(itm) {
         
         WF.drawCanvas();
     }
+}
+app.repositionCanvas = function() {
+    //var container = document.getElementById("canvasContainer");
+    //var can = WFUI.canvas;
+    //can.style.left = ((container.offsetWidth / 2) - (can.offsetWidth / 2)) + "px";
+    //can.offsetTop = "0px";
 }
 app.collectionItem = function(col, pos) {
     return Object.keys(col)[pos];

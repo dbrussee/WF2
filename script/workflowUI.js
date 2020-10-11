@@ -1,8 +1,8 @@
 var WFUI = {
     canvas: null,
     ctx: null,
-    shapeWidth: 80,
-    shapeHeight: 80,
+    shapeWidth: 90,
+    shapeHeight: 90,
     arrowRadius: 45,
     spacing: 10,
     arrowSize: {length:12, width:8},

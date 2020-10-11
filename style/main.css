@@ -13,16 +13,16 @@ body * {
 #canvasContainer {
     position: absolute;
     background-color: darkolivegreen;
-    top: 0; left: 0;
+    margin: 0 auto;
     height: 100vh;
     width: calc(100vw - 400px);
-    overflow: scroll;
+    overflow: auto;
     padding: .3em;
     text-align: center;
 }
 canvas {
     position: relative;
-    background-color: whitesmoke;
+    background-color: white;
     margin: .3em auto;
 }
 

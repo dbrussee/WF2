@@ -21,24 +21,6 @@
     <script>
         function init() {
             initWF();
-            /*
-            WF.pushTransaction();
-            var prev = WF.addItem(200, 200, "pill", "Start");
-            var itm = WF.addItem(320, 200, "box", "Work");
-            itm.addBlockedBy(prev);
-            prev = itm;
-            itm = WF.addItem(440, 200, "diamond", "Ok?");
-            itm.doneCodes['Y'] = {code:'Y',value:'Yes - Ok'}
-            itm.doneCodes['N'] = {code:'N',value:'Nope'}
-            itm.addBlockedBy(prev);
-            prev = itm;
-            itm = WF.addItem(560, 140, "pill", "Step 2");
-            itm.addBlockedBy(prev, "Y");
-            itm = WF.addItem(560, 260, "stop", "Stop");
-            itm.addBlockedBy(prev, "N");
-            //console.dir(WF.flow.items);
-            WF.popTransaction();
-            */
             app.loadLocal();
         }
     </script>
