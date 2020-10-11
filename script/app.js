@@ -625,13 +625,28 @@ app.setFutureItemsIncomplete = function(itm) {
         // then it can just be completed
         if (app.isCollectionEmpty(WF.pickedItem.doneCodes)) {
             // Simple complete true/false
-            //if (app.collectionSize(WF.pickedItem.blocks) == 1) {
             for (var bid in WF.pickedItem.blocks) {
-                //var bid = app.collectionItem(WF.pickedItem.blocks, 0);
                 var blk = WF.flow.items[bid];
                 if (app.isCollectionEmpty(blk.blocks)) {
-                    blk.doneCode = null;
-                    blk.completed = true;
+                    if (blk.unblockIfAnyCompleted) {
+                        // ANY is set, and we already know THIS one has
+                        // been completed, so we are ready to mark as complete
+                        blk.doneCode = null;
+                        blk.completed = true;
+                    } else {
+                        var alldone = true; // toggle if any are incomplete
+                        for (var backid in blk.blockedBy) {
+                            var back = WF.flow.items[backid];
+                            if (!back.completed) {
+                                alldone = false;
+                                break;
+                            }
+                        }
+                        if (alldone) {
+                            blk.doneCode = null;
+                            blk.completed = true;
+                        }
+                    }
                 }
             }
         } else {
@@ -643,8 +658,25 @@ app.setFutureItemsIncomplete = function(itm) {
                 var acodes = link.allowCodes.split(",");
                 if (acodes.indexOf(done) >= 0) {
                     if (app.isCollectionEmpty(blk.blocks)) {
-                        blk.doneCode = null;
-                        blk.completed = true;
+                        if (blk.unblockIfAnyCompleted) {
+                            // ANY is set, and we already know THIS one has
+                            // been completed, so we are ready to mark as complete
+                            blk.doneCode = null;
+                            blk.completed = true;
+                        } else {
+                            var alldone = true; // toggle if any are incomplete
+                            for (var backid in blk.blockedBy) {
+                                var back = WF.flow.items[backid];
+                                if (!back.completed) {
+                                    alldone = false;
+                                    break;
+                                }
+                            }
+                            if (alldone) {
+                                blk.doneCode = null;
+                                blk.completed = true;
+                            }
+                        }
                     }
                 }
             }
