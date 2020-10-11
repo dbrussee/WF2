@@ -262,33 +262,33 @@ function initWF() {
 
     can.addEventListener("touchstart", function(event) {
         event.preventDefault();
-        WF.handleMouseDown(event)
-    });
+        WF.handleMouseDown(event.touches[0])
+    }, false);
     can.addEventListener("mousedown", function(event) {
         event.preventDefault();
         WF.handleMouseDown(event);
-    });
+    }, false);
     can.addEventListener("touchend", function(event) {
         event.preventDefault();
-        WF.handleMouseUp(event);
-    });
+        WF.handleMouseUp(event.touches[0]);
+    }, false);
     can.addEventListener("mouseup", function(event) {
         event.preventDefault();
         WF.handleMouseUp(event);
-    });
+    }, false);
     can.addEventListener("mouseout", function(event) {
         var can = WFUI.canvas;
         WFUI.dragstart = null;
         can.style.cursor = "default";
-    });
+    }, false);
     can.addEventListener("touchmouve", function(event) {
         event.preventDefault();
-        WF.handleMouseMove(event);
-    })
+        WF.handleMouseMove(event.touches[0]);
+    }, false)
     can.addEventListener("mousemove", function(event) {
         event.preventDefault();
         WF.handleMouseMove(event);
-    });
+    }, false);
     app.toggleMode("work");
 
     
