@@ -49,7 +49,7 @@ WFUI.drawCanvas = function(items) {
             ctx.beginPath();
             ctx.moveTo(itm.x, itm.y);
             ctx.lineTo(bstep.x, bstep.y);
-            ctx.strokeStyle = (arrowDone ? "blue" : "black");
+            ctx.strokeStyle = (arrowDone ? app.colors.doneLine : app.colors.notDoneLine);
             ctx.lineWidth = (arrowDone ? 3 : 1);
             ctx.stroke();
             ctx.restore();
@@ -198,7 +198,7 @@ WFUI.drawShapeDiamond = function(itm, draggingItem) {
     WFUI.addTextToShape(itm);
 }
 WFUI.setStyle = function(ctx, itm, draggingItem) {
-    ctx.strokeStyle = "black";
+    //ctx.strokeStyle = "black";
     if (itm == undefined) {
         itm = {completed:false, blockedBy:[]}
     }
@@ -216,16 +216,17 @@ WFUI.setStyle = function(ctx, itm, draggingItem) {
         }
         ctx.lineWidth = .5;
         if (itm.completed) {
-            //if (!itm.canChangeComplete()) ctx.setLineDash([3,3]);
+            ctx.strokeStyle = app.colors.doneLine;
             ctx.fillStyle = app.colors.doneFill;
         } else {
+            ctx.strokeStyle = app.colors.notDoneLine;
             ctx.fillStyle = itm.isBlocked() ? app.colors.blockedFill : app.colors.activeFill;
         }
     }
 
 }
 WFUI.addTextToShape = function(itm, font, color) {
-    if (color == undefined) color = "black";
+    if (color == undefined) color = (itm.completed ? "black" : app.colors.notDoneLine);
     if (font == undefined) font = "9pt Arial";
     //WFUI.addText(itm.title, itm.x, itm.y + 5, font);
     WFUI.wrapText(itm.title, itm.x, itm.y, WFUI.shapeWidth - 6, color, 10, "Arial");
@@ -323,10 +324,10 @@ WFUI.drawArrowAtEnd = function(x1, y1, x2, y2, txt, completed) {
     ctx.lineTo(0, awid/2);
     ctx.lineTo(0, -awid/2);
     ctx.closePath();
-    ctx.strokeStyle = "black";
+    ctx.strokeStyle = (completed ? app.colors.doneLine : app.colors.notDoneLine);
     ctx.lineWidth = (completed ? 3 : 2);
     ctx.stroke();
-    ctx.fillStyle = (completed ? "lightskyblue" : "white");
+    ctx.fillStyle = (completed ? app.colors.doneLine : app.colors.blockedFill);
     ctx.fill();
     ctx.rotate(-angle);
 
@@ -334,7 +335,8 @@ WFUI.drawArrowAtEnd = function(x1, y1, x2, y2, txt, completed) {
         ctx.font = "9pt Arial";
         var metrics = ctx.measureText(txt);
         var txtx = -(metrics.width / 2);
-        var txty = -awid;
+        var txty = -awid + 5;
+        if (angle < 0) txty = 18;
         ctx.save();
         ctx.strokeStyle = "white";
         ctx.fillStyle = "white";
@@ -345,7 +347,7 @@ WFUI.drawArrowAtEnd = function(x1, y1, x2, y2, txt, completed) {
             clr = "yellow";
         }
         ctx.fillStyle = bclr;
-        ctx.fillRect(txtx - 2, txty + 3, metrics.width + 4, -14);
+        ctx.fillRect(txtx - 2, txty + 2, metrics.width + 4, -14);
         ctx.restore();
 
         ctx.fillStyle = clr;

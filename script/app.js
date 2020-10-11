@@ -1,6 +1,8 @@
 window.app = {
     colors: {
         halo: "olivedrab",
+        doneLine: "dodgerblue",
+        notDoneLine: "saddlebrown",
         doneFill: "lightcyan",
         pillDone: "lightgreen",
         blockedFill: "snow",
@@ -623,8 +625,9 @@ app.setFutureItemsIncomplete = function(itm) {
         // then it can just be completed
         if (app.isCollectionEmpty(WF.pickedItem.doneCodes)) {
             // Simple complete true/false
-            if (app.collectionSize(WF.pickedItem.blocks) == 1) {
-                var bid = app.collectionItem(WF.pickedItem.blocks, 0);
+            //if (app.collectionSize(WF.pickedItem.blocks) == 1) {
+            for (var bid in WF.pickedItem.blocks) {
+                //var bid = app.collectionItem(WF.pickedItem.blocks, 0);
                 var blk = WF.flow.items[bid];
                 if (app.isCollectionEmpty(blk.blocks)) {
                     blk.doneCode = null;
