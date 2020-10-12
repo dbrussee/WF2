@@ -108,7 +108,7 @@ WFUI.drawShapeStop = function(itm, draggingItem) {
     ctx.fill();
     ctx.stroke();
     ctx.restore();
-    WFUI.addTextToShape(itm, "bold 10pt Arial", (itm.completed ? "white" : "black"));  
+    WFUI.addTextToShape(itm, "bold 10pt Arial", (itm.completed ? "white" : app.colors.notDoneLine));  
 }
 WFUI.drawShapeCircle = function(itm, draggingItem) {
     var ctx = WFUI.ctx;
