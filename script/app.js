@@ -526,12 +526,15 @@ app.askToLoadFlow = function() {
     document.getElementById("locLoadFromClipboard").value = "";
 }
 app.saveLocal = function() {
+    if (WFUI.dragstart != null) return;
     var sel = document.getElementById("selLoadLocal");
     var slot = sel.value;
     app.localStorage.slots[slot] = WF.flow;
     app.localStorage.slot = slot;
-    localStorage.setItem("WF2_FLOWDATA", JSON.stringify(app.localStorage));
+    var string = JSON.stringify(app.localStorage);
+    localStorage.setItem("WF2_FLOWDATA", string);
     app.cancelAction();
+    console.log("Saved " + string.length + " bytes");
 }
 app.loadFromTextbox = function() {
     app.saveLocal();
