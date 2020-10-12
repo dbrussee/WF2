@@ -207,6 +207,18 @@ WF.drawCanvas = function() {
     WFUI.drawCanvas(WF.flow.items);
 }
 function initWF() {
+    var json = localStorage.getItem("WF2_FLOWDATA");
+    var sel = document.getElementById("selLoadLocal");
+    if (json != undefined) {
+        app.localStorage = JSON.parse(json);
+        for (var i = 0; i < 10; i++) {
+            var flow = app.localStorage.slots[i+1];
+            if (flow != null) {
+                sel.options[i].innerHTML = flow.title;
+            }
+        }
+    }
+    sel.value = app.localStorage.slot;
     var frm = document.getElementById("frmWF");
     frm.elements.namedItem("wf_title").value = WF.flow.title; 
 

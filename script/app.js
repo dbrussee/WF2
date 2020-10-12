@@ -9,6 +9,7 @@ window.app = {
         activeFill: "gold",
         dragFill: "khaki"
     },
+    localStorage: {slot:1, slots:[null,null,null,null,null,null,null,null,null,null,null]},
     pendingAction: null,
     editing: false,
     mode: "work" // or "design"
@@ -522,14 +523,14 @@ app.askToLoadFlow = function() {
     app.hideEditor();
     app.cancelAction(false);
     document.getElementById("locLoadLocal").style.display = "";
+    document.getElementById("locLoadFromClipboard").value = "";
 }
-app.saveLocal = function(spot) {
-    var tag = "WF2_FLOW_" + spot;
-    if (spot == undefined) {
-        tag = "WF2_FLOW_WORKING";
-    }
-    localStorage.setItem(tag, JSON.stringify(WF.flow));
-    if (spot != undefined) app.toast("Saved flow to local spot " + (spot + 1));
+app.saveLocal = function() {
+    var sel = document.getElementById("selLoadLocal");
+    var slot = sel.value;
+    app.localStorage.slots[slot] = WF.flow;
+    app.localStorage.slot = slot;
+    localStorage.setItem("WF2_FLOWDATA", JSON.stringify(app.localStorage));
     app.cancelAction();
 }
 app.loadFromTextbox = function() {
@@ -543,6 +544,8 @@ app.loadFromTextbox = function() {
     WF.pickedItem = null
     try {
         var tmpFlow = JSON.parse(json);
+        var sel = document.getElementById("selLoadLocal");
+        sel.options[sel.selectedIndex].innerHTML = tmpFlow.title;
         WF.pushTransaction();
         WF.flow.title = tmpFlow.title;
         for (var id in tmpFlow.items) {
@@ -569,19 +572,18 @@ app.loadFromTextbox = function() {
     document.getElementById("wf_title").value = WF.flow.title;
     //app.editItem();
 }
-app.loadLocal = function(spot) {
-    var tag = "WF2_FLOW_" + spot;
-    if (spot == undefined) {
-        tag = "WF2_FLOW_WORKING";
-    }
-    var json = localStorage.getItem(tag);
+app.loadLocal = function() {
+    var sel = document.getElementById("selLoadLocal");
+    var spot = parseInt(sel.value,10);
+    if (spot == "") return;
+    var tmpFlow = app.localStorage.slots[spot];
     WF.flow = {
         title: "Workflow",
         items: {}
     }
     WF.pickedItem = null;
     try {
-        var tmpFlow = JSON.parse(json);
+        tmpFlow.slot = spot;
         WF.pushTransaction();
         WF.flow.title = tmpFlow.title;
         for (var id in tmpFlow.items) {
@@ -609,7 +611,7 @@ app.loadLocal = function(spot) {
         WF.popTransaction();
     }
     document.getElementById("wf_title").value = WF.flow.title;
-    if (spot != undefined) app.toast("Loaded flow from local spot " + (spot + 1));
+    if (spot != undefined) app.toast("Loaded flow from local spot " + (spot));
     app.cancelAction(true);
 
     if (app.isCollectionEmpty(WF.flow.items)) {
@@ -729,4 +731,11 @@ app.isCollectionEmpty = function(col) {
 }
 app.isOneOf = function(val,opts) {
     return opts.split(",").indexOf(val) >= 0;
+}
+
+app.updateLocalStorage = function() {
+    localStorage.removeItem("WF2_FLOW_WORKING");
+    for (var i = 0; i < 10; i++) {
+        localStorage.removeItem("WF2_FLOW_" + i);
+    }
 }
