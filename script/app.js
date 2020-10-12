@@ -1,4 +1,5 @@
 window.app = {
+    debugStatus: true,
     colors: {
         halo: "olivedrab",
         doneLine: "dodgerblue",
@@ -13,6 +14,11 @@ window.app = {
     pendingAction: null,
     editing: false,
     mode: "work" // or "design"
+}
+app.debug = function(msg) {
+    if (app.debugStatus) {
+        console.log(msg);
+    }
 }
 app.toggleMode = function(mode) {
     if (mode == undefined) {
@@ -307,6 +313,7 @@ app.saveEditedLink = function() {
     //app.toast(rslt);
 }
 app.editLink = function(type,toItem) {
+    app.debug("Started edit link method");
     app.cancelAction();
     var blockedItem = null;
     var blockingItem = null;
@@ -352,6 +359,7 @@ app.editLink = function(type,toItem) {
         app.pendingAction = {action:"editLink", blocked:blockedItem, blocking:blockingItem};
         document.getElementById("locEditLink").style.display = "";
         document.getElementById("locEditLinkMessage").innerHTML = msg;
+        app.debug("Showing edit link dialog");
     }
 }
 app.askToRemoveLink = function(type, id) {
@@ -381,7 +389,7 @@ app.confirmAddLink = function(itm) {
             if (added) {
                 WF.drawCanvas();
                 app.editItem();
-                app.cancelAction(); 
+                //app.cancelAction(); 
                 if (hasDoneCodes) {
                     app.editLink(action, itm.id);
                 }
@@ -446,6 +454,7 @@ app.confirmDeleteItem = function() {
     //}
 }
 app.cancelAction = function(showInstructions) {
+    app.debug("Cancel Action (instructions: " + showInstructions + ")");
     var forceInstructions = (showInstructions != undefined);
     if (showInstructions == undefined) showInstructions = false;
     app.pendingAction = null;
@@ -533,7 +542,7 @@ app.saveLocal = function() {
     app.localStorage.slot = slot;
     var string = JSON.stringify(app.localStorage);
     localStorage.setItem("WF2_FLOWDATA", string);
-    app.cancelAction();
+    //app.cancelAction();
 }
 app.loadFromTextbox = function() {
     app.saveLocal();
@@ -613,7 +622,7 @@ app.loadLocal = function() {
         WF.popTransaction();
     }
     document.getElementById("wf_title").value = WF.flow.title;
-    if (spot != undefined) app.toast("Loaded flow from local spot " + (spot));
+    if (spot != undefined) app.toast("Loaded '" + WF.flow.title + "'");
     app.cancelAction(true);
 
     if (app.isCollectionEmpty(WF.flow.items)) {
