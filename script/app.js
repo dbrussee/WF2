@@ -534,7 +534,6 @@ app.saveLocal = function() {
     var string = JSON.stringify(app.localStorage);
     localStorage.setItem("WF2_FLOWDATA", string);
     app.cancelAction();
-    console.log("Saved " + string.length + " bytes");
 }
 app.loadFromTextbox = function() {
     app.saveLocal();
