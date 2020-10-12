@@ -1,5 +1,5 @@
 window.app = {
-    debugStatus: true,
+    debugStatus: false,
     colors: {
         halo: "olivedrab",
         doneLine: "dodgerblue",
@@ -19,6 +19,63 @@ app.debug = function(msg) {
     if (app.debugStatus) {
         console.log(msg);
     }
+}
+app.loadFromDroppedFile = function(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    var files = event.target.files || event.dataTransfer.files;
+
+    // process all File objects
+    var f = files[0]; // Should only be one
+    if (f == undefined) {
+        app.toast("Invalid item dropped", true);
+        return;
+    }
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        //Output(
+        //	"<p><strong>" + file.name + ":</strong></p><pre>" + 
+        //	e.target.result.replace(/</g, "&lt;").replace(/>/g, "&gt;") +
+        //	"</pre>"
+        //);
+        if (e.target.result.substr(0,1) == "{") {
+            var tbox = document.getElementById("locLoadFromClipboard");
+            tbox.value = e.target.result;
+            app.toast("Dropped file '" + f.name + "'");
+        } else {
+            app.toast("This does not appear to be a .flow file", true);
+        }
+    }
+    reader.readAsText(f);        
+}
+app.blockWindowDrop = function(event) {
+    event.stopPropagation();
+	event.preventDefault();
+}
+app.downloadFile = function() {
+    var json = JSON.stringify(WF.flow);
+    var blob = new Blob([json], {type: 'text/plain'});
+    if (app.URLLink != null) {
+        window.URL.revokeObjectURL(app.URLLink);
+        delete app.URLLink;
+    }
+
+    // Get rid of any prior link
+    var a = document.getElementById("TEMPORARY_WF_FILE_DOWNLOAD_LINK");
+    if (a != null) {
+        document.body.removeChild(a);
+    }
+
+    app.URLLink = window.URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.id = "TEMPORARY_WF_FILE_DOWNLOAD_LINK";
+    a.style.display = "none"; // Hide it
+    a.setAttribute("download", WF.flow.title + ".flow"); // Set default file name
+    a.href = app.URLLink;
+
+    document.body.appendChild(a);
+    a.click();
+
 }
 app.toggleMode = function(mode) {
     if (mode == undefined) {
@@ -415,6 +472,11 @@ app.confirmRemoveLink = function() {
     app.editItem();
     app.cancelAction();
 }
+app.fileDialog = function() {
+    app.cancelAction(false);
+    document.getElementById("selSlotList").value = app.localStorage.slot;
+    document.getElementById("locFileDialog").style.display = "";
+}
 app.askToStartNew = function() {
     app.cancelAction(false);
     document.getElementById("locConfirmStartNew").style.display = "";
@@ -470,6 +532,7 @@ app.cancelAction = function(showInstructions) {
     document.getElementById("locConfirmStartNew").style.display = "none"; 
     document.getElementById("locInstructionsWorking").style.display = "none";
     document.getElementById("locInstructionsDesign").style.display = "none";
+    document.getElementById("locFileDialog").style.display = "none";
     var show = false;
     if (forceInstructions && showInstructions) {
         show = true;
