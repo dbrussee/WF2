@@ -35,9 +35,10 @@ WF.handleMouseUp = function(event) {
             WF.pickedItem.x = newx;
             WF.pickedItem.y = newy;
             WFUI.dragstart.item = null;
+            WF.drawCanvas();
         }
         WFUI.dragstart = null;
-        WF.drawCanvas();
+        app.saveLocal();
     }
 }
 WF.handleMouseDown = function(event) {
