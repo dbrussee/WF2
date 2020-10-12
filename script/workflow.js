@@ -208,14 +208,20 @@ WF.drawCanvas = function() {
     WFUI.drawCanvas(WF.flow.items);
 }
 function initWF() {
+    var filedrag = document.getElementById("locLoadFromClipboard");
+    filedrag.addEventListener("drop", app.loadFromDroppedFile, false);
+    document.addEventListener("drop", app.blockWindowDrop, false);
+
     var json = localStorage.getItem("WF2_FLOWDATA");
     var sel = document.getElementById("selLoadLocal");
+    var sel2 = document.getElementById("selSlotList");
     if (json != undefined) {
         app.localStorage = JSON.parse(json);
         for (var i = 0; i < 10; i++) {
             var flow = app.localStorage.slots[i+1];
             if (flow != null) {
                 sel.options[i].innerHTML = flow.title;
+                sel2.options[i].innerHTML = flow.title;
             }
         }
     }
