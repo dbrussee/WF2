@@ -472,11 +472,6 @@ app.confirmRemoveLink = function() {
     app.editItem();
     app.cancelAction();
 }
-app.fileDialog = function() {
-    app.cancelAction(false);
-    document.getElementById("selSlotList").value = app.localStorage.slot;
-    document.getElementById("locFileDialog").style.display = "";
-}
 app.askToStartNew = function() {
     app.cancelAction(false);
     document.getElementById("locConfirmStartNew").style.display = "";
@@ -532,7 +527,6 @@ app.cancelAction = function(showInstructions) {
     document.getElementById("locConfirmStartNew").style.display = "none"; 
     document.getElementById("locInstructionsWorking").style.display = "none";
     document.getElementById("locInstructionsDesign").style.display = "none";
-    document.getElementById("locFileDialog").style.display = "none";
     var show = false;
     if (forceInstructions && showInstructions) {
         show = true;

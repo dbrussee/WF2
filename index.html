@@ -36,7 +36,6 @@
                 <tr><th style='vertical-align:top; width:38px'>&nbsp;Title:</th>
                     <td style='vertical-align:top;'>
                         <input style='width:220px;' onkeyup='app.updateWFTitle(this)' id='wf_title' name='wf_title'>
-                        <!--<button onclick='app.fileDialog()'>...</button><br/>-->
                         <button onclick='app.askToLoadFlow()'>&hellip;</button>
                     </td>
                 </tr>
@@ -101,26 +100,6 @@
             </table>
             <hr>
         </span>
-        </form>
-        <form class='popForm' onsubmit='return false;' id='locFileDialog' style='display:none'>
-            Select from the list to load that flow...<br/>
-            <select style='width:100%' id='selSlotList''>
-                <option value='1'>1.</option>
-                <option value='2'>2.</option>
-                <option value='3'>3.</option>
-                <option value='4'>4.</option>
-                <option value='5'>5.</option>
-                <option value='6'>6.</option>
-                <option value='7'>7.</option>
-                <option value='8'>8.</option>
-                <option value='9'>9.</option>
-                <option value='10'>10.</option>
-            </select> 
-            <br/>
-            <br/>Drag a .flow file into the box below or paste the contents from another browser:<br/>
-            <textarea id='locLoadFromClipboard2' style='font-size:4pt;width:100%;height:20em;'></textarea><br/>
-            &nbsp; ... <button onclick='app.loadFromTextbox()'>Load from textbox</button>
-            or <button onclick='app.cancelAction()'>Cancel</button>
         </form>
         <form class='popForm' onsubmit='return false;' id='locSaveLocal' style='display:none'>
             Copy from the box below to send to another user:<br/>
