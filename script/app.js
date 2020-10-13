@@ -644,7 +644,7 @@ app.loadFromTextbox = function() {
         app.toast("Loaded!");
         app.cancelAction(true);
         app.repositionCanvas();
-    } catch {
+    } catch(err) {
         app.loadLocal(); // Restore what was there
         app.toast("Error loading contents of text area", true);
         WF.popTransaction(); // Probably failed after push transaction
@@ -679,7 +679,7 @@ app.loadLocal = function() {
             itm.blocks = tmpItm.blocks;
         }
         WF.popTransaction();
-    } catch {
+    } catch(err) {
         WF.popTransaction(); // Probably failed after push transaction
         WF.pushTransaction();
         var itm1 = WF.addItem(260, 200, "pill", "Start");
