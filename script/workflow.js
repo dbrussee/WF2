@@ -220,7 +220,7 @@ function initWF() {
         for (var i = 0; i < 10; i++) {
             var flow = app.localStorage.slots[i+1];
             if (flow != null) {
-                sel.options[i].innerHTML = flow.title;
+                sel.options[i].innerHTML = (i + 1) + ". " + flow.title;
                 sel2.options[i].innerHTML = flow.title;
             }
         }
