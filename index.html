@@ -33,13 +33,11 @@
         </div>
         <form id='frmWF' style='width:100%' onsubmit='return false;'>
             <table id='topForm' class='form' style='width:360px; margin:0 auto;'>
-                <tr><th style='vertical-align:top; width:45px'>&nbsp;Title:</th>
+                <tr><th style='vertical-align:top; width:38px'>&nbsp;Title:</th>
                     <td style='vertical-align:top;'>
-                        <input style='width:230px;' onkeyup='app.updateWFTitle(this)' id='wf_title' name='wf_title'>
-                        <button onclick='app.fileDialog()'>...</button><br/>
-                        <button style='font-size:.7em' onclick='app.askToStartNew()'>New</button>
-                        <button style='font-size:.7em' onclick='app.askToSaveFlow()'>Save</button>
-                        <button style='font-size:.7em' onclick='app.askToLoadFlow()'>Load</button>
+                        <input style='width:220px;' onkeyup='app.updateWFTitle(this)' id='wf_title' name='wf_title'>
+                        <!--<button onclick='app.fileDialog()'>...</button><br/>-->
+                        <button onclick='app.askToLoadFlow()'>&hellip;</button>
                     </td>
                 </tr>
             </table>
@@ -120,7 +118,7 @@
             </select> 
             <br/>
             <br/>Drag a .flow file into the box below or paste the contents from another browser:<br/>
-            <textarea id='locLoadFromClipboard' style='font-size:4pt;width:100%;height:20em;'></textarea><br/>
+            <textarea id='locLoadFromClipboard2' style='font-size:4pt;width:100%;height:20em;'></textarea><br/>
             &nbsp; ... <button onclick='app.loadFromTextbox()'>Load from textbox</button>
             or <button onclick='app.cancelAction()'>Cancel</button>
         </form>
@@ -131,7 +129,7 @@
             &nbsp; ... <button onclick='app.cancelAction()'>Cancel</button>
         </form>
         <form class='popForm' onsubmit='return false;' id='locLoadLocal' style='display:none'>
-            Select from the list to load that flow...<br/>
+            Select from the list to load it...<br/>
             <select style='width:100%' id='selLoadLocal' onchange='app.loadLocal()'>
                 <option value='1'>1.</option>
                 <option value='2'>2.</option>
@@ -147,7 +145,9 @@
             <br/>
             <br/>Drag a .flow file into the box below or paste the contents from another browser:<br/>
             <textarea id='locLoadFromClipboard' style='font-size:4pt;width:100%;height:20em;'></textarea><br/>
-            &nbsp; ... <button onclick='app.loadFromTextbox()'>Load from textbox</button>
+            &nbsp; ... <button onclick='app.loadFromTextbox()'>Load</button>,
+            <button onclick='app.askToStartNew()'>Clear&hellip;</button>,
+            <button onclick='app.askToSaveFlow()'>Save&hellip;</button>
             or <button onclick='app.cancelAction()'>Cancel</button>
         </form>
         <form class='popForm' onsubmit='return false;' id='locConfirmDelete' style='display:none'>
