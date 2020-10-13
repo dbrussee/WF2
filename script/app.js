@@ -77,6 +77,17 @@ app.downloadFile = function() {
     a.click();
 
 }
+app.resetFlow = function() {
+    var needToEdit = WF.pickedItem.completed;
+    WF.pushTransaction();
+    for (var key in WF.flow.items) {
+        var itm = WF.flow.items[key];
+        itm.doneCode = null;
+        itm.completed = false;
+    }
+    WF.popTransaction();
+    if (needToEdit) app.editItem();
+}
 app.toggleMode = function(mode) {
     if (mode == undefined) {
         if (app.mode == "work") {
