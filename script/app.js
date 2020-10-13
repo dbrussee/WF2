@@ -78,7 +78,8 @@ app.downloadFile = function() {
 
 }
 app.resetFlow = function() {
-    var needToEdit = WF.pickedItem.completed;
+    var needToEdit = false;
+    if (WF.pickedItem != null) needToEdit = WF.pickedItem.completed;
     WF.pushTransaction();
     for (var key in WF.flow.items) {
         var itm = WF.flow.items[key];
