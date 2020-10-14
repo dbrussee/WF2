@@ -52,6 +52,9 @@ WF.handleMouseDown = function(event) {
     var x = event.clientX - can.offsetLeft;
     var y = event.clientY - can.offsetTop;
 
+    var frm = document.getElementById("BW_WF2_POPUPFORM");
+    if (frm != undefined) document.body.removeChild(frm);
+
     var itm = WFUI.getItemUnderXY(x, y);
     if (app.pendingAction != null) {
         if (app.pendingAction.action == "addLink") {
