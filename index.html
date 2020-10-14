@@ -15,6 +15,41 @@
             initWF();
             app.loadLocal();
         }
+               function testInput() {
+            var frm = document.getElementById("BW_WF2_POPUPFORM");
+            var tbox = frm.elements["TEST_INPUT"];
+            app.updateWFTitle(tbox);
+
+            document.body.removeChild(frm);
+        }
+        function test() {
+            var frm = document.getElementById("BW_WF2_POPUPFORM");
+            if (frm != undefined) document.body.removeChild(frm);
+            frm = document.createElement("form");
+            var canBB = WFUI.canvas.getBoundingClientRect();
+            frm.style.position = "absolute";
+            frm.style.top = (canBB.top + 10) + "px";
+            frm.style.left = canBB.left + "px";
+            frm.onsubmit = function(event) {
+                event.preventDefault;
+                testInput();
+            }
+            frm.id = "BW_WF2_POPUPFORM";
+            var tbox = document.createElement("input");
+            tbox.style.width = WFUI.canvas.width + "px";
+            tbox.style.fontSize = "20pt";
+            tbox.style.textAlign = "center";
+            tbox.value = WF.flow.title;
+            tbox.select(); tbox.focus();
+            tbox.name = "TEST_INPUT";
+            frm.appendChild(tbox);
+            var btn = document.createElement("button");
+            btn.onclick = testInput;
+            btn.innerHTML = "Save";
+            frm.appendChild(btn);
+
+            document.body.appendChild(frm);
+        }
     </script>
 </head>
 <body onload='init()'>
@@ -22,7 +57,7 @@
     <div id='canvasContainer'>
 
     </div>
-    <div id='formContainer'>
+    <div id='formContainer' ondblclick='test()>
         <div style='position:absolute;top:.2em;right:.5em;text-align:right;'>
         <span class='anchor' style='font-weight:bold' onclick='app.toggleMode()' id='locModeName'>work</span>
         </div>
