@@ -219,6 +219,12 @@ app.editItem = function() {
         doneCodeCount++;
     }
     if (doneCodeCount == 0) {
+        var tr = tbl.insertRow();
+        var td = tr.insertCell();
+        td.colSpan = "2";
+        td.innerHTML = "No done codes defined";
+        td.style.color = "grey";
+
         var chk = (itm.completed ? " checked" : "");
         var dis = "";
         if (itm.completed) {
@@ -491,7 +497,7 @@ app.askToStartNew = function() {
 app.confirmStartNew = function() {
     WF.pickedItem = null;
     WF.flow = {
-        title: "Workflow",
+        title: "",
         items: {}
     }
     app.cancelAction();
@@ -607,6 +613,9 @@ app.saveLocal = function() {
     if (WFUI.dragstart != null) return;
     var sel = document.getElementById("selLoadLocal");
     var slot = sel.value;
+    var optnum = sel.selectedIndex;
+    var opt = sel.options[optnum];
+    opt.innerHTML = (optnum+1) + ". " + WF.flow.title;
     app.localStorage.slots[slot] = WF.flow;
     app.localStorage.slot = slot;
     var string = JSON.stringify(app.localStorage);
@@ -692,7 +701,7 @@ app.loadLocal = function() {
     }
     document.getElementById("wf_title").value = WF.flow.title;
     if (spot != undefined) app.toast("Loaded '" + WF.flow.title + "'");
-    app.cancelAction(true);
+    //app.cancelAction(true);
 
     if (app.isCollectionEmpty(WF.flow.items)) {
         if (app.mode == "work") {

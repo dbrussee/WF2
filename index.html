@@ -73,11 +73,6 @@
                         <th>Value <button style='font-size:.7em;' onclick='app.editDoneCode()'>add</button></th>
                     </tr></table>
                 </td></tr>
-                <tr><th style='vertical-align:top'>Blocked&nbsp;till:</th><td style='vertical-align:top'>
-                    <label><input id='item_block_type_all' type='radio' checked onchange='app.updateBlockType(this)' name='item_block_type' value='all'>All</label>
-                    <label><input id='item_block_type_any' type='radio' onchange='app.updateBlockType(this)' name='item_block_type' value='any'>Any</label>
-                    &nbsp;'Blocked Bys' are done
-                </td></tr>
                 <tr><td colspan='2'>
                     <table style='width:400px'>
                         <td style='vertical-align:top;'>
@@ -86,11 +81,17 @@
                             <span id='locBlockedByList'></span>
                         </td>
                         <td style='width:50%; vertical-align:top;'>
-                            <span style='color:navy;'>Blocks...</span>
+                            <span style='color:navy;'>Blocking...</span>
                             <button style='font-size:.7em;' onclick='app.askToAddLink("blocks")'>Add</button>
                             <span id='locBlocksList'></span>
                         </td>
                     </table>
+                </td></tr>
+                <tr><td colspan='2'><hr></td></tr>
+                <tr><th style='vertical-align:top'>Blocked&nbsp;till:</th><td style='vertical-align:top'>
+                    <label><input id='item_block_type_any' type='radio' onchange='app.updateBlockType(this)' name='item_block_type' value='any'>Any</label>
+                    <label><input id='item_block_type_all' type='radio' checked onchange='app.updateBlockType(this)' name='item_block_type' value='all'>All</label>
+                    &nbsp;'Blocked Bys' are done
                 </td></tr>
             </table>
             <hr>
