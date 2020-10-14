@@ -99,7 +99,7 @@ app.toggleMode = function(mode) {
     } else {
         app.mode = mode;
     }
-    document.getElementById("topForm").style.backgroundColor = (app.mode == "work" ? "gainsboro" : "transparent");
+    //document.getElementById("topForm").style.backgroundColor = (app.mode == "work" ? "gainsboro" : "transparent");
     document.getElementById("locModeName").innerHTML = app.mode;
     if (WF.pickedItem == null) {
         app.cancelAction(true);
