@@ -40,15 +40,14 @@
             tbox.style.fontSize = "20pt";
             tbox.style.textAlign = "center";
             tbox.value = WF.flow.title;
-            tbox.select(); tbox.focus();
             tbox.name = "TEST_INPUT";
             frm.appendChild(tbox);
             var btn = document.createElement("button");
             btn.onclick = testInput;
             btn.innerHTML = "Save";
             frm.appendChild(btn);
-
             document.body.appendChild(frm);
+            tbox.select(); tbox.focus();
         }
     </script>
 </head>
