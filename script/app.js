@@ -561,6 +561,13 @@ app.cancelAction = function(showInstructions) {
 }
 app.updateWFTitle = function(el) {
     WF.flow.title = el.value;
+    var tbox = document.getElementById("wf_title");
+    if (tbox.id != el.id) {
+        tbox.value = el.value;
+    }
+    var sel = document.getElementById("selLoadLocal");
+    sel.options[sel.selectedIndex].innerHTML = el.title;
+
     WF.drawCanvas();
 }
 app.updateItemTitle = function(el) {
