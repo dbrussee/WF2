@@ -835,3 +835,42 @@ app.updateLocalStorage = function() {
         localStorage.removeItem("WF2_FLOW_" + i);
     }
 }
+
+app.popupSaveWFTitle = function() {
+    var frm = document.getElementById("BW_WF2_POPUPFORM");
+    var tbox = frm.elements["TEST_INPUT"];
+    app.updateWFTitle(tbox);
+    app.closePopup();
+}
+app.popupWFTitle = function() {
+    var frm = document.getElementById("BW_WF2_POPUPFORM");
+    if (frm != undefined) document.body.removeChild(frm);
+    frm = document.createElement("form");
+    var canBB = WFUI.canvas.getBoundingClientRect();
+    frm.style.position = "absolute";
+    frm.style.top = (canBB.top + 10) + "px";
+    frm.style.left = canBB.left + "px";
+    frm.onsubmit = function(event) {
+        event.preventDefault;
+        testInput();
+    }
+    frm.id = "BW_WF2_POPUPFORM";
+    var tbox = document.createElement("input");
+    tbox.style.width = WFUI.canvas.width + "px";
+    tbox.style.fontSize = "20pt";
+    tbox.style.textAlign = "center";
+    //tbox.style.background = "transparent";
+    tbox.value = WF.flow.title;
+    tbox.name = "TEST_INPUT";
+    frm.appendChild(tbox);
+    var btn = document.createElement("button");
+    btn.onclick = app.popupSaveWFTitle;
+    btn.innerHTML = "Save";
+    frm.appendChild(btn);
+    document.body.appendChild(frm);
+    tbox.select(); tbox.focus();
+}
+app.closePopup = function() {
+    var frm = document.getElementById("BW_WF2_POPUPFORM");
+    if (frm != undefined) document.body.removeChild(frm);
+}

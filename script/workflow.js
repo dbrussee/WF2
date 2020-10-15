@@ -48,12 +48,13 @@ WF.handleMouseDown = function(event) {
     WFUI.dragstart = {
         item:null //, 
     };
-
     var x = event.clientX - can.offsetLeft;
     var y = event.clientY - can.offsetTop;
 
-    var frm = document.getElementById("BW_WF2_POPUPFORM");
-    if (frm != undefined) document.body.removeChild(frm);
+    if (y < 45) {
+        app.popupWFTitle();
+        return;
+    }
 
     var itm = WFUI.getItemUnderXY(x, y);
     if (app.pendingAction != null) {
@@ -77,6 +78,7 @@ WF.handleMouseDown = function(event) {
     WF.pickedItem = itm;
     WF.drawCanvas();
     WF.dispatchEvent("itempicked", {item:itm, prev:prev});
+    app.closePopup();
 }
 WF.pushTransaction = function() {
     WF.transactionLevel++;
@@ -283,6 +285,38 @@ function initWF() {
         event.preventDefault();
         WF.handleMouseDown(event.touches[0])
     }, false);
+    can.addEventListener("dblclick", function(event) {
+        //WF.handleMouseDown(event);
+        //WFUI.dragstart.item = null;
+        if (WF.pickedItem) {
+            if (app.mode == "work") {
+                if (WF.pickedItem.isBlocked()) return;
+                var itm = WF.pickedItem;
+                var codes = app.collectionSize(itm.doneCodes);
+                if (codes == 0) {
+                    itm.completed = !itm.completed;
+                    app.setFutureItemsIncomplete();
+                    app.editItem();
+                    WF.drawCanvas();
+                } else if (codes == 1) {
+                    if (itm.completed) {
+                        itm.completed = false;
+                        itm.doneCode = null;
+                    } else {
+                        itm.completed = true;
+                        itm.doneCode = app.collectionItem(itm.doneCodes, 0);
+                    }
+                    app.setFutureItemsIncomplete();
+                    app.editItem();
+                    WF.drawCanvas();
+                } else {
+                    app.toast("Pick from the complete options above");
+                }    
+            }
+        } else {
+            app.toggleMode();
+        }
+    }, false);
     can.addEventListener("mousedown", function(event) {
         event.preventDefault();
         WF.handleMouseDown(event);
@@ -310,5 +344,8 @@ function initWF() {
     }, false);
     app.toggleMode("work");
 
+    document.getElementById("formContainer").addEventListener("click", function(event) {
+        app.closePopup();
+    });
     
 }

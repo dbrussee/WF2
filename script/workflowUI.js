@@ -11,7 +11,13 @@ var WFUI = {
 WFUI.drawCanvas = function(items) {
     WFUI.clearCanvas();
 
-    WFUI.addText(WF.flow.title, 400, 40, "20pt Arial");
+    var title = WF.flow.title;
+    var clr = "darkblue";
+    if (title == "") {
+        title = "<untitled>";
+        clr = "grey";
+    }
+    WFUI.addText(title, 400, 40, "20pt Arial", clr);
 
     var ctx = WFUI.ctx;
     for (var id in items) {

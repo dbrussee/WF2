@@ -15,40 +15,6 @@
             initWF();
             app.loadLocal();
         }
-        function testInput() {
-            var frm = document.getElementById("BW_WF2_POPUPFORM");
-            var tbox = frm.elements["TEST_INPUT"];
-            app.updateWFTitle(tbox);
-
-            document.body.removeChild(frm);
-        }
-        function test() {
-            var frm = document.getElementById("BW_WF2_POPUPFORM");
-            if (frm != undefined) document.body.removeChild(frm);
-            frm = document.createElement("form");
-            var canBB = WFUI.canvas.getBoundingClientRect();
-            frm.style.position = "absolute";
-            frm.style.top = (canBB.top + 10) + "px";
-            frm.style.left = canBB.left + "px";
-            frm.onsubmit = function(event) {
-                event.preventDefault;
-                testInput();
-            }
-            frm.id = "BW_WF2_POPUPFORM";
-            var tbox = document.createElement("input");
-            tbox.style.width = WFUI.canvas.width + "px";
-            tbox.style.fontSize = "20pt";
-            tbox.style.textAlign = "center";
-            tbox.value = WF.flow.title;
-            tbox.name = "TEST_INPUT";
-            frm.appendChild(tbox);
-            var btn = document.createElement("button");
-            btn.onclick = testInput;
-            btn.innerHTML = "Save";
-            frm.appendChild(btn);
-            document.body.appendChild(frm);
-            tbox.select(); tbox.focus();
-        }
     </script>
 </head>
 <body onload='init()'>
@@ -56,7 +22,7 @@
     <div id='canvasContainer'>
 
     </div>
-    <div id='formContainer' ondblclick='test()'>
+    <div id='formContainer'>
         <div style='position:absolute;top:.2em;right:.5em;text-align:right;'>
         <span class='anchor' style='font-weight:bold' onclick='app.toggleMode()' id='locModeName'>work</span>
         </div>
@@ -64,7 +30,7 @@
             <table id='topForm' class='form' style='width:360px; margin:0 auto;'>
                 <tr><th ondblclick="app.resetFlow()" style='vertical-align:top; width:38px'>&nbsp;Title:</th>
                     <td style='vertical-align:top;'>
-                        <input style='width:220px;' onkeyup='app.updateWFTitle(this)' id='wf_title' name='wf_title'>
+                        <input style='width:220px;border:0; background:transparent' onkeyup='app.updateWFTitle(this)' id='wf_title' name='wf_title'>
                         <button onclick='app.askToLoadFlow()'>&hellip;</button>
                     </td>
                 </tr>
@@ -133,9 +99,11 @@
         </form>
         <form class='popForm' onsubmit='return false;' id='locSaveLocal' style='display:none'>
             Copy from the box below to send to another user:<br/>
-            <textarea id='locSaveToClipboard' readonly style='font-size:4pt;width:100%;height:20em;'></textarea>
-            &nbsp; ... <button onclick='app.downloadFile()'>Save to local file</button>
-            &nbsp; ... <button onclick='app.cancelAction()'>Cancel</button>
+            <textarea id='locSaveToClipboard' readonly style='font-size:5pt;width:100%;height:20em;'></textarea>
+            &nbsp; ... <button onclick='app.loadFromTextbox()'>Load</button>
+            <button onclick='app.askToStartNew()'>Clear&hellip;</button>
+            <button onclick='app.askToSaveFlow()'>Save&hellip;</button>
+            or <button onclick='app.cancelAction()'>Cancel</button>
         </form>
         <form class='popForm' onsubmit='return false;' id='locLoadLocal' style='display:none'>
             Select from the list to load it...<br/>
@@ -153,7 +121,7 @@
             </select> 
             <br/>
             <br/>Drag a .flow file into the box below or paste the contents from another browser:<br/>
-            <textarea id='locLoadFromClipboard' style='font-size:4pt;width:100%;height:20em;'></textarea><br/>
+            <textarea id='locLoadFromClipboard' style='font-size:5pt;width:100%;height:20em;'></textarea><br/>
             &nbsp; ... <button onclick='app.loadFromTextbox()'>Load</button>,
             <button onclick='app.askToStartNew()'>Clear&hellip;</button>,
             <button onclick='app.askToSaveFlow()'>Save&hellip;</button>
