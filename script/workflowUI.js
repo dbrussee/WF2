@@ -9,9 +9,10 @@ var WFUI = {
     textColor: "#191970"
 }
 WFUI.showInstructions = function() {
-    WFUI.addText("Better Way Workflow", 400, 80, "20pt Arial", WFUI.textColor);
+    WFUI.addText("Better Way Workflow", 400, 40, "20pt Arial", WFUI.textColor);
     var txt = "Use the 'Add Item' button to the right to add flow items to the page. ";
-    txt += "You may need to switch to Design mode first.";
+    txt += "You may need to switch to Design mode by clicking the link at the top right ";
+    txt += "of the page, or just by double-clicking the drawing area here.";
     WFUI.addText(txt, 400, 120, "12pt Arial", "black");
 }
 WFUI.drawCanvas = function(items) {
