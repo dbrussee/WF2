@@ -13,7 +13,7 @@ WFUI.showInstructions = function() {
     var txt = "Use the 'Add Item' button to the right to add flow items to the page. ";
     txt += "You may need to switch to Design mode by clicking the link at the top right ";
     txt += "of the page, or just by double-clicking the drawing area here.";
-    WFUI.addText(txt, 400, 120, "12pt Arial", "black");
+    WFUI.wrapText(txt, 400, 120, 650, "black", 12, "Arial");
     app.toggleMode("design");
 }
 WFUI.drawCanvas = function(items) {
