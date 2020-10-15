@@ -677,10 +677,7 @@ app.loadLocal = function() {
     var spot = parseInt(sel.value,10);
     if (spot == "") return;
     var tmpFlow = app.localStorage.slots[spot];
-    WF.flow = {
-        title: "Workflow",
-        items: {}
-    }
+    WF.flow = { title: "", items: {} }
     WF.pickedItem = null;
     try {
         tmpFlow.slot = spot;
