@@ -18,6 +18,7 @@ WFUI.drawCanvas = function(items) {
     WFUI.clearCanvas();
     if (WF.flow == null) {
         WFUI.showInstructions();
+        return;
     }
     var title = WF.flow.title;
     var clr = "darkblue";
