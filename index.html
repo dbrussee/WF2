@@ -19,6 +19,17 @@
 </head>
 <body onload='init()'>
 
+    <div id='locShiftPanel' style='font-size:.5em;position:absolute;bottom:10px;right:10px;z-index:10'>
+        <span style='cursor:nw-resize' onclick='app.shiftAll("UL")'>&nwarr;</span><span 
+        style='cursor:n-resize' onclick='app.shiftAll("U")'>&uarr;</span><span 
+        style='cursor:ne-resize' onclick='app.shiftAll("UR")'>&nearr;</span><br/><span 
+        style='cursor:w-resize' onclick='app.shiftAll("L")'>&larr;</span><span 
+        style='cursor:no-drop' onclick='app.shiftAll("")'>&nbsp;&nbsp;&nbsp;</span><span 
+        style='cursor:e-resize' onclick='app.shiftAll("R")'>&rarr;</span><br/><span 
+        style='cursor:sw-resize' onclick='app.shiftAll("DL")'>&swarr;</span><span 
+        style='cursor:s-resize' onclick='app.shiftAll("D")'>&darr;</span><span 
+        style='cursor:se-resize' onclick='app.shiftAll("DR")'>&searr;</span>
+    </div>
     <div id='canvasContainer'>
 
     </div>

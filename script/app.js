@@ -875,3 +875,35 @@ app.closePopup = function() {
     var frm = document.getElementById("BW_WF2_POPUPFORM");
     if (frm != undefined) document.body.removeChild(frm);
 }
+
+app.shiftAll = function (dirs) {
+    // If x and y are null then we are shifting everything
+    var off = WF.gridsize;
+    var xoff = 0;
+    var yoff = 0;
+    if (app.isOneOf(dirs, "UL,L,DL")) xoff = -off;
+    if (app.isOneOf(dirs, "UR,R,DR")) xoff = off;
+    if (app.isOneOf(dirs, "UL,U,UR")) yoff = -off;
+    if (app.isOneOf(dirs, "DL,D,DR")) yoff = off;
+    var canShift = true;
+    for (var id in WF.flow.items) {
+        var itm = WF.flow.items[id];
+        var test = itm.x + xoff;
+        if (test < 0 || test > WFUI.canvas.width) canShift = false;
+        if (canShift) {
+            test = itm.y + yoff;
+            if (test < 0 || test > WFUI.canvas.height) canShift = false;
+        }
+        if (!canShift) break;
+    }
+    if (canShift) {
+        for (var id in WF.flow.items) {
+            var itm = WF.flow.items[id];
+            itm.x += xoff;
+            itm.y += yoff;
+        }
+        WF.drawCanvas();
+    } else {
+        app.toast("Shifting would make items go off page. Shift cancelled.", true);
+    }
+}
