@@ -143,7 +143,7 @@ WFUI.drawShapeBox = function(itm, draggingItem) {
     var y = itm.y;
     var left = x - (WFUI.shapeWidth / 2);
     var w = WFUI.shapeWidth;
-    var h = WFUI.shapeWidth;
+    var h = WFUI.shapeHeight * 2 / 3;
     var top = y - (h / 2);
     var r = 4; // Corner radius
     ctx.save();
