@@ -623,7 +623,11 @@ app.saveLocal = function() {
     var optnum = sel.selectedIndex;
     var opt = sel.options[optnum];
     opt.innerHTML = (optnum+1) + ". " + WF.flow.title;
-    app.localStorage.slots[slot] = WF.flow;
+    if (WF.flow.items.length == 0) {
+        app.localStorage.slots[slot] = null;
+    } else {
+        app.localStorage.slots[slot] = WF.flow;
+    }
     app.localStorage.slot = slot;
     var string = JSON.stringify(app.localStorage);
     localStorage.setItem("WF2_FLOWDATA", string);
