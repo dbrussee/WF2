@@ -9,7 +9,7 @@ var WFUI = {
     textColor: "#191970"
 }
 WFUI.showInstructions = function() {
-    WFUI.addText("Better Way Workflow", 400, 80, "20pt Arial");
+    WFUI.addText("Better Way Workflow", 400, 80, "20pt Arial", WFUI.textColor);
     var txt = "Use the 'Add Item' button to the right to add flow items to the page. ";
     txt += "You may need to switch to Design mode first.";
     WFUI.addText(txt, 400, 120, "12pt Arial", "black");
