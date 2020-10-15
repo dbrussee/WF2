@@ -16,7 +16,7 @@ WFUI.showInstructions = function() {
 }
 WFUI.drawCanvas = function(items) {
     WFUI.clearCanvas();
-    if (WF.flow == null) {
+    if (WF.flow == null || app.isCollectionEmpty(WF.flow.items)) {
         WFUI.showInstructions();
         return;
     }
@@ -80,11 +80,6 @@ WFUI.drawCanvas = function(items) {
             WFUI.drawShape(itm, dragger);
         //}
     }
-    //if (dragger != null) {
-    //    dragger.x = WFUI.dragstart.dragx;
-    //    dragger.y = WFUI.dragstart.dragy;
-    //    WFUI.drawShape(dragger, dragger);
-    //}
 }
 
 WFUI.clearCanvas = function() {
