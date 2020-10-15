@@ -623,7 +623,7 @@ app.saveLocal = function() {
     var optnum = sel.selectedIndex;
     var opt = sel.options[optnum];
     opt.innerHTML = (optnum+1) + ". " + WF.flow.title;
-    if (WF.flow.items.length == 0) {
+    if (app.isCollectionEmpty(WF.flow.items)) {
         app.localStorage.slots[slot] = null;
     } else {
         app.localStorage.slots[slot] = WF.flow;
