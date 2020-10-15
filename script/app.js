@@ -701,14 +701,14 @@ app.loadLocal = function() {
         WF.popTransaction();
     } catch(err) {
         WF.popTransaction(); // Probably failed after push transaction
-        WF.pushTransaction();
-        var itm1 = WF.addItem(260, 200, "pill", "Start");
-        var itm2 = WF.addItem(400, 200, "box", "Do Something");
-        itm2.addBlockedBy(itm1);
-        var itm3 = WF.addItem(540, 200, "pill", "End");
-        itm3.addBlockedBy(itm2);
+       // WF.pushTransaction();
+       // var itm1 = WF.addItem(260, 200, "pill", "Start");
+       // var itm2 = WF.addItem(400, 200, "box", "Do Something");
+       // itm2.addBlockedBy(itm1);
+       // var itm3 = WF.addItem(540, 200, "pill", "End");
+       // itm3.addBlockedBy(itm2);
 
-        WF.popTransaction();
+       // WF.popTransaction();
     }
     document.getElementById("wf_title").value = WF.flow.title;
     if (spot != undefined) app.toast("Loaded '" + WF.flow.title + "'");
