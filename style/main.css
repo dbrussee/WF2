@@ -80,3 +80,23 @@ table#tbl_link_codes td {
     border: 1px dotted silver;
     vertical-align:top;
 }
+
+.directionRosette {
+	position:absolute;
+	bottom: 50px;
+	right: 50px;
+	height: 60px;
+	width: 60px;
+	background-image: url("directionRosette.png");
+	background-repeat: no-repeat;
+	background-size: contain;
+	border: 0;
+	border-collapse: collapse;
+}
+.directionRosette tbody tr td {
+	padding: .1em;
+	border: 5px solid transparent;
+}
+.directionRosette tbody tr td:hover {
+	border: 5px solid pink;
+}
