@@ -111,9 +111,7 @@
         <form class='popForm' onsubmit='return false;' id='locSaveLocal' style='display:none'>
             Copy from the box below to send to another user:<br/>
             <textarea id='locSaveToClipboard' readonly style='font-size:5pt;width:100%;height:20em;'></textarea>
-            &nbsp; ... <button onclick='app.loadFromTextbox()'>Load</button>
-            <button onclick='app.askToStartNew()'>Clear&hellip;</button>
-            <button onclick='app.askToSaveFlow()'>Save&hellip;</button>
+            &nbsp; ... <button onclick='app.downloadFile()'>Save to File</button>
             or <button onclick='app.cancelAction()'>Cancel</button>
         </form>
         <form class='popForm' onsubmit='return false;' id='locLoadLocal' style='display:none'>
