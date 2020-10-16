@@ -876,6 +876,27 @@ app.closePopup = function() {
     if (frm != undefined) document.body.removeChild(frm);
 }
 
+app.clickShift = function(event) {
+	var td = event.srcElement;
+	var tr = td.parentElement;
+	var rn = tr.rowIndex;
+	var cn = td.cellIndex;
+	if (rn != undefined && cn != undefined) {
+		if (rn == 0) {
+			if (cn == 0) app.shiftAll("UL")
+			else if (cn == 1) app.shiftAll("U")
+			else if (cn == 2) app.shiftAll("UR");
+		} else if (rn == 1) {
+			if (cn == 0) app.shiftAll("L")
+			else if (cn == 2) app.shiftAll("R");
+		} else if (rn == 2) {
+			if (cn == 0) app.shiftAll("DL")
+			else if (cn == 1) app.shiftAll("D")
+			else if (cn == 2) app.shiftAll("DR");
+		}
+	}
+}
+
 app.shiftAll = function (dirs) {
     // If x and y are null then we are shifting everything
     var off = WF.gridsize;
