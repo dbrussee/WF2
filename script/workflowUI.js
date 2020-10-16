@@ -241,7 +241,7 @@ WFUI.addTextToShape = function(itm, font, color) {
     if (color == undefined) color = (itm.completed ? "black" : app.colors.notDoneLine);
     if (font == undefined) font = "9pt Arial";
     //WFUI.addText(itm.title, itm.x, itm.y + 5, font);
-    WFUI.wrapText(itm.title, itm.x, itm.y, WFUI.shapeWidth - 6, color, 10, "Arial");
+    WFUI.wrapText(itm.title, itm.x, itm.y, (WFUI.shapeWidth * 2 / 3), color, 10, "Arial");
 }
 WFUI.wrapText = function(text, x, y, maxWidth, color, fontSize, fontFace){
     var words = text.split(' ');
