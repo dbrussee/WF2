@@ -126,7 +126,7 @@ WFUI.drawShapeCircle = function(itm, draggingItem) {
     var ctx = WFUI.ctx;
     var x = itm.x;
     var y = itm.y;
-    var r = (WFUI.shapeWidth * 2 / 2) / 2;
+    var r = (WFUI.shapeWidth * 2 / 3) / 2;
     ctx.save();
     ctx.beginPath();
     WFUI.setStyle(ctx, itm, draggingItem);
