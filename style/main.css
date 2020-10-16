@@ -92,6 +92,7 @@ table#tbl_link_codes td {
 	background-size: contain;
 	border: 1px dotted grey;
 	border-collapse: collapse;
+	z-index: 10;
 }
 .directionRosette tbody tr td {
 	padding: .1em;
