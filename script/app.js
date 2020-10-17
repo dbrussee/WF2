@@ -911,10 +911,10 @@ app.shiftCenter = function() {
     }
     var width = maxx - minx;
     var left = (WFUI.canvas.width - width) / 2;
-    left = (WFUI.spacing * parseInt(left / WFUI.spacing));
+    left = (WF.gridsize * parseInt(left / WF.gridsize));
 
     var xoff = left - minx;
-    var yoff = 100 - miny; // Leaving room for title
+    var yoff = 120 - miny; // Leaving room for title
 
     for (var id in WF.flow.items) {
         var itm = WF.flow.items[id];

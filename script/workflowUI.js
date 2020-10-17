@@ -131,6 +131,7 @@ WFUI.drawShapeCircle = function(itm, draggingItem) {
     ctx.beginPath();
     WFUI.setStyle(ctx, itm, draggingItem);
     ctx.arc(x, y, r, 0, Math.PI * 2);
+    if (itm.completed && app.isCollectionEmpty(itm.blocks)) ctx.fillStyle = app.colors.pillDone;
     ctx.fill();
     ctx.stroke();
     ctx.restore();
@@ -158,6 +159,7 @@ WFUI.drawShapeBox = function(itm, draggingItem) {
     ctx.lineTo(left, top + r);
     ctx.arcTo(left, top, left + r, top, r);
     ctx.closePath();
+    if (itm.completed && app.isCollectionEmpty(itm.blocks)) ctx.fillStyle = app.colors.pillDone;
     ctx.fill();
     ctx.stroke();
     ctx.restore();
@@ -204,6 +206,7 @@ WFUI.drawShapeDiamond = function(itm, draggingItem) {
     ctx.lineTo(left + (w/2), top + h);
     ctx.lineTo(left, top + (h/2));
     ctx.closePath();
+    if (itm.completed && app.isCollectionEmpty(itm.blocks)) ctx.fillStyle = app.colors.pillDone;
     ctx.fill();
     ctx.stroke();
     ctx.restore();
@@ -347,7 +350,7 @@ WFUI.drawArrowAtEnd = function(x1, y1, x2, y2, txt, completed) {
         ctx.font = "9pt Arial";
         var metrics = ctx.measureText(txt);
         var txtx = -(metrics.width / 2);
-        var txty = -awid + 5;
+        var txty = -awid + 2;
         if (angle < 0) txty = 18;
         ctx.save();
         ctx.strokeStyle = "white";
