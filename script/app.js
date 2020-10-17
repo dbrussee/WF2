@@ -733,6 +733,8 @@ app.loadLocal = function() {
         }
     }
     app.repositionCanvas();
+    app.cancelAction();
+    app.hideEditor();
 }
 app.setFutureItemsIncomplete = function(itm) {
     var calledWithItem = (!itm == undefined);
