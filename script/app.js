@@ -128,6 +128,7 @@ app.toast = function(msg, isError) {
     }
 }
 app.askToAddNewItem = function() {
+    app.toggleMode("design");
     WF.pickedItem = null;
     WF.drawCanvas();
     app.hideEditor();
@@ -151,6 +152,7 @@ app.confirmAddNewItem = function(x, y) {
 }
 
 app.editItem = function() {
+    //app.toggleMode("design");
     app.editing = true;
     app.cancelAction();
     if (app.mode == "design") {
@@ -352,6 +354,8 @@ app.setDoneCode = function() {
     WF.drawCanvas();
 }
 app.askToAddLink = function(type) {
+    if (WF.pickedItem == null) return;
+    app.toggleMode("design");
     app.cancelAction(false);
     app.pendingAction = {action:"addLink", type:type};
     document.getElementById("locConfirmAddLink").style.display = "";
@@ -507,6 +511,7 @@ app.confirmStartNew = function() {
     app.askToAddNewItem();
 }
 app.askToDeleteItem = function() {
+    if (WF.pickedItem == null) return;
     app.cancelAction(false);
     app.pendingAction = {action:"deleteItem"};
     document.getElementById("locConfirmDelete").style.display = "";
@@ -573,6 +578,17 @@ app.updateWFTitle = function(el) {
 app.updateItemTitle = function(el) {
     WF.pickedItem.title = el.value;
     WF.drawCanvas();
+}
+app.cycleItemShape = function() {
+    if (WF.pickedItem == null) return;
+    var sel = document.getElementById("item_shape");
+    var lastOption = sel.options.length - 1;
+    if (sel.selectedIndex < lastOption) {
+        sel.selectedIndex++;
+    } else {
+        sel.selectedIndex = 0;
+    }
+    app.updateItemShape(sel);
 }
 app.updateItemShape = function(el) {
     WF.pickedItem.shape = el.value;
@@ -708,7 +724,7 @@ app.loadLocal = function() {
        // WF.popTransaction();
     }
     document.getElementById("wf_title").value = WF.flow.title;
-    if (spot != undefined) app.toast("Loaded '" + WF.flow.title + "'");
+    if (spot != undefined) app.toast("Loaded #" + spot + ". '" + WF.flow.title + "'");
     //app.cancelAction(true);
 
     if (app.isCollectionEmpty(WF.flow.items)) {
@@ -953,4 +969,29 @@ app.shiftAll = function (dirs) {
     } else {
         app.toast("Shifting would make items go off page. Shift cancelled.", true);
     }
+}
+app.toggleComplete = function() {
+    if (WF.pickedItem == null) return;
+    if (WF.pickedItem.isBlocked()) return;
+    var itm = WF.pickedItem;
+    var codes = app.collectionSize(itm.doneCodes);
+    if (codes == 0) {
+        itm.completed = !itm.completed;
+        app.setFutureItemsIncomplete();
+        app.editItem();
+        WF.drawCanvas();
+    } else if (codes == 1) {
+        if (itm.completed) {
+            itm.completed = false;
+            itm.doneCode = null;
+        } else {
+            itm.completed = true;
+            itm.doneCode = app.collectionItem(itm.doneCodes, 0);
+        }
+        app.setFutureItemsIncomplete();
+        app.editItem();
+        WF.drawCanvas();
+    } else {
+        app.toast("Pick from the complete options above");
+    }    
 }

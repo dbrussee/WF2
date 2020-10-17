@@ -286,33 +286,8 @@ function initWF() {
         WF.handleMouseDown(event.touches[0])
     }, false);
     can.addEventListener("dblclick", function(event) {
-        //WF.handleMouseDown(event);
-        //WFUI.dragstart.item = null;
         if (WF.pickedItem) {
-            if (app.mode == "work") {
-                if (WF.pickedItem.isBlocked()) return;
-                var itm = WF.pickedItem;
-                var codes = app.collectionSize(itm.doneCodes);
-                if (codes == 0) {
-                    itm.completed = !itm.completed;
-                    app.setFutureItemsIncomplete();
-                    app.editItem();
-                    WF.drawCanvas();
-                } else if (codes == 1) {
-                    if (itm.completed) {
-                        itm.completed = false;
-                        itm.doneCode = null;
-                    } else {
-                        itm.completed = true;
-                        itm.doneCode = app.collectionItem(itm.doneCodes, 0);
-                    }
-                    app.setFutureItemsIncomplete();
-                    app.editItem();
-                    WF.drawCanvas();
-                } else {
-                    app.toast("Pick from the complete options above");
-                }    
-            }
+            if (app.mode == "work") app.toggleComplete();
         } else {
             app.toggleMode();
         }
