@@ -83,21 +83,24 @@ table#tbl_link_codes td {
 
 .directionRosette {
 	position:absolute;
-	bottom: 50px;
-	right: 50px;
-	height: 60px;
-	width: 60px;
+	bottom: 10px;
+	right: 10px;
+	height: 50px;
+	width: 50px;
 	background-image: url("directionRosette.png");
 	background-repeat: no-repeat;
 	background-size: contain;
-	border: 1px dotted grey;
-	border-collapse: collapse;
+	border: 3px solid transparent;
+    border-collapse: collapse;
+    background-color: transparent;
 	z-index: 10;
 }
 .directionRosette tbody tr td {
 	padding: .1em;
-	border: 5px solid transparent;
+	border: 0;
 }
-.directionRosette tbody tr td:hover {
-	border: 5px solid pink;
+.directionRosette:hover {
+    cursor: pointer;
+    background-color: gainsboro;
+    border: 3px dotted gainsboro;
 }

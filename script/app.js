@@ -887,7 +887,8 @@ app.clickShift = function(event) {
 			else if (cn == 1) app.shiftAll("U")
 			else if (cn == 2) app.shiftAll("UR");
 		} else if (rn == 1) {
-			if (cn == 0) app.shiftAll("L")
+            if (cn == 0) app.shiftAll("L")
+            else if (cn == 1) app.shiftCenter();
 			else if (cn == 2) app.shiftAll("R");
 		} else if (rn == 2) {
 			if (cn == 0) app.shiftAll("DL")
@@ -896,7 +897,32 @@ app.clickShift = function(event) {
 		}
 	}
 }
+app.shiftCenter = function() {
+    var minx = 10000;
+    var maxx = 0;
+    var miny = 10000;
+    var maxy = 0;
+    for (var id in WF.flow.items) {
+        var itm = WF.flow.items[id];
+        if (itm.x < minx) minx = itm.x;
+        if (itm.x > maxx) maxx = itm.x;
+        if (itm.y < miny) miny = itm.y;
+        if (itm.y > maxy) maxy = itm.y;
+    }
+    var width = maxx - minx;
+    var left = (WFUI.canvas.width - width) / 2;
+    left = (WFUI.spacing * parseInt(left / WFUI.spacing));
 
+    var xoff = left - minx;
+    var yoff = 100 - miny; // Leaving room for title
+
+    for (var id in WF.flow.items) {
+        var itm = WF.flow.items[id];
+        itm.x += xoff;
+        itm.y += yoff;
+    }
+    WF.drawCanvas();
+}
 app.shiftAll = function (dirs) {
     // If x and y are null then we are shifting everything
     var off = WF.gridsize;
