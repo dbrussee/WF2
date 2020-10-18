@@ -3,7 +3,6 @@ var WFUI = {
     ctx: null,
     shapeWidth: 90,
     shapeHeight: 90,
-    arrowRadius: 45,
     spacing: 10,
     arrowSize: {length:12, width:8},
     textColor: "#191970"
@@ -294,6 +293,25 @@ WFUI.addText = function(txt, x, y, font, color, shadowsize, shadowcolor) {
     ctx.restore();    
 }
 
+WFUI.getLinkUnderXY = function (x, y) {
+    var rslt = {item:null, blocking:null};
+    var rad = 20;
+    for (var id in WF.flow.items) {
+        var itm = WF.flow.items[id];
+        for (var bid in itm.blocks) {
+            var blk = WF.flow.items[bid];
+            var mid = WFUI.lineMidpoint(itm.x, itm.y, blk.x, blk.y);
+            var dist = WFUI.lineLength(mid.x, mid.y, x, y);
+            if (dist <= rad) {
+                rslt.item = itm;
+                rslt.blocking = blk;
+                break;
+            }
+        }
+    }
+    return rslt;
+}
+
 WFUI.getItemUnderXY = function(x, y) {
     var itm = null;
     var halfHit = WF.pickHitBox / 2;
@@ -388,8 +406,4 @@ WFUI.lineMidpoint = function(x1, y1, x2, y2) {
     y = (y1 + y2) / 2;
     return {x:x, y:y}
 }
-WFUI.lineArrowEndX = function(x1, y1, x2, y2) {
-    var len = WFUI.lineLength(x1, y1, x2, y2) 
-    var offset = WFUI.arrowRadius;
-    return len - offset;
-}
+

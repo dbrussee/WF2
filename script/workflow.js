@@ -74,6 +74,15 @@ WF.handleMouseDown = function(event) {
         }
     }
 
+    if (itm == null) {
+        // User did not click on an item. However, they might have clicked on 
+        // a link. If so, handle it. If not, handle it as an an item picked with a null;
+        var rslt = WFUI.getLinkUnderXY(x,y);
+        if (rslt.item != null) {
+            WF.dispatchEvent("linkpicked", rslt);
+            return;
+        }
+    }
     var prev = WF.pickedItem;
     WF.pickedItem = itm;
     WF.drawCanvas();
@@ -258,7 +267,19 @@ function initWF() {
         //console.log("Event: " + ename + ", Detail: " + JSON.stringify(detail));
         WF.eventTarget.dispatchEvent(new CustomEvent(ename, {detail:detail}));
     }
-
+    WF.addEventListener("linkpicked", function(e) {
+        var itm = e.detail.item;
+        WF.pickedItem = itm;
+        var blk = e.detail.blocking;
+        if (app.mode == "work") {
+            if (itm.isBlocked()) {
+                app.toast("Item '" + itm.title + "' status cannot be changed", true);
+            } else {
+                lnk = blk.blockedBy[itm.id];
+                app.toggleComplete(lnk);
+            }
+        }
+    })
     WF.addEventListener("itempicked", function(e) {
         if (e.detail.item == null) {
             //app.toast("Clicked open area");
@@ -284,13 +305,6 @@ function initWF() {
         if (event.touches.length > 1) return; // zoom?
         event.preventDefault();
         WF.handleMouseDown(event.touches[0])
-    }, false);
-    can.addEventListener("dblclick", function(event) {
-        if (WF.pickedItem) {
-            if (app.mode == "work") app.toggleComplete();
-        } else {
-            app.toggleMode();
-        }
     }, false);
     can.addEventListener("mousedown", function(event) {
         event.preventDefault();

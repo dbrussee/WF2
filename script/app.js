@@ -987,31 +987,48 @@ app.shiftAll = function (dirs) {
         app.toast("Shifting would make items go off page. Shift cancelled.", true);
     }
 }
-app.toggleComplete = function() {
+app.toggleComplete = function(link) {
     if (WF.pickedItem == null) return;
     if (WF.pickedItem.isBlocked()) return;
     var itm = WF.pickedItem;
-    var codes = app.collectionSize(itm.doneCodes);
-    if (codes == 0) {
+    var codes = [];
+    for (var key in itm.doneCodes) {
+        codes.push(key);
+    }
+    if (link != undefined) {
+        if (link.allowCodes != null) {
+            codes = link.allowCodes.split(",");
+        }
+    }
+    if (codes.length == 0) {
         itm.completed = !itm.completed;
+        itm.doneCode = null;
         app.setFutureItemsIncomplete();
         app.editItem();
         WF.drawCanvas();
     } else {
         if (itm.doneCode == null) {
             itm.completed = true;
-            itm.doneCode = app.collectionItem(itm.doneCodes, 0);
+            itm.doneCode = codes[0];
         } else {
-            var curPos = 0;
-            for (var i = 0; i < codes; i++) {
-                var code = app.collectionItem(itm.doneCodes, i);
+            var curPos = -1;
+            for (var i = 0; i < codes.length; i++) {
+                var code = codes[i];
                 if (code == itm.doneCode) curPos = i;
             }
-            if (curPos == (codes - 1)) {
-                itm.completed = false;
-                itm.doneCode = null;
+            var next = codes[curPos+1];
+            if (next == null) {
+                // no more in the list
+                if (link == undefined) {
+                    itm.completed = false;
+                    itm.doneCode = null;
+                } else {
+                    itm.completed = true;
+                    itm.doneCode = codes[0];
+                }
             } else {
-                itm.doneCode = app.collectionItem(itm.doneCodes, curPos+1);
+                itm.completed = true;
+                itm.doneCode = next;
             }
         }
         app.setFutureItemsIncomplete();
