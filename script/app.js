@@ -78,8 +78,6 @@ app.downloadFile = function() {
 
 }
 app.resetFlow = function() {
-    var needToEdit = false;
-    if (WF.pickedItem != null) needToEdit = WF.pickedItem.completed;
     WF.pushTransaction();
     for (var key in WF.flow.items) {
         var itm = WF.flow.items[key];
@@ -87,7 +85,7 @@ app.resetFlow = function() {
         itm.completed = false;
     }
     WF.popTransaction();
-    if (needToEdit) app.editItem();
+    app.pickNext();
 }
 app.toggleMode = function(mode) {
     if (mode == undefined) {
@@ -128,7 +126,7 @@ app.toast = function(msg, isError) {
     }
 }
 app.askToAddNewItem = function() {
-    app.toggleMode("design");
+    if (app.mode == "work") return;
     WF.pickedItem = null;
     WF.drawCanvas();
     app.hideEditor();
@@ -305,6 +303,13 @@ app.setDoneCode = function() {
             if (codes[newCode] != null) {
                 app.toast("That done code is already used on this item", true);
             } else {
+                if (app.isCollectionEmpty(codes)) {
+                    for (var key in WF.pickedItem.blocks) {
+                        var bby = WF.flow.items[key];
+                        var lnk = bby.blockedBy[WF.pickedItem.id];
+                        if (lnk.allowCodes == null) lnk.allowCodes = newCode;
+                    }
+                }
                 codes[newCode] = {code:newCode, value:newVal}
                 app.editItem();
             }
@@ -318,10 +323,18 @@ app.setDoneCode = function() {
             }
             delete codes[act.code];
             // Remove anywhere it was used
-            for (var id in WF.pickedItem.blockedBy) {
-                var link = WF.pickedItem.blockedBy[id];
-                if (link.allowCodes != null && link.allowCodes[act.code] != undefined) {
-                    delete link.allowCodes[act.code];
+            for (var id in WF.pickedItem.blocks) {
+                var other = WF.flow.items[id];
+                var link = other.blockedBy[WF.pickedItem.id];
+                if (link.allowCodes != null) {
+                    var lst = link.allowCodes.split(",").filter(function(cod) {
+                        return cod != act.code;
+                    });
+                    if (lst.length == 0) {
+                        link.allowCodes = null;
+                    } else {
+                        link.allowCodes = lst.join(",");    
+                    }
                 }
             }
             app.editItem();
@@ -355,7 +368,7 @@ app.setDoneCode = function() {
 }
 app.askToAddLink = function(type) {
     if (WF.pickedItem == null) return;
-    app.toggleMode("design");
+    if (app.mode == "work") return;
     app.cancelAction(false);
     app.pendingAction = {action:"addLink", type:type};
     document.getElementById("locConfirmAddLink").style.display = "";
@@ -511,6 +524,7 @@ app.confirmStartNew = function() {
     app.askToAddNewItem();
 }
 app.askToDeleteItem = function() {
+    if (app.mode == "work") return;
     if (WF.pickedItem == null) return;
     app.cancelAction(false);
     app.pendingAction = {action:"deleteItem"};
@@ -735,6 +749,7 @@ app.loadLocal = function() {
     app.repositionCanvas();
     app.cancelAction();
     app.hideEditor();
+    app.pickNext();
 }
 app.setFutureItemsIncomplete = function(itm) {
     var calledWithItem = (!itm == undefined);
@@ -982,18 +997,64 @@ app.toggleComplete = function() {
         app.setFutureItemsIncomplete();
         app.editItem();
         WF.drawCanvas();
-    } else if (codes == 1) {
-        if (itm.completed) {
-            itm.completed = false;
-            itm.doneCode = null;
-        } else {
+    } else {
+        if (itm.doneCode == null) {
             itm.completed = true;
             itm.doneCode = app.collectionItem(itm.doneCodes, 0);
+        } else {
+            var curPos = 0;
+            for (var i = 0; i < codes; i++) {
+                var code = app.collectionItem(itm.doneCodes, i);
+                if (code == itm.doneCode) curPos = i;
+            }
+            if (curPos == (codes - 1)) {
+                itm.completed = false;
+                itm.doneCode = null;
+            } else {
+                itm.doneCode = app.collectionItem(itm.doneCodes, curPos+1);
+            }
         }
         app.setFutureItemsIncomplete();
         app.editItem();
         WF.drawCanvas();
-    } else {
-        app.toast("Pick from the complete options above");
     }    
+}
+
+app.pickNext = function() {
+    // if current is complete, try to find in blocks list
+    if (WF.pickedItem != null && WF.pickedItem.completed) {
+        for (var key in WF.pickedItem.blocks) {
+            var itm = WF.flow.items[key];
+            if (!itm.completed && !itm.isBlocked()) {
+                WF.pickedItem = itm;
+                app.editItem();
+                WF.drawCanvas();
+                return;
+            }
+        }
+    }
+    // collect all unblocked
+    // cycle through each of them. At any point, if that
+    // one is not current, pick it
+    var itms = [];
+    for (var key in WF.flow.items) {
+        var itm = WF.flow.items[key];
+        if (!itm.completed && !itm.isBlocked()) {
+            itms.push(itm);
+        }
+    }
+    itms.sort(function(a,b) {
+        return a.id > b.id;
+    });
+    for (var i = 0; i < itms.length; i++) {
+        var itm = itms[i];
+        if (itm != WF.pickedItem) {
+            WF.pickedItem = itm;
+            app.editItem();
+            WF.drawCanvas();
+            break;
+        }
+    }
+    
+    // Stay where we are
 }

@@ -15,12 +15,12 @@
                 if (event.srcElement != document.body) return;
                 event.preventDefault();
                 switch(event.keyCode) {
-                    case 48: 
+                    case 48: // 0 (10th item)
                     var sel = document.getElementById("selLoadLocal");
                         sel.selectedIndex = 9; // 10th item
                         app.loadLocal();
                         break;
-                    case 49:
+                    case 49: //1-9 flow load
                     case 50:
                     case 51:
                     case 52:
@@ -63,11 +63,11 @@
                     case 32: // space bar
                         app.toggleComplete();
                         break;
-                    case 8:
-                    case 46:
+                    case 8: // backspace
+                    case 46: // delete
                         app.askToDeleteItem();
                         break;
-                    case 13:
+                    case 13: // enter key
                         break;
                     case 65: // a (add item)
                         app.askToAddNewItem();
@@ -76,7 +76,7 @@
                         app.askToAddLink("blocks");
                         break;
                     case 69: // e (Edit item)
-                        app.toggleMode("design");
+                        //app.toggleMode("design");
                         app.editItem();
                         break;
                     case 83: // s (item shape)
@@ -85,8 +85,14 @@
                     case 89: // y (bloked bY link)
                         app.askToAddLink("blockby");
                         break;
+                    case 78: // n (find / pick next unblocked)
+                        app.pickNext();
+                        break;
+                    case 82: // r (reset)
+                        app.resetFlow();
+                        break;
                     default:
-                        console.log(event.keyCode + " pressed");
+                        //console.log(event.keyCode + " pressed");
                 }
             });
             app.updateLocalStorage();
