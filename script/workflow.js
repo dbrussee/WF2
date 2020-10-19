@@ -60,18 +60,17 @@ WF.handleMouseDown = function(event) {
     if (app.pendingAction != null) {
         if (app.pendingAction.action == "addLink") {
             app.confirmAddLink(itm);
-            return;
         } else if (app.pendingAction.action == "addItem") {
             if (itm == null) {
-                    var newx = parseInt((x + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
-                    var newy = parseInt((y + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
-                    app.confirmAddNewItem(newx, newy);
-                return;
+                var newx = parseInt((x + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
+                var newy = parseInt((y + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
+                app.confirmAddNewItem(newx, newy);
             } else {
                 app.toast("Add item action cancelled because you clicked on an item");
                 app.cancelAction();
             }
         }
+        return;
     }
 
     if (itm == null) {
