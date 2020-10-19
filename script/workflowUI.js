@@ -38,7 +38,9 @@ WFUI.drawCanvas = function(items) {
 
             var txt = "";
             var foundDoneCode = false;
-            if (bby.allowCodes != null) {
+            if (bby.allowCodes == null) {
+                foundDoneCode = true;
+            } else {
                 var lst = bby.allowCodes.split(",");
                 for (var acnum = 0; acnum < lst.length; acnum++) {
                     if (txt != "") txt += ",";
@@ -50,7 +52,7 @@ WFUI.drawCanvas = function(items) {
                         txt += code;
                     }
                 }
-                if (txt == "") txt = "??";
+                if (txt == "") txt = "??";    
             }
             var arrowDone = false;
             if (bstep.completed) {
@@ -231,7 +233,11 @@ WFUI.setStyle = function(ctx, itm, draggingItem) {
         ctx.lineWidth = .5;
         if (itm.completed) {
             ctx.strokeStyle = app.colors.doneLine;
-            ctx.fillStyle = app.colors.doneFill;
+            var my_gradient = ctx.createLinearGradient(0, 0, 0, WFUI.shapeHeight);
+            my_gradient.addColorStop(0, "snow");
+            my_gradient.addColorStop(1, app.colors.doneFill);
+            ctx.fillStyle = my_gradient;
+            //ctx.fillStyle = app.colors.doneFill;
         } else {
             ctx.strokeStyle = app.colors.notDoneLine;
             ctx.fillStyle = itm.isBlocked() ? app.colors.blockedFill : app.colors.activeFill;

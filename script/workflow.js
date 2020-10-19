@@ -21,8 +21,8 @@ WF.handleMouseMove = function(event) {
         // Just started dragging
         WFUI.dragstart.item = WF.pickedItem;
     }
-    WF.pickedItem.x = event.clientX - can.offsetLeft;
-    WF.pickedItem.y = event.clientY - can.offsetTop;
+    WF.pickedItem.x = event.clientX - can.offsetLeft + can.parentElement.scrollLeft;
+    WF.pickedItem.y = event.clientY - can.offsetTop + can.parentElement.scrollTop;
     WF.drawCanvas();
     return true;
 }
@@ -48,8 +48,8 @@ WF.handleMouseDown = function(event) {
     WFUI.dragstart = {
         item:null //, 
     };
-    var x = event.clientX - can.offsetLeft;
-    var y = event.clientY - can.offsetTop;
+    var x = event.clientX - can.offsetLeft + can.parentElement.scrollLeft;
+    var y = event.clientY - can.offsetTop + can.parentElement.scrollTop;
 
     if (y < 45) {
         app.popupWFTitle();
@@ -278,6 +278,8 @@ function initWF() {
                 lnk = blk.blockedBy[itm.id];
                 app.toggleComplete(lnk);
             }
+        } else {
+            app.editLink("blocks",blk.id);
         }
     })
     WF.addEventListener("itempicked", function(e) {

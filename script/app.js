@@ -135,13 +135,13 @@ app.askToAddNewItem = function() {
     var sel = document.getElementById("selNewItemShape");
     sel.value = (app.isCollectionEmpty(WF.flow.items) ? "pill" : "box");
     document.getElementById("txtNewItemName").value = "";
-
+    document.getElementById("txtNewItemName").setAttribute("placeholder", "Item " + (app.collectionSize(WF.flow.items) + 1));
     document.getElementById("locConfirmAddItem").style.display = "";
 }
 app.confirmAddNewItem = function(x, y) {
     WF.pushTransaction();
     var name = document.getElementById("txtNewItemName").value.trim();
-    if (name == "") name = "New";
+    if (name == "") name = document.getElementById("txtNewItemName").getAttribute("placeholder");
     var type = document.getElementById("selNewItemShape").value;
     WF.pickedItem = WF.addItem(x, y, type, name);
     WF.popTransaction();
@@ -387,7 +387,7 @@ app.saveEditedLink = function() {
         rslt = "";
     } else {
         if (chks.length == undefined) { // Not a list... just a ceheckbox
-            rslt = chks.value;
+            if (chks.checked) rslt = chks.value;
         } else {
             for (var i = 0; i < chks.length; i++) {
                 var chk = chks[i];
@@ -438,11 +438,14 @@ app.editLink = function(type,toItem) {
         cbox.value = key;
         td.appendChild(cbox);
         td = tr.insertCell();
-        td.innerHTML = key;
+        td.innerHTML = key + ": '" + oneCode.value + "'";
         td.className = "anchor";
-        td = tr.insertCell();
-        td.innerHTML = oneCode.value;
-        td.className = "anchor";
+        td.onclick = function(event) {
+            var td = event.srcElement;
+            var tr = td.parentElement;
+            var cb = tr.cells[0].children[0];
+            cb.click();
+        }
     }
     if (numCodes == 0) {
         app.askToRemoveLink(type, toItem.id);
@@ -813,8 +816,12 @@ app.setFutureItemsIncomplete = function(itm) {
             for (var id in WF.pickedItem.blocks) {
                 var blk = WF.flow.items[id];
                 var link = blk.blockedBy[WF.pickedItem.id];
-                if (link.allowCodes == null) continue;
-                var acodes = link.allowCodes.split(",");
+                var acodes = [];
+                if (link.allwCodes == null) {
+                    acodes.push(done);
+                } else {
+                    acodes = link.allowCodes.split(",");
+                }
                 if (acodes.indexOf(done) >= 0) {
                     if (app.isCollectionEmpty(blk.blocks)) {
                         if (blk.unblockIfAnyCompleted) {

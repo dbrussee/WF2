@@ -232,7 +232,7 @@
             &nbsp; ... <button onclick='app.cancelAction();'>Cancel</button>
         </form>
         <form class='popForm' onsubmit='return false;' id='locConfirmAddItem' style='display:none'>
-            Name of new item: <input id='txtNewItemName' placeholder='New'><br/>
+            Name of new item: <input id='txtNewItemName' placeholder=''><br/>
             Pick new item shape: <select id='selNewItemShape'>
                 <option value='box'>Box</option>
                 <option value='circle'>Circle</option>
@@ -254,8 +254,7 @@
             <span id='locEditLinkMessage'></span><br/>
             <table style='margin-left:2em' id='tbl_link_codes'><tr>
                 <th style='width:1.5em;'>&nbsp;</th>
-                <th style='width:55px'>Code</th>
-                <th>Value</th>
+                <th>Code: 'Display'</th>
             </tr></table>
             &nbsp; ... <button onclick='app.saveEditedLink()'>Save</button>
             or <button onclick='app.cancelAction();'>Cancel</button>
