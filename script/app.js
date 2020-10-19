@@ -817,7 +817,7 @@ app.setFutureItemsIncomplete = function(itm) {
                 var blk = WF.flow.items[id];
                 var link = blk.blockedBy[WF.pickedItem.id];
                 var acodes = [];
-                if (link.allpwCodes == null) {
+                if (link.allowCodes == null) {
                     acodes.push(done);
                 } else {
                     acodes = link.allowCodes.split(",");
