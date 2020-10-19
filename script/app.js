@@ -759,15 +759,25 @@ app.setFutureItemsIncomplete = function(itm) {
     if (itm == undefined) itm = WF.pickedItem;
     for (var key in itm.blocks) {
         var bby = WF.flow.items[key];
-        if (bby.completed) {
+        //if (bby.completed) {
             var okToCancel = true;
             if (bby.unblockIfAnyCompleted) {
                 for (var key2 in bby.blockedBy) {
                     var backone = WF.flow.items[key2];
-                    if (backone.id != itm.id) {
+                    if (backone.id != bby.id) {
                         if (backone.completed) {
-                            okToCancel = false;
-                            break;
+                            var b1Done = backone.doneCode;
+                            var link = bby.blockedBy[backone.id];
+                            if (link.allowCodes != null) {
+                                var lst = link.allowCodes.split(",");
+                                if (lst.indexOf(b1Done) >= 0) {
+                                    okToCancel = false;
+                                    break;    
+                                }
+                            } else {
+                                okToCancel = false;
+                                break;
+                            }
                         }
                     }
                 }
@@ -777,9 +787,9 @@ app.setFutureItemsIncomplete = function(itm) {
                 bby.completed = false;
                 app.setFutureItemsIncomplete(bby);
             }
-        } else {
-            if (!app.isCollectionEmpty(bby.blocks)) isLastItem = false;
-        }
+        //} else {
+        //    if (!app.isCollectionEmpty(bby.blocks)) isLastItem = false;
+        //}
     }
     if (!calledWithItem && WF.pickedItem.completed) {
         // If the only item left does not have any blocks
