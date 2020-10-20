@@ -353,7 +353,6 @@ function initWF() {
         var can = WFUI.canvas;
         WFUI.dragstart = null;
         can.style.cursor = "default";
-        app.cancelAction();
     }, false);
     can.addEventListener("touchmove", function(event) {
         var handled = WF.handleMouseMove(event.touches[0]);
