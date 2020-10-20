@@ -17,12 +17,28 @@ WF.handleMouseMove = function(event) {
     var can = WFUI.canvas;
     if (WF.pickedItem == null) return false; // Nothing picked... nothing to drag
     if (WFUI.dragstart == null) return false; // Still nothing to drag
+    var x = event.clientX - can.parentElement.offsetLeft + can.parentElement.parentElement.scrollLeft;
+    var y = event.clientY - can.parentElement.offsetTop + can.parentElement.parentElement.scrollTop;
     if (WFUI.dragstart.item == null) {
-        // Just started dragging
-        WFUI.dragstart.item = WF.pickedItem;
+        var offset = WFUI.dragstart.offset;
+        var origin = WFUI.dragstart.origin;
+        // figure out possible new postion
+        var newx = parseInt(((origin.x + offset.x) + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
+        var newy = parseInt(((origin.y + offset.y) + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
+        // How far away is the new possible position from current postion
+        var dist = WFUI.lineLength(origin.x, origin.y, x, y);
+        if (dist > 0) {
+            console.log(dist);
+        }
+        if (dist > WF.gridsize) {
+            // Distance is > gridsize
+            WFUI.dragstart.item = WF.pickedItem;
+        } else {
+            return;
+        }
     }
-    WF.pickedItem.x = event.clientX - can.offsetLeft + can.parentElement.scrollLeft;
-    WF.pickedItem.y = event.clientY - can.offsetTop + can.parentElement.scrollTop;
+    WF.pickedItem.x = x + WFUI.dragstart.offset.x;
+    WF.pickedItem.y = y + WFUI.dragstart.offset.y;
     WF.drawCanvas();
     return true;
 }
@@ -46,10 +62,12 @@ WF.handleMouseDown = function(event) {
     // Inidicate where the drag started.
     // NOTE: Dragging does not commence until movement is made
     WFUI.dragstart = {
-        item:null //, 
+        item:null, 
+        origin:{x:0,y:0},
+        offset:{x:0,y:0}
     };
-    var x = event.clientX - can.offsetLeft + can.parentElement.scrollLeft;
-    var y = event.clientY - can.offsetTop + can.parentElement.scrollTop;
+    var x = event.clientX - can.parentElement.offsetLeft + can.parentElement.parentElement.scrollLeft;
+    var y = event.clientY - can.parentElement.offsetTop + can.parentElement.parentElement.scrollTop;
 
     if (y < 45) {
         app.popupWFTitle();
@@ -81,6 +99,13 @@ WF.handleMouseDown = function(event) {
             WF.dispatchEvent("linkpicked", rslt);
             return;
         }
+    } else {
+        // Store where the user clicked to start
+        WFUI.dragstart.origin = {x:x, y:y};
+        // figure offset from center of item to where user clicked
+        // values represent and adjustment from the actual x, y to the item's
+        // center x and y.
+        WFUI.dragstart.offset = {x:itm.x - x, y:itm.y - y}
     }
     var prev = WF.pickedItem;
     WF.pickedItem = itm;
@@ -240,11 +265,16 @@ function initWF() {
     var frm = document.getElementById("frmWF");
     frm.elements.namedItem("wf_title").value = WF.flow.title; 
 
+    var div = document.createElement("div");
+    div.style.cssText = "z-index:1; height:1200px; width: 800px; position:relative; background-color: white; margin: .3em auto";
+    document.getElementById("canvasContainer").appendChild(div);
+
     WFUI.canvas = document.createElement("canvas");
     var can = WFUI.canvas;
     can.height = 1200;
     can.width = 800;
-    document.getElementById("canvasContainer").appendChild(can);
+    div.appendChild(can);
+    //document.getElementById("canvasContainer").appendChild(can);
     // Get the device pixel ratio, falling back to 1.
     //var dpr = window.devicePixelRatio || 1;
     // Get the size of the canvas in CSS pixels.
