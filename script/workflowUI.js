@@ -1,372 +1,415 @@
-var WF = {
-    flow: {
-        title: "Workflow Sample",
-        items: {}
-    },
+var WFUI = {
     canvas: null,
     ctx: null,
-    pickedItem: null,
-    pickHitBox: 80,
-    gridsize: 20,
-    transactionLevel: 0,
-    inTransaction: false,
-    eventTarget: null
+    shapeWidth: 90,
+    shapeHeight: 90,
+    spacing: 10,
+    arrowSize: {length:12, width:8},
+    textColor: "#191970"
 }
-WF.handleMouseMove = function(event) {
-    if (app.mode == "work") return false;
-    var can = WFUI.canvas;
-    if (WF.pickedItem == null) return false; // Nothing picked... nothing to drag
-    if (WFUI.dragstart == null) return false; // Still nothing to drag
-    var x = event.clientX - can.parentElement.offsetLeft + can.parentElement.parentElement.scrollLeft;
-    var y = event.clientY - can.parentElement.offsetTop + can.parentElement.parentElement.scrollTop;
-    if (WFUI.dragstart.item == null) {
-        var offset = WFUI.dragstart.offset;
-        var origin = WFUI.dragstart.origin;
-        // figure out possible new postion
-        var newx = parseInt(((origin.x + offset.x) + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
-        var newy = parseInt(((origin.y + offset.y) + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
-        // How far away is the new possible position from current postion
-        var dist = WFUI.lineLength(origin.x, origin.y, x, y);
-        if (dist > 0) {
-            console.log(dist);
-        }
-        if (dist > WF.gridsize) {
-            // Distance is > gridsize
-            WFUI.dragstart.item = WF.pickedItem;
-        } else {
-            return;
-        }
-    }
-    WF.pickedItem.x = x + WFUI.dragstart.offset.x;
-    WF.pickedItem.y = y + WFUI.dragstart.offset.y;
-    WF.drawCanvas();
-    return true;
+WFUI.showInstructions = function() {
+    WFUI.addText("Better Way Workflow", 400, 40, "20pt Arial", WFUI.textColor);
+    var txt = "Use the 'Add Item' button to the right to add flow items to the page. ";
+    txt += "You may need to switch to Design mode by clicking the link at the top right ";
+    txt += "of the page, or just by double-clicking the drawing area here.";
+    WFUI.wrapText(txt, 400, 120, 650, "black", 12, "Arial");
+    app.toggleMode("design");
 }
-WF.handleMouseUp = function(event) {
-    var can = WFUI.canvas;
-    if (WFUI.dragstart != null) {
-        if (WFUI.dragstart.item != null) {
-            var newx = parseInt((WF.pickedItem.x + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
-            var newy = parseInt((WF.pickedItem.y + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
-            WF.pickedItem.x = newx;
-            WF.pickedItem.y = newy;
-            WFUI.dragstart.item = null;
-            WF.drawCanvas();
-        }
-        WFUI.dragstart = null;
-        app.saveLocal();
-    }
-}
-WF.handleMouseDown = function(event) {
-    var can = WFUI.canvas;
-    // Inidicate where the drag started.
-    // NOTE: Dragging does not commence until movement is made
-    WFUI.dragstart = {
-        item:null, 
-        origin:{x:0,y:0},
-        offset:{x:0,y:0}
-    };
-    var x = event.clientX - can.parentElement.offsetLeft + can.parentElement.parentElement.scrollLeft;
-    var y = event.clientY - can.parentElement.offsetTop + can.parentElement.parentElement.scrollTop;
-
-    if (y < 45) {
-        app.popupWFTitle();
+WFUI.drawCanvas = function(items) {
+    WFUI.clearCanvas();
+    if (WF.flow == null || app.isCollectionEmpty(WF.flow.items)) {
+        WFUI.showInstructions();
         return;
     }
+    var title = WF.flow.title;
+    var clr = "darkblue";
+    if (title == "") {
+        title = "<untitled>";
+        clr = "grey";
+    }
+    WFUI.addText(title, 400, 40, "20pt Arial", clr);
 
-    var itm = WFUI.getItemUnderXY(x, y);
-    if (app.pendingAction != null) {
-        if (app.pendingAction.action == "addLink") {
-            app.confirmAddLink(itm);
-        } else if (app.pendingAction.action == "addItem") {
-            if (itm == null) {
-                var newx = parseInt((x + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
-                var newy = parseInt((y + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
-                app.confirmAddNewItem(newx, newy);
+    var ctx = WFUI.ctx;
+    for (var id in items) {
+        var itm = WF.flow.items[id];
+        for (var cnum in itm.blockedBy) {
+            var bby = itm.blockedBy[cnum];
+            var bstep = WF.flow.items[cnum];
+
+            var txt = "";
+            var foundDoneCode = false;
+            if (bby.allowCodes == null) {
+                foundDoneCode = true;
             } else {
-                app.toast("Add item action cancelled because you clicked on an item");
-                app.cancelAction();
+                var lst = bby.allowCodes.split(",");
+                for (var acnum = 0; acnum < lst.length; acnum++) {
+                    if (txt != "") txt += ",";
+                    var code = lst[acnum];
+                    if (code == bstep.doneCode) {
+                        foundDoneCode = true;
+                        txt += "[" + code + "]";
+                    } else {
+                        txt += code;
+                    }
+                }
+                if (txt == "") txt = "??";    
             }
+            var arrowDone = false;
+            if (bstep.completed) {
+                if (bstep.doneCode == null) {
+                    arrowDone = true;
+                } else {
+                    arrowDone = foundDoneCode;
+                }
+            }
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(itm.x, itm.y);
+            ctx.lineTo(bstep.x, bstep.y);
+            ctx.strokeStyle = (arrowDone ? app.colors.doneLine : app.colors.notDoneLine);
+            ctx.lineWidth = (arrowDone ? 3 : 1);
+            ctx.stroke();
+            ctx.restore();
+
+            WFUI.drawArrowAtEnd(itm.x, itm.y, bstep.x, bstep.y, txt, arrowDone);
         }
-        return;
     }
 
-    if (itm == null) {
-        // User did not click on an item. However, they might have clicked on 
-        // a link. If so, handle it. If not, handle it as an an item picked with a null;
-        var rslt = WFUI.getLinkUnderXY(x,y);
-        if (rslt.item != null) {
-            WF.dispatchEvent("linkpicked", rslt);
-            return;
-        }
+    var dragger = WFUI.dragstart == null ? null : WFUI.dragstart.item;
+    for (var id in items) {
+        var itm = items[id];
+        //if (itm != dragger) {
+            WFUI.drawShape(itm, dragger);
+        //}
+    }
+}
+
+WFUI.clearCanvas = function() {
+    var ctx = WFUI.ctx;
+    ctx.clearRect(0,0,WFUI.canvas.width, WFUI.canvas.height);
+}
+
+WFUI.drawShape = function(itm, draggingItem) {
+    if (draggingItem == undefined) draggingItem = null;
+    //return; // DEBUGGING
+    if (itm.shape == "pill") {
+        WFUI.drawShapePill(itm, draggingItem);
+    } else if (itm.shape == "diamond") {
+        WFUI.drawShapeDiamond(itm, draggingItem);
+    } else if (itm.shape == "circle") {
+        WFUI.drawShapeCircle(itm, draggingItem);
+    } else if (itm.shape == "stop") {
+        WFUI.drawShapeStop(itm, draggingItem);
+    } else { // Default to box
+        WFUI.drawShapeBox(itm, draggingItem);
+    }
+
+}
+WFUI.drawShapeStop = function(itm, draggingItem) {
+    var ctx = WFUI.ctx;
+    var x = itm.x;
+    var y = itm.y;
+    var r = (WFUI.shapeWidth * 2 / 3) / 2;
+    ctx.save();
+    ctx.beginPath();
+    WFUI.setStyle(ctx, itm, draggingItem);
+    //ctx.lineWidth = 2;
+    //ctx.strokeStyle = "red";
+    WFUI.drawSidedShape(x, y, 8, r);
+    if (itm.completed) ctx.fillStyle = "firebrick";
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    WFUI.addTextToShape(itm, "bold 10pt Arial", (itm.completed ? "white" : app.colors.notDoneLine));  
+}
+WFUI.drawShapeCircle = function(itm, draggingItem) {
+    var ctx = WFUI.ctx;
+    var x = itm.x;
+    var y = itm.y;
+    var r = (WFUI.shapeWidth * 2 / 3) / 2;
+    ctx.save();
+    ctx.beginPath();
+    WFUI.setStyle(ctx, itm, draggingItem);
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    if (itm.completed && app.isCollectionEmpty(itm.blocks)) ctx.fillStyle = app.colors.pillDone;
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    WFUI.addTextToShape(itm);  
+}
+
+WFUI.drawShapeBox = function(itm, draggingItem) {
+    var ctx = WFUI.ctx;
+    var x = itm.x;
+    var y = itm.y;
+    var left = x - (WFUI.shapeWidth / 2);
+    var w = WFUI.shapeWidth;
+    var h = WFUI.shapeHeight * 2 / 3;
+    var top = y - (h / 2);
+    var r = 4; // Corner radius
+    ctx.save();
+    ctx.beginPath();
+    WFUI.setStyle(ctx, itm, draggingItem);
+    ctx.moveTo(left + w - r, top); // top right minus radii
+    ctx.arcTo(left + w, top, left + w, top + r, r);
+    ctx.lineTo(left + w, top + h - r);
+    ctx.arcTo(left + w, top + h, left + w - r, top + h, r);
+    ctx.lineTo(left + r, top + h);
+    ctx.arcTo(left, top + h, left, top + h - r, r);
+    ctx.lineTo(left, top + r);
+    ctx.arcTo(left, top, left + r, top, r);
+    ctx.closePath();
+    if (itm.completed && app.isCollectionEmpty(itm.blocks)) ctx.fillStyle = app.colors.pillDone;
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    WFUI.addTextToShape(itm);  
+}
+WFUI.drawShapePill = function(itm, draggingItem) {
+    var ctx = WFUI.ctx;
+    var x = itm.x;
+    var y = itm.y;
+    var pillLeft = x - (WFUI.shapeWidth / 2);
+    var pillWidth = WFUI.shapeWidth;
+    var pillHeight = WFUI.shapeHeight * 2 / 3;
+    var pillTop = y - (pillHeight / 2);
+    ctx.save();
+    ctx.beginPath();
+    WFUI.setStyle(ctx, itm, draggingItem);
+    ctx.moveTo(pillLeft + pillWidth - (pillHeight/2), pillTop); // top edge minus radii
+    ctx.arcTo(pillLeft + pillWidth, pillTop, pillLeft + pillWidth, pillTop + (pillHeight/2), pillHeight/2);
+    ctx.arcTo(pillLeft + pillWidth, pillTop + pillHeight, pillLeft + pillWidth - (pillHeight/2), pillTop + pillHeight, pillHeight/2);
+    ctx.lineTo(pillLeft + (pillWidth/2), pillTop + pillHeight);
+    ctx.arcTo(pillLeft, pillTop + pillHeight, pillLeft, pillTop + (pillHeight/2), pillHeight/2);
+    ctx.arcTo(pillLeft, pillTop, pillLeft + (pillHeight/2), pillTop, pillHeight/2);
+    ctx.closePath();
+    if (itm.completed && app.isCollectionEmpty(itm.blocks)) ctx.fillStyle = app.colors.pillDone;
+
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    WFUI.addTextToShape(itm);
+}
+WFUI.drawShapeDiamond = function(itm, draggingItem) {
+    var ctx = WFUI.ctx;
+    var x = itm.x;
+    var y = itm.y;
+    var left = x - (WFUI.shapeWidth / 2);
+    var w = WFUI.shapeWidth;
+    var h = WFUI.shapeWidth;
+    var top = y - (h / 2);
+    ctx.save();
+    ctx.beginPath();
+    WFUI.setStyle(ctx, itm, draggingItem);
+    ctx.moveTo(left + (w/2), top);
+    ctx.lineTo(left + w, top + (h/2));
+    ctx.lineTo(left + (w/2), top + h);
+    ctx.lineTo(left, top + (h/2));
+    ctx.closePath();
+    if (itm.completed && app.isCollectionEmpty(itm.blocks)) ctx.fillStyle = app.colors.pillDone;
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    WFUI.addTextToShape(itm);
+}
+WFUI.setStyle = function(ctx, itm, draggingItem) {
+    //ctx.strokeStyle = "black";
+    if (itm == undefined) {
+        itm = {completed:false, blockedBy:[]}
+    }
+    if (itm == draggingItem) {
+        ctx.lineWidth = 2;
+        ctx.shadowOffsetX = 8;
+        ctx.shadowOffsetY = 8;
+        ctx.shadowBlur = 5;
+        ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
+        ctx.fillStyle = app.colors.dragFill;
     } else {
-        // Store where the user clicked to start
-        WFUI.dragstart.origin = {x:x, y:y};
-        // figure offset from center of item to where user clicked
-        // values represent and adjustment from the actual x, y to the item's
-        // center x and y.
-        WFUI.dragstart.offset = {x:itm.x - x, y:itm.y - y}
+        if (itm == WF.pickedItem) {
+            ctx.shadowBlur = 25;
+            ctx.shadowColor = app.colors.halo;
+        }
+        ctx.lineWidth = .5;
+        if (itm.completed) {
+            ctx.strokeStyle = app.colors.doneLine;
+            var my_gradient = ctx.createLinearGradient(0, 0, 0, WFUI.shapeHeight);
+            my_gradient.addColorStop(0, "snow");
+            my_gradient.addColorStop(1, app.colors.doneFill);
+            ctx.fillStyle = my_gradient;
+            //ctx.fillStyle = app.colors.doneFill;
+        } else {
+            ctx.strokeStyle = app.colors.notDoneLine;
+            ctx.fillStyle = itm.isBlocked() ? app.colors.blockedFill : app.colors.activeFill;
+        }
     }
-    var prev = WF.pickedItem;
-    WF.pickedItem = itm;
-    WF.drawCanvas();
-    WF.dispatchEvent("itempicked", {item:itm, prev:prev});
-    app.closePopup();
-}
-WF.pushTransaction = function() {
-    WF.transactionLevel++;
-    WF.inTransaction = true;
-}
-WF.popTransaction = function() {
-    if (WF.transactionLevel > 0) WF.transactionLevel--;
-    WF.inTransaction = WF.transactionLevel > 0;
-    if (!WF.inTransaction) WF.drawCanvas();
-}
-var WFItem = function(x, y, shape, title) {
-    var tmpid = 0;
-    while(WF.flow.items[tmpid] != null) tmpid++;
-    this.id = tmpid;
-    this.x = x;
-    this.y = y;
-    this.shape = shape;
-    this.title = title;
-    // If doneCodes is empty then the only value kept 
-    // for completed is this value. However, if doneCodes
-    // has at least one value, completed is true for any of
-    // those values being set... and if none are set... completed
-    // is false
-    this.completed = false;
-    // doneCode cause the completion to be a selection
-    // of a list of items. If there is only one item in doneCodes
-    // then the only option is Not completed, or the value in 
-    // the doneCodes collection.
-    this.doneCodes = {};
-    // ex: {
-    //    AAA: {code:AAA, value:'First Option'},
-    //    BBB: {code:BBB, value:'Second Option'},
-    //    CCC: {code:CCC, value:'Third Option'}
-    // }
 
-    // If doneCodes has values and one of them are picked,
-    // then doneCode is set to that value.
-    this.doneCode = null;
-    // ex: 'AAA'
-
-    // true means that if there are multiple blocks, this item
-    // is considered unblocked if even 1 of them are completed.
-    // false means that they must ALL be completed
-    this.unblockIfAnyCompleted = false;
-
-    // Items this item is directly blocked by.
-    // Each item in the array will be an ID assigned to
-    // another item and an optional list of done codes
-    // that indicate an acceptable "done" condition.
-    this.blockedBy = {};
-    // ex: {} -> No blocked by links
-    // ex: {{id:2,codes:null}} -> Blocked by item id 2 with any done code
-    // ex: {{id:2,codes:'AAA,BBB'}}
-    // Note: The codes refer to "done codes" from the item with the id
-    // referenced in the item blockedBy array item itself.
-
-    // A reciprocal list from the blockedBy list. 
-    // If an item with id 4 has a blockedBy list that has {id:2, codes:null}
-    // then blocks on item with id 2 will contain the value
-    // [4] (it may contain other ids as well)
-    // Note: The blocks list does not contain any done codes
-    this.blocks = {};
 }
-WFItem.prototype.canChangeComplete = function() {
-    var anyCompleted = false;
-    rslt = true;
-    for (var otherid in this.blocks) {
-        var other = WF.flow.items[otherid];
-        if (other.completed) {
-            rslt = false;
-            break;
+WFUI.addTextToShape = function(itm, font, color) {
+    if (color == undefined) color = (itm.completed ? "black" : app.colors.notDoneLine);
+    if (font == undefined) font = "9pt Arial";
+    //WFUI.addText(itm.title, itm.x, itm.y + 5, font);
+    WFUI.wrapText(itm.title, itm.x, itm.y, (WFUI.shapeWidth * 2 / 3), color, 10, "Arial");
+}
+WFUI.wrapText = function(text, x, y, maxWidth, color, fontSize, fontFace){
+    var words = text.split(' ');
+    var lines = [];
+    var line = '';
+    var ctx = WFUI.ctx;
+    ctx.save();
+    ctx.font = fontSize + "pt " + fontFace;  
+    ctx.fillStyle = color;
+    for(var n = 0; n < words.length; n++) {
+        var testLine = line + words[n] + ' ';
+        var metrics = ctx.measureText(testLine);
+        var testWidth = metrics.width;
+        if(testWidth > maxWidth) {
+            lines.push(line);
+            //context.fillText(line, x, y);
+            line = words[n] + ' ';
+        } else {
+            line = testLine;
+        }
+    }
+    lines.push(line);
+    var lineHeight = fontSize * 1.22; // Leave spacing
+    var liney = y - (lineHeight * (lines.length-1) / 2) + (fontSize / 2);
+    for (var n = 0; n < lines.length; n++) {
+        var metrics = ctx.measureText(lines[n]);
+        ctx.fillText(lines[n], x - (metrics.width / 2), liney);
+        liney += lineHeight;
+    }
+}
+WFUI.addText = function(txt, x, y, font, color, shadowsize, shadowcolor) {
+    if (color == undefined) color = WFUI.textColor;
+    if (font == undefined) font = "10pt Arial";
+    var ctx = WFUI.ctx;
+    ctx.save();
+    ctx.font = font;
+    ctx.fillStyle = color;
+    var xy = ctx.measureText(txt);
+    var txtx = x - (xy.width / 2);
+    var txty = y;
+    if (shadowsize != undefined && shadowcolor != undefined) {
+        ctx.shadowBlur = shadowsize;
+        ctx.shadowColor = shadowcolor;
+    }
+
+    ctx.fillText(txt, txtx, txty);
+    ctx.restore();    
+}
+
+WFUI.getLinkUnderXY = function (x, y) {
+    var rslt = {item:null, blocking:null};
+    var rad = 20;
+    for (var id in WF.flow.items) {
+        var itm = WF.flow.items[id];
+        for (var bid in itm.blocks) {
+            var blk = WF.flow.items[bid];
+            var mid = WFUI.lineMidpoint(itm.x, itm.y, blk.x, blk.y);
+            var dist = WFUI.lineLength(mid.x, mid.y, x, y);
+            if (dist <= rad) {
+                rslt.item = itm;
+                rslt.blocking = blk;
+                break;
+            }
         }
     }
     return rslt;
 }
-WFItem.prototype.isBlocked = function() {
-    var blocked = false;
-    var anyDone = false;
-    var allDone = true; // Turned off as found
-    for (var bbnum in this.blockedBy) {
-        var link = this.blockedBy[bbnum];
-        var other = WF.flow.items[bbnum];
-        if (other.completed) {
-            if (link.allowCodes == null) {
-                anyDone = true;
-            } else {
-                if (app.isOneOf(other.doneCode, link.allowCodes)) {
-                    anyDone = true;
-                } else {
-                    allDone = false;
-                }
+
+WFUI.getItemUnderXY = function(x, y) {
+    var itm = null;
+    var halfHit = WF.pickHitBox / 2;
+    for (var id in WF.flow.items) {
+        var test = WF.flow.items[id];
+        if (x >= (test.x - halfHit) && x <= test.x + halfHit) {
+            if (y >= (test.y - halfHit) && y <= test.y + halfHit) {
+                itm = test;
+                //WF.dispatchEvent("itempicked", {item:itm});
+                break;
             }
-        } else {
-            allDone = false;
         }
     }
-    if (this.unblockIfAnyCompleted) {
-        blocked = !anyDone;
-    } else {
-        blocked = !allDone;
-    }
-    return blocked;
-}
-WFItem.prototype.addBlock = function(itm, allowCodes) {
-    return itm.addBlockedBy(this, allowCodes);
-}
-WFItem.prototype.removeBlock = function(itm) {
-    itm.removeBlockedBy(this);
-}
-WFItem.prototype.addBlockedBy = function(itm, allowCodes) {
-    if (this.blockedBy[itm.id] == null && this.blocks[itm.id] == null) {
-        if (allowCodes == undefined) allowCodes = null;
-        this.blockedBy[itm.id] = {id:itm.id, allowCodes:allowCodes}
-        itm.blocks[this.id] = {id:this.id}
-        return true;
-    } else {
-        return false;
-    }
-}
-WFItem.prototype.removeBlockedBy = function(itm) {
-    delete this.blockedBy[itm.id];
-    delete itm.blocks[this.id];
-}
-WF.addItem = function(x, y, shape, title) {
-    var itm = new WFItem(x, y, shape, title);
-    WF.flow.items[itm.id] = itm;
-    if (!WF.inTransaction) WF.drawCanvas();
     return itm;
 }
-WF.drawCanvas = function() {
-    app.saveLocal(); // Working 
-    WFUI.drawCanvas(WF.flow.items);
+WFUI.drawSidedShape = function(x, y, sides, r) {
+    var ctx = WFUI.ctx;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate((360 / sides / 2) * Math.PI / 180);
+    ctx.moveTo (r * Math.cos(0), r * Math.sin(0));  
+    for (var i = 1; i < sides; i += 1) {
+        ctx.lineTo (r * Math.cos(i * 2 * Math.PI / sides), r * Math.sin(i * 2 * Math.PI / sides));
+    }
+    ctx.closePath();
+    ctx.translate(-x, -y);
+    ctx.rotate(0);
+    ctx.restore();
 }
-function initWF() {
-    var filedrag = document.getElementById("locLoadFromClipboard");
-    filedrag.addEventListener("drop", app.loadFromDroppedFile, false);
-    document.addEventListener("drop", app.blockWindowDrop, false);
 
-    var json = localStorage.getItem("WF2_FLOWDATA");
-    var sel = document.getElementById("selLoadLocal");
-    if (json != undefined) {
-        app.localStorage = JSON.parse(json);
-        for (var i = 0; i < 10; i++) {
-            var flow = app.localStorage.slots[i+1];
-            if (flow != null) {
-                sel.options[i].innerHTML = (i + 1) + ". " + flow.title;
-            }
+WFUI.drawArrowAtEnd = function(x1, y1, x2, y2, txt, completed) {
+    if (txt == undefined) txt = "";
+    var alen = WFUI.arrowSize.length;
+    var awid = WFUI.arrowSize.width;
+    var angle = WFUI.lineAngle(x1, y1, x2, y2);
+    var ctx = WFUI.ctx; //WorkflowUI.canvas.getContext("2d");
+    ctx.save();
+    ctx.beginPath();
+    var mid = WFUI.lineMidpoint(x1, y1, x2, y2);
+    ctx.translate(mid.x, mid.y);
+    ctx.rotate(angle);
+    ctx.moveTo(alen,0);
+    ctx.lineTo(0, awid/2);
+    ctx.lineTo(0, -awid/2);
+    ctx.closePath();
+    ctx.strokeStyle = (completed ? app.colors.doneLine : app.colors.notDoneLine);
+    ctx.lineWidth = (completed ? 3 : 2);
+    ctx.stroke();
+    ctx.fillStyle = (completed ? app.colors.doneLine : app.colors.blockedFill);
+    ctx.fill();
+    ctx.rotate(-angle);
+
+    if (txt != "") {
+        ctx.font = "9pt Arial";
+        var metrics = ctx.measureText(txt);
+        var txtx = -(metrics.width / 2);
+        var txty = -awid + 2;
+        if (angle < 0) txty = 18;
+        ctx.save();
+        ctx.strokeStyle = "white";
+        ctx.fillStyle = "white";
+        var bclr = "rgba(255, 255, 255, .9)";
+        var clr = "navy";
+        if (txt == "??") {
+            bclr = "red";
+            clr = "yellow";
         }
+        ctx.fillStyle = bclr;
+        ctx.fillRect(txtx - 2, txty + 2, metrics.width + 4, -14);
+        ctx.restore();
+
+        ctx.fillStyle = clr;
+        ctx.fillText(txt, txtx, txty);
     }
-    sel.value = app.localStorage.slot;
-    var frm = document.getElementById("frmWF");
-    frm.elements.namedItem("wf_title").value = WF.flow.title; 
-
-    var div = document.createElement("div");
-    div.style.cssText = "z-index:1; height:1200px; width: 800px; position:relative; background-color: white; margin: .3em auto";
-    document.getElementById("canvasContainer").appendChild(div);
-
-    WFUI.canvas = document.createElement("canvas");
-    var can = WFUI.canvas;
-    can.height = 1200;
-    can.width = 800;
-    div.appendChild(can);
-    //document.getElementById("canvasContainer").appendChild(can);
-    // Get the device pixel ratio, falling back to 1.
-    //var dpr = window.devicePixelRatio || 1;
-    // Get the size of the canvas in CSS pixels.
-    //var rect = can.getBoundingClientRect();
-    // Give the canvas pixel dimensions of their CSS
-    // size * the device pixel ratio.
-    //can.width = rect.width * dpr;
-    //can.height = rect.height * dpr;
-    WFUI.ctx = can.getContext('2d');
-    // Scale all drawing operations by the dpr, so you
-    // don't have to worry about the difference.
-    //WFUI.ctx.scale(dpr, dpr);
-
-    WF.eventTarget = document.createTextNode(null); // Dummy target for events
-    // Pass EventTarget interface calls to DOM EventTarget object
-    WF.addEventListener = WF.eventTarget.addEventListener.bind(WF.eventTarget);
-    WF.removeEventListener = WF.eventTarget.removeEventListener.bind(WF.eventTarget);
-    WF.dispatchEvent = function(ename, detail) {
-        //console.log("Event: " + ename + ", Detail: " + JSON.stringify(detail));
-        WF.eventTarget.dispatchEvent(new CustomEvent(ename, {detail:detail}));
-    }
-    WF.addEventListener("linkpicked", function(e) {
-        var itm = e.detail.item;
-        WF.pickedItem = itm;
-        var blk = e.detail.blocking;
-        if (app.mode == "work") {
-            if (itm.isBlocked()) {
-                app.toast("Item '" + itm.title + "' status cannot be changed", true);
-            } else {
-                lnk = blk.blockedBy[itm.id];
-                app.toggleComplete(lnk);
-            }
-        } else {
-            app.editLink("blocks",blk.id);
-        }
-    })
-    WF.addEventListener("itempicked", function(e) {
-        if (e.detail.item == null) {
-            //app.toast("Clicked open area");
-            app.pendingAction = null;
-        } else {
-            //app.toast("Clicked: " + e.detail.item.title);
-        }
-        if (WF.pickedItem == null) {
-            app.hideEditor();
-            app.cancelAction(true);
-        } else {
-            app.editItem();
-        }
-    });
-    WF.addEventListener("linkadded", function(e) {
-        //WorkflowUI.drawConnector(e.detail.blockedByStep, e.detail.blockedStep);
-    });
-    WF.addEventListener("linkremoved", function(e) {
-        //WorkflowUI.drawCanvas(this);
-    });
-
-    can.addEventListener("touchstart", function(event) {
-        if (event.touches.length > 1) return; // zoom?
-        event.preventDefault();
-        WF.handleMouseDown(event.touches[0])
-    }, false);
-    can.addEventListener("mousedown", function(event) {
-        event.preventDefault();
-        WF.handleMouseDown(event);
-    }, false);
-    can.addEventListener("touchend", function(event) {
-        event.preventDefault();
-        WF.handleMouseUp(event.touches[0]);
-    }, false);
-    can.addEventListener("mouseup", function(event) {
-        event.preventDefault();
-        WF.handleMouseUp(event);
-    }, false);
-    can.addEventListener("mouseout", function(event) {
-        var can = WFUI.canvas;
-        WFUI.dragstart = null;
-        can.style.cursor = "default";
-        app.cancelAction();
-    }, false);
-    can.addEventListener("touchmove", function(event) {
-        var handled = WF.handleMouseMove(event.touches[0]);
-        if (handled) event.preventDefault();
-    }, false)
-    can.addEventListener("mousemove", function(event) {
-        WF.handleMouseMove(event);
-        event.preventDefault();
-    }, false);
-    app.toggleMode("work");
-
-    document.getElementById("formContainer").addEventListener("click", function(event) {
-        app.closePopup();
-    });
     
+    ctx.restore();
 }
+WFUI.lineLength = function(x1, y1, x2, y2) {
+    var a = x1 - x2;
+    var b = y1 - y2;
+    var c = Math.abs(Math.sqrt( a*a + b*b ));
+    return c;
+}
+WFUI.lineAngle = function(x1, y1, x2, y2) {
+    var mx = x1 - x2;
+    var my = y1 - y2;
+    var angle = Math.atan2(my, mx);// * 180 * Math.PI;
+    return angle;
+}
+WFUI.lineMidpoint = function(x1, y1, x2, y2) {
+    x = (x1 + x2) / 2;
+    y = (y1 + y2) / 2;
+    return {x:x, y:y}
+}
+
