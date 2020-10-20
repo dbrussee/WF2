@@ -179,6 +179,7 @@ app.editItem = function() {
     var frm = document.getElementById("frmWF");
     frm.elements.namedItem("det_item_title").value = itm.title;
     document.getElementById("item_title").innerHTML = itm.title;
+    frm.elements.namedItem("item_instructions").value = (itm.instructions == undefined ? "" : itm.instructions);
     var loc = document.getElementById("locCompleteOptions");
     loc.innerHTML = ""; // Get rid of prior options... leaving the Not completed option there
     var cantChange = !itm.canChangeComplete();
@@ -191,7 +192,7 @@ app.editItem = function() {
     }
     var doneCodeCount = 0;
     var tbl = document.getElementById("tbl_done_codes");
-    while (tbl.rows.length > 1) tbl.deleteRow(1);
+    while (tbl.rows.length > 2) tbl.deleteRow(2);
     for (var key in itm.doneCodes) {
         var oneCode = itm.doneCodes[key];
         var chk = (itm.doneCode == key ? " checked" : "");
@@ -222,7 +223,7 @@ app.editItem = function() {
         var tr = tbl.insertRow();
         var td = tr.insertCell();
         td.colSpan = "2";
-        td.innerHTML = "No done codes defined";
+        td.innerHTML = "No done codes defined. Options will be Completed or Not Completed";
         td.style.color = "grey";
 
         var chk = (itm.completed ? " checked" : "");
@@ -238,6 +239,11 @@ app.editItem = function() {
         h += " value='Y'>Completed</label>";
         loc.innerHTML += h;
     }
+    var txt = "";
+    if (itm.instructions != undefined) {
+        txt = "<fieldset><legend>Instructions</legend>" + itm.instructions.replace(/\n/g,"<p>") + "</fieldset>";
+    }
+    document.getElementById("locInstructions").innerHTML = txt;
     //document.getElementById("locCannotUncompleteMessage").style.display = (itm.canChangeComplete() ? "none" : "");
     if (itm.unblockIfAnyCompleted) {
         document.getElementById("item_block_type_any").checked = true;
@@ -596,6 +602,15 @@ app.updateItemTitle = function(el) {
     WF.pickedItem.title = el.value;
     WF.drawCanvas();
 }
+app.updateInstructions = function(el) {
+    var inst = el.value.trim();
+    if (inst == "") {
+        delete WF.pickedItem.instructions;
+    } else {
+        WF.pickedItem.instructions = inst;
+    }
+    app.saveLocal(); // No need to redraw
+}
 app.cycleItemShape = function() {
     if (WF.pickedItem == null) return;
     var sel = document.getElementById("item_shape");
@@ -721,6 +736,7 @@ app.loadLocal = function() {
             var itm = new WFItem(tmpItm.x, tmpItm.y, tmpItm.shape, tmpItm.title);
             WF.flow.items[id] = itm;
             itm.id = id;
+            if (tmpItm.instructions != undefined) itm.instructions = tmpItm.instructions;
             itm.completed = tmpItm.completed;
             itm.doneCodes = tmpItm.doneCodes;
             itm.doneCode = tmpItm.doneCode;
