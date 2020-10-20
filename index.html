@@ -136,6 +136,7 @@
                 <tr style='display:none' id='locCannotUncompleteMessage'><td colspan='2' style='color:brown'>One or more items depending on this are already completed.</td></tr>
             </table>
             <hr>
+            <div id='locInstructions'></div>
             </span>
             <span id='itemDetailEditor' style='display:none;'>
             <table class='form'>
@@ -154,15 +155,19 @@
                     </select>
                     </td>
                 </tr>
-                <tr><th style='vertical-align:top'>Done&nbsp;Codes:</th><td style='font-size:.8em'>(listed below)</td>
+                <tr><th style='vertical-align:top'>Instructions:</th>
+                    <td><textarea onkeyup='app.updateInstructions(this)' style='font-size:10pt;width:100%;height:5em;' name='item_instructions'></textarea></td>
+                </tr>
                 <tr><td colspan='2' style='padding-left:2em;'>
-                    <table id='tbl_done_codes'><tr>
-                        <th style='width:55px'>Code</th>
-                        <th>Value <button style='font-size:.7em;' onclick='app.editDoneCode()'>add</button></th>
-                    </tr></table>
+                    <table id='tbl_done_codes'>
+                        <tr><th style='border-bottom: 0' colspan='2'>Complete Options</th></tr>
+                        <tr><th style='width:55px'>Code</th>
+                            <th>Value <button style='font-size:.7em;' onclick='app.editDoneCode()'>add</button></th>
+                        </tr>
+                    </table>
                 </td></tr>
                 <tr><td colspan='2'>
-                    <table style='width:400px'>
+                    <table style='width:380px'>
                         <td style='vertical-align:top;'>
                             <span style='color:navy;'>Blocked By...</span>
                             <button style='font-size:.7em;' onclick='app.askToAddLink("blockby")'>Add</button>
@@ -179,7 +184,7 @@
                 <tr><th style='vertical-align:top'>Blocked&nbsp;till:</th><td style='vertical-align:top'>
                     <label><input id='item_block_type_any' type='radio' onchange='app.updateBlockType(this)' name='item_block_type' value='any'>Any</label>
                     <label><input id='item_block_type_all' type='radio' checked onchange='app.updateBlockType(this)' name='item_block_type' value='all'>All</label>
-                    &nbsp;'Blocked Bys' are done
+                    &nbsp;Blocked Bys are done
                 </td></tr>
             </table>
             <hr>
@@ -252,7 +257,7 @@
         </form>
         <form class='popForm' onsubmit='return false;' id='locEditLink' style='display:none'>
             <span id='locEditLinkMessage'></span><br/>
-            <table style='margin-left:2em' id='tbl_link_codes'><tr>
+            <table style='margin-left:1.5em' id='tbl_link_codes'><tr>
                 <th style='width:1.5em;'>&nbsp;</th>
                 <th>Code: 'Display'</th>
             </tr></table>
