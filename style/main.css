@@ -64,7 +64,7 @@ span.anchor:hover {
 
 table#tbl_done_codes,
 table#tbl_link_codes {
-    width: 250px;
+    width: 320px;
     border-collapse: collapse;
     border-bottom: 1px solid navy;
     margin-bottom: .2em;
@@ -106,4 +106,20 @@ table#tbl_link_codes td {
     box-shadow: 4px 4px 4px grey;
     bottom: 12px;
     right: 12px;
+}
+
+fieldset {   
+    -moz-border-radius:.3em;  
+    border-radius:.3em;  
+    -webkit-border-radius:.3em;
+    border: 1px solid gray;
+} 
+fieldset legend {
+    color: navy;
+}
+p {
+    margin-top: .3em;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
 }
