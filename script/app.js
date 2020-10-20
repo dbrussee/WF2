@@ -701,6 +701,7 @@ app.loadFromTextbox = function() {
             var itm = new WFItem(tmpItm.x, tmpItm.y, tmpItm.shape, tmpItm.title);
             WF.flow.items[id] = itm;
             itm.id = id;
+            if (tmpItm.instructions != undefined) itm.instructions = tmpItm.instructions;
             itm.completed = tmpItm.completed;
             itm.doneCodes = tmpItm.doneCodes;
             itm.doneCode = tmpItm.doneCode;
