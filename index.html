@@ -29,13 +29,12 @@
         <span class='anchor' onclick='app.setPageScale("height")'>height</span><br/>
         <input oninput='app.setPageScale()' type="range" min="25" max="200" value="100" step="5" class="slider" id="rngScale">
     </div>
+    <div class='anchor workDesignMode' id='locModeName' onclick='app.toggleMode()'>work</div>
+
     <div id='canvasContainer'>
 
     </div>
     <div id='formContainer'>
-        <div style='position:absolute;top:.2em;right:.5em;text-align:right;'>
-        <span class='anchor' style='font-weight:bold' onclick='app.toggleMode()' id='locModeName'>work</span>
-        </div>
         <form id='frmWF' style='width:100%' onsubmit='return false;'>
             <table id='topForm' class='form' style='width:360px; margin:0 auto;'>
                 <tr><th ondblclick="app.resetFlow()" style='vertical-align:top; width:38px'>&nbsp;Title:</th>
@@ -90,16 +89,18 @@
                 </td></tr>
                 <tr><td colspan='2'>
                     <table style='width:380px'>
-                        <td style='vertical-align:top;'>
-                            <span style='color:navy;'>Blocked By...</span>
-                            <button style='font-size:.7em;' onclick='app.askToAddLink("blockby")'>Add</button>
-                            <span id='locBlockedByList'></span>
-                        </td>
-                        <td style='width:50%; vertical-align:top;'>
-                            <span style='color:navy;'>Blocking...</span>
-                            <button style='font-size:.7em;' onclick='app.askToAddLink("blocks")'>Add</button>
-                            <span id='locBlocksList'></span>
-                        </td>
+                        <tr>
+                            <td style='vertical-align:top;'>
+                                <span style='color:navy;'>Blocked By...</span>
+                                <button style='font-size:.7em;' onclick='app.askToAddLink("blockby")'>Add</button>
+                                <span id='locBlockedByList'></span>
+                            </td>
+                            <td style='width:50%; vertical-align:top;'>
+                                <span style='color:navy;'>Blocking...</span>
+                                <button style='font-size:.7em;' onclick='app.askToAddLink("blocks")'>Add</button>
+                                <span id='locBlocksList'></span>
+                            </td>
+                        </tr>
                     </table>
                 </td></tr>
                 <tr><td colspan='2'><hr></td></tr>
