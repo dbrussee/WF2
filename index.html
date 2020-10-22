@@ -11,91 +11,7 @@
 
     <script>
         function init() {
-            window.addEventListener("keydown", function(event) {
-                if (event.srcElement != document.body) return;
-                event.preventDefault();
-                switch(event.keyCode) {
-                    case 48: // 0 (10th item)
-                    var sel = document.getElementById("selLoadLocal");
-                        sel.selectedIndex = 9; // 10th item
-                        app.loadLocal();
-                        break;
-                    case 49: //1-9 flow load
-                    case 50:
-                    case 51:
-                    case 52:
-                    case 53:
-                    case 54:
-                    case 55:
-                    case 56:
-                    case 57:
-                        var sel = document.getElementById("selLoadLocal");
-                        sel.selectedIndex = (event.keyCode - 49);
-                        app.loadLocal();
-                        break;
-                    case 27: // escape key
-                        WF.pickedItem = null;
-                        app.cancelAction();
-                        app.hideEditor();
-                        WF.drawCanvas();
-                        break;
-                    case 37: // left arrow
-                        if (event.shiftKey) app.shiftAll("L");
-                        break;
-                    case 39: // right arrow
-                        if (event.shiftKey) app.shiftAll("R");
-                        break;
-                    case 38: // up arrow
-                        if (event.shiftKey) app.shiftAll("U");
-                        break;
-                    case 40: // down arrow
-                        if (event.shiftKey) app.shiftAll("D");
-                        break;
-                    case 67: // c (Center items)
-                        if (event.shiftKey) app.shiftCenter();
-                        break;
-                    case 191: // forward slash
-                        app.toggleMode();
-                        break;
-                    case 84: // t (Edit title)
-                        app.popupWFTitle();
-                        break;
-                    case 32: // space bar
-                        app.toggleComplete();
-                        break;
-                    case 8: // backspace
-                    case 46: // delete
-                        app.askToDeleteItem();
-                        break;
-                    case 13: // enter key
-                        break;
-                    case 65: // a (add item)
-                        app.askToAddNewItem();
-                        break;
-                    case 66: // b (Block link)
-                        app.askToAddLink("blocks");
-                        break;
-                    case 69: // e (Edit item)
-                        //app.toggleMode("design");
-                        app.editItem();
-                        break;
-                    case 83: // s (item shape)
-                        app.cycleItemShape();
-                        break;
-                    case 89: // y (bloked bY link)
-                        app.askToAddLink("blockby");
-                        break;
-                    case 78: // n (find / pick next unblocked)
-                        app.pickNext();
-                        break;
-                    case 82: // r (reset)
-                        app.resetFlow();
-                        break;
-                    default:
-                        //console.log(event.keyCode + " pressed");
-                }
-            });
-            app.updateLocalStorage();
+
             initWF();
             app.loadLocal();
         }
@@ -107,6 +23,12 @@
         <tr><td></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td></tr>
     </table>
+    <div class='scaleSlider'>
+        <span class='anchor' onclick='app.setPageScale(100)'>100%</span> |
+        <span class='anchor' onclick='app.setPageScale("width")'>width</span> |
+        <span class='anchor' onclick='app.setPageScale("height")'>height</span><br/>
+        <input oninput='app.setPageScale()' type="range" min="25" max="200" value="100" step="5" class="slider" id="rngScale">
+    </div>
     <div id='canvasContainer'>
 
     </div>
@@ -285,7 +207,7 @@
 
         </div>
         <div id='messageContainer'>
-            <span id='locToastMessage'></span>
+            <div style='margin:.2em; margin-top:.5em; padding: .3em; border: 1px solid transparent; border-radius:.3em;' id='locToastMessage'></div>
         </div>
 
     </div>
