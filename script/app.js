@@ -1,19 +1,49 @@
 window.app = {
+    scale: 1,
+    page: {x:850, y:1100},
     debugStatus: false,
     colors: {
-        halo: "olivedrab",
-        doneLine: "dodgerblue",
+        halo: "black",
+        doneLine: "forestgreen",
         notDoneLine: "saddlebrown",
-        doneFill: "lightcyan",
-        pillDone: "lightgreen",
-        blockedFill: "snow",
+        doneFill: "springgreen",
+        blockedFill: "papayawhip",
         activeFill: "gold",
-        dragFill: "khaki"
+        dragFill: "gainsboro"
     },
     localStorage: {slot:1, slots:[null,null,null,null,null,null,null,null,null,null,null]},
     pendingAction: null,
     editing: false,
     mode: "work" // or "design"
+}
+
+app.setPageScale = function(val) {
+    var rng = document.getElementById("rngScale");
+    if (val == undefined) {
+        app.scale  = rng.value / 100;
+    } else {
+        if (val == "width") {
+            var container = document.getElementById("canvasContainer");
+            var box = container.getBoundingClientRect();
+            app.scale = (box.width - 40) / app.page.x; // 20 px margins
+            rng.value = app.scale * 100;
+        } else if (val == "height") {
+            var container = document.getElementById("canvasContainer");
+            var box = container.getBoundingClientRect();
+            app.scale = (box.height - 40) / app.page.y; // 20 px margins
+            rng.value = app.scale * 100;
+        } else {
+            if (val <= 1) {
+                app.scale = val;
+                rng.value = val * 100;
+            } else {
+                app.scale = val / 100;
+                rng.value = val;
+            }
+        }
+    }
+    WF.createCanvas();
+    WF.drawCanvas();
 }
 app.debug = function(msg) {
     if (app.debugStatus) {
@@ -112,14 +142,15 @@ app.toast = function(msg, isError) {
     var loc = document.getElementById("locToastMessage");
     loc.style.color = (isError ? "red" : "brown");
     loc.style.backgroundColor = (isError ? "yellow" : "transparent");
-    loc.style.paddingLeft = (isError ? ".3em" : "0");
-    loc.style.paddingRight = (isError ? ".3em" : "0");
+    loc.style.borderColor = (isError ? "black" : "brown");
     if (app.toastTimer != null) window.clearTimeout(app.toastTimer);
     if (msg == "") {
         loc.innerHTML = "";
+        loc.style.display = "none";
         app.toastTimer = null;
     } else {
-        loc.innerHTML = "..." + msg;
+        loc.innerHTML = msg;
+        loc.style.display = "block";
         app.toastTimer = window.setTimeout(function() {
             app.toast();
         }, 4000);
@@ -977,7 +1008,7 @@ app.shiftCenter = function() {
         if (itm.y > maxy) maxy = itm.y;
     }
     var width = maxx - minx;
-    var left = (WFUI.canvas.width - width) / 2;
+    var left = ((WFUI.canvas.width / app.scale) - width) / 2;
     left = (WF.gridsize * parseInt(left / WF.gridsize));
 
     var xoff = left - minx;
@@ -1003,10 +1034,10 @@ app.shiftAll = function (dirs) {
     for (var id in WF.flow.items) {
         var itm = WF.flow.items[id];
         var test = itm.x + xoff;
-        if (test < 0 || test > WFUI.canvas.width) canShift = false;
+        if (test < 0 || test > (WFUI.canvas.width / app.scale)) canShift = false;
         if (canShift) {
             test = itm.y + yoff;
-            if (test < 0 || test > WFUI.canvas.height) canShift = false;
+            if (test < 0 || test > (WFUI.canvas.height / app.scale)) canShift = false;
         }
         if (!canShift) break;
     }
