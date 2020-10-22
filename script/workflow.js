@@ -17,8 +17,8 @@ WF.handleMouseMove = function(event) {
     var can = WFUI.canvas;
     if (WF.pickedItem == null) return false; // Nothing picked... nothing to drag
     if (WFUI.dragstart == null) return false; // Still nothing to drag
-    var x = event.clientX - can.parentElement.offsetLeft + can.parentElement.parentElement.scrollLeft;
-    var y = event.clientY - can.parentElement.offsetTop + can.parentElement.parentElement.scrollTop;
+    var x = (event.clientX - can.parentElement.offsetLeft + can.parentElement.parentElement.scrollLeft) / app.scale;
+    var y = (event.clientY - can.parentElement.offsetTop + can.parentElement.parentElement.scrollTop) / app.scale;
     if (WFUI.dragstart.item == null) {
         var offset = WFUI.dragstart.offset;
         var origin = WFUI.dragstart.origin;
@@ -66,8 +66,10 @@ WF.handleMouseDown = function(event) {
         origin:{x:0,y:0},
         offset:{x:0,y:0}
     };
-    var x = event.clientX - can.parentElement.offsetLeft + can.parentElement.parentElement.scrollLeft;
-    var y = event.clientY - can.parentElement.offsetTop + can.parentElement.parentElement.scrollTop;
+    //var x = event.clientX - can.parentElement.offsetLeft + can.parentElement.parentElement.scrollLeft;
+    //var y = event.clientY - can.parentElement.offsetTop + can.parentElement.parentElement.scrollTop;
+    var x = (event.clientX - can.parentElement.offsetLeft + can.parentElement.parentElement.scrollLeft) / app.scale;
+    var y = (event.clientY - can.parentElement.offsetTop + can.parentElement.parentElement.scrollTop) / app.scale;
 
     if (y < 45) {
         app.popupWFTitle();
@@ -246,6 +248,92 @@ WF.drawCanvas = function() {
     WFUI.drawCanvas(WF.flow.items);
 }
 function initWF() {
+    window.addEventListener("keydown", function(event) {
+        if (event.srcElement != document.body) return;
+        event.preventDefault();
+        switch(event.keyCode) {
+            case 48: // 0 (10th item)
+            var sel = document.getElementById("selLoadLocal");
+                sel.selectedIndex = 9; // 10th item
+                app.loadLocal();
+                break;
+            case 49: //1-9 flow load
+            case 50:
+            case 51:
+            case 52:
+            case 53:
+            case 54:
+            case 55:
+            case 56:
+            case 57:
+                var sel = document.getElementById("selLoadLocal");
+                sel.selectedIndex = (event.keyCode - 49);
+                app.loadLocal();
+                break;
+            case 27: // escape key
+                WF.pickedItem = null;
+                app.cancelAction();
+                app.hideEditor();
+                WF.drawCanvas();
+                break;
+            case 37: // left arrow
+                if (event.shiftKey) app.shiftAll("L");
+                break;
+            case 39: // right arrow
+                if (event.shiftKey) app.shiftAll("R");
+                break;
+            case 38: // up arrow
+                if (event.shiftKey) app.shiftAll("U");
+                break;
+            case 40: // down arrow
+                if (event.shiftKey) app.shiftAll("D");
+                break;
+            case 67: // c (Center items)
+                if (event.shiftKey) app.shiftCenter();
+                break;
+            case 191: // forward slash
+                app.toggleMode();
+                break;
+            case 84: // t (Edit title)
+                app.popupWFTitle();
+                break;
+            case 32: // space bar
+                app.toggleComplete();
+                break;
+            case 8: // backspace
+            case 46: // delete
+                app.askToDeleteItem();
+                break;
+            case 13: // enter key
+                break;
+            case 65: // a (add item)
+                app.askToAddNewItem();
+                break;
+            case 66: // b (Block link)
+                app.askToAddLink("blocks");
+                break;
+            case 69: // e (Edit item)
+                //app.toggleMode("design");
+                app.editItem();
+                break;
+            case 83: // s (item shape)
+                app.cycleItemShape();
+                break;
+            case 89: // y (bloked bY link)
+                app.askToAddLink("blockby");
+                break;
+            case 78: // n (find / pick next unblocked)
+                app.pickNext();
+                break;
+            case 82: // r (reset)
+                app.resetFlow();
+                break;
+            default:
+                //console.log(event.keyCode + " pressed");
+        }
+    });
+    app.updateLocalStorage();
+
     var filedrag = document.getElementById("locLoadFromClipboard");
     filedrag.addEventListener("drop", app.loadFromDroppedFile, false);
     document.addEventListener("drop", app.blockWindowDrop, false);
@@ -265,28 +353,7 @@ function initWF() {
     var frm = document.getElementById("frmWF");
     frm.elements.namedItem("wf_title").value = WF.flow.title; 
 
-    var div = document.createElement("div");
-    div.style.cssText = "z-index:1; height:1200px; width: 800px; position:relative; background-color: white; margin: .3em auto";
-    document.getElementById("canvasContainer").appendChild(div);
-
-    WFUI.canvas = document.createElement("canvas");
-    var can = WFUI.canvas;
-    can.height = 1200;
-    can.width = 800;
-    div.appendChild(can);
-    //document.getElementById("canvasContainer").appendChild(can);
-    // Get the device pixel ratio, falling back to 1.
-    //var dpr = window.devicePixelRatio || 1;
-    // Get the size of the canvas in CSS pixels.
-    //var rect = can.getBoundingClientRect();
-    // Give the canvas pixel dimensions of their CSS
-    // size * the device pixel ratio.
-    //can.width = rect.width * dpr;
-    //can.height = rect.height * dpr;
-    WFUI.ctx = can.getContext('2d');
-    // Scale all drawing operations by the dpr, so you
-    // don't have to worry about the difference.
-    //WFUI.ctx.scale(dpr, dpr);
+    WF.createCanvas();
 
     WF.eventTarget = document.createTextNode(null); // Dummy target for events
     // Pass EventTarget interface calls to DOM EventTarget object
@@ -332,6 +399,44 @@ function initWF() {
         //WorkflowUI.drawCanvas(this);
     });
 
+    app.toggleMode("work");
+
+    document.getElementById("formContainer").addEventListener("click", function(event) {
+        app.closePopup();
+    });
+    
+}
+
+WF.createCanvas = function() {
+    var container = document.getElementById("canvasContainer");
+    container.innerHTML = "";
+    var div = document.createElement("div");
+    div.style.cssText = "z-index:1; position:relative; background-color: white; margin: 20px auto";
+    div.style.height = (app.page.y * app.scale) + "px";
+    div.style.width = (app.page.x * app.scale) + "px";
+    container.appendChild(div);
+
+    WFUI.canvas = document.createElement("canvas");
+    var can = WFUI.canvas;
+    can.style.margin = "0";
+    can.height = app.page.y * app.scale;
+    can.width = app.page.x * app.scale;
+    div.appendChild(can);
+    //document.getElementById("canvasContainer").appendChild(can);
+    // Get the device pixel ratio, falling back to 1.
+    //var dpr = window.devicePixelRatio || 1;
+    // Get the size of the canvas in CSS pixels.
+    //var rect = can.getBoundingClientRect();
+    // Give the canvas pixel dimensions of their CSS
+    // size * the device pixel ratio.
+    //can.width = rect.width * dpr;
+    //can.height = rect.height * dpr;
+    WFUI.ctx = can.getContext('2d');
+    WFUI.ctx.scale(app.scale, app.scale);
+    // Scale all drawing operations by the dpr, so you
+    // don't have to worry about the difference.
+    //WFUI.ctx.scale(dpr, dpr);
+
     can.addEventListener("touchstart", function(event) {
         if (event.touches.length > 1) return; // zoom?
         event.preventDefault();
@@ -362,10 +467,5 @@ function initWF() {
         WF.handleMouseMove(event);
         event.preventDefault();
     }, false);
-    app.toggleMode("work");
 
-    document.getElementById("formContainer").addEventListener("click", function(event) {
-        app.closePopup();
-    });
-    
 }
