@@ -87,7 +87,7 @@ WFUI.drawCanvas = function(items) {
 
 WFUI.clearCanvas = function() {
     var ctx = WFUI.ctx;
-    ctx.clearRect(0,0,WFUI.canvas.width, WFUI.canvas.height);
+    ctx.clearRect(0,0,WFUI.canvas.width / app.scale, WFUI.canvas.height / app.scale);
 }
 
 WFUI.drawShape = function(itm, draggingItem) {
@@ -117,7 +117,7 @@ WFUI.drawShapeStop = function(itm, draggingItem) {
     //ctx.lineWidth = 2;
     //ctx.strokeStyle = "red";
     WFUI.drawSidedShape(x, y, 8, r);
-    if (itm.completed) ctx.fillStyle = "firebrick";
+    if (itm.completed) WFUI.shadeWith(itm, "firebrick");
     ctx.fill();
     ctx.stroke();
     ctx.restore();
@@ -132,7 +132,7 @@ WFUI.drawShapeCircle = function(itm, draggingItem) {
     ctx.beginPath();
     WFUI.setStyle(ctx, itm, draggingItem);
     ctx.arc(x, y, r, 0, Math.PI * 2);
-    if (itm.completed && app.isCollectionEmpty(itm.blocks)) ctx.fillStyle = app.colors.pillDone;
+    if (itm.completed && app.isCollectionEmpty(itm.blocks)) WFUI.shadeWith(itm, app.colors.doneFill);
     ctx.fill();
     ctx.stroke();
     ctx.restore();
@@ -160,7 +160,7 @@ WFUI.drawShapeBox = function(itm, draggingItem) {
     ctx.lineTo(left, top + r);
     ctx.arcTo(left, top, left + r, top, r);
     ctx.closePath();
-    if (itm.completed && app.isCollectionEmpty(itm.blocks)) ctx.fillStyle = app.colors.pillDone;
+    if (itm.completed && app.isCollectionEmpty(itm.blocks)) WFUI.shadeWith(itm, app.colors.doneFill);
     ctx.fill();
     ctx.stroke();
     ctx.restore();
@@ -184,7 +184,7 @@ WFUI.drawShapePill = function(itm, draggingItem) {
     ctx.arcTo(pillLeft, pillTop + pillHeight, pillLeft, pillTop + (pillHeight/2), pillHeight/2);
     ctx.arcTo(pillLeft, pillTop, pillLeft + (pillHeight/2), pillTop, pillHeight/2);
     ctx.closePath();
-    if (itm.completed && app.isCollectionEmpty(itm.blocks)) ctx.fillStyle = app.colors.pillDone;
+    if (itm.completed && app.isCollectionEmpty(itm.blocks)) WFUI.shadeWith(itm, app.colors.doneFill);
 
     ctx.fill();
     ctx.stroke();
@@ -207,7 +207,7 @@ WFUI.drawShapeDiamond = function(itm, draggingItem) {
     ctx.lineTo(left + (w/2), top + h);
     ctx.lineTo(left, top + (h/2));
     ctx.closePath();
-    if (itm.completed && app.isCollectionEmpty(itm.blocks)) ctx.fillStyle = app.colors.pillDone;
+    if (itm.completed && app.isCollectionEmpty(itm.blocks)) WFUI.shadeWith(itm, app.colors.doneFill);
     ctx.fill();
     ctx.stroke();
     ctx.restore();
@@ -227,20 +227,22 @@ WFUI.setStyle = function(ctx, itm, draggingItem) {
         ctx.fillStyle = app.colors.dragFill;
     } else {
         if (itm == WF.pickedItem) {
-            ctx.shadowBlur = 25;
+            ctx.shadowBlur = 28;
             ctx.shadowColor = app.colors.halo;
         }
         ctx.lineWidth = .5;
         if (itm.completed) {
             ctx.strokeStyle = app.colors.doneLine;
-            var my_gradient = ctx.createLinearGradient(0, 0, 0, WFUI.shapeHeight);
-            my_gradient.addColorStop(0, "snow");
-            my_gradient.addColorStop(1, app.colors.doneFill);
-            ctx.fillStyle = my_gradient;
-            //ctx.fillStyle = app.colors.doneFill;
+            WFUI.shadeWith(itm, app.colors.doneFill);
         } else {
             ctx.strokeStyle = app.colors.notDoneLine;
-            ctx.fillStyle = itm.isBlocked() ? app.colors.blockedFill : app.colors.activeFill;
+            if (itm.isBlocked()) {
+                ctx.strokeStyle = app.colors.doneLine;
+                WFUI.shadeWith(itm, app.colors.blockedFill);
+            } else {
+                ctx.strokeStyle = app.colors.doneLine;
+                WFUI.shadeWith(itm, app.colors.activeFill);
+            }
         }
     }
 
@@ -413,3 +415,9 @@ WFUI.lineMidpoint = function(x1, y1, x2, y2) {
     return {x:x, y:y}
 }
 
+WFUI.shadeWith = function(itm, clr) {
+    var my_gradient = WFUI.ctx.createLinearGradient(itm.x - (WFUI.shapeWidth / 2), itm.y - (WFUI.shapeHeight / 2), itm.x + (WFUI.shapeWidth / 2), itm.y + (WFUI.shapeHeight / 2));
+    my_gradient.addColorStop(0, "snow");
+    my_gradient.addColorStop(1, clr);
+    WFUI.ctx.fillStyle = my_gradient;
+}
