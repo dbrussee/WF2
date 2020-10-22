@@ -391,7 +391,7 @@ app.setDoneCode = function() {
                     if (link.allowCodes != null) {
                         var curList = link.allowCodes.split(",");
                         if (curList.indexOf(act.code) >= 0) {
-                            var newList = curList.filter(cod => cod != act.code);
+                            var newList = curList.filter(cod != act.code);
                             newList.push(newCode);
                             link.allowCodes = newList.join(",");
                         }
