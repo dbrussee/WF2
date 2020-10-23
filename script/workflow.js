@@ -90,7 +90,8 @@ WF.handleMouseDown = function(event) {
                 app.cancelAction();
             }
         }
-        return;
+        app.toast("Action cancelled");
+        app.cancelAction();
     }
 
     if (itm == null) {
@@ -248,6 +249,7 @@ WF.drawCanvas = function() {
     WFUI.drawCanvas(WF.flow.items);
 }
 function initWF() {
+    app.setMode("work");
     window.addEventListener("keydown", function(event) {
         if (event.srcElement != document.body) return;
         event.preventDefault();
@@ -292,7 +294,7 @@ function initWF() {
                 if (event.shiftKey) app.shiftCenter();
                 break;
             case 191: // forward slash
-                app.toggleMode();
+                app.setMode();
                 break;
             case 84: // t (Edit title)
                 app.popupWFTitle();
@@ -313,7 +315,7 @@ function initWF() {
                 app.askToAddLink("blocks");
                 break;
             case 69: // e (Edit item)
-                //app.toggleMode("design");
+                //app.setMode("design");
                 app.editItem();
                 break;
             case 83: // s (item shape)
@@ -334,10 +336,18 @@ function initWF() {
     });
     app.updateLocalStorage();
 
-    var filedrag = document.getElementById("locLoadFromClipboard");
+    var filedrag = document.getElementById("fileDropZone");
     filedrag.addEventListener("drop", app.loadFromDroppedFile, false);
-    document.addEventListener("drop", app.blockWindowDrop, false);
-
+    filedrag.addEventListener("dragover", function(event) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'copy'; 
+    });
+    document.body.addEventListener("drop", app.blockWindowDrop, false);
+    document.body.addEventListener("dragover", function(event) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'copy'; 
+    });
+ 
     var json = localStorage.getItem("WF2_FLOWDATA");
     var sel = document.getElementById("selLoadLocal");
     if (json != undefined) {
@@ -399,8 +409,6 @@ function initWF() {
         //WorkflowUI.drawCanvas(this);
     });
 
-    app.toggleMode("work");
-
     document.getElementById("formContainer").addEventListener("click", function(event) {
         app.closePopup();
     });
@@ -414,6 +422,9 @@ WF.createCanvas = function() {
     div.style.cssText = "z-index:1; position:relative; background-color: white; margin: 20px auto";
     div.style.height = (app.page.y * app.scale) + "px";
     div.style.width = (app.page.x * app.scale) + "px";
+    //div.style.border = "10px solid transparent";
+    //div.style.boxSizing = "content-box";
+    //div.style.borderTop = "60px solid transparent";
     container.appendChild(div);
 
     WFUI.canvas = document.createElement("canvas");
