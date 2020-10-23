@@ -13,11 +13,11 @@ WFUI.showInstructions = function() {
     txt += "You may need to switch to Design mode by clicking the link at the top right ";
     txt += "of the page, or just by double-clicking the drawing area here.";
     WFUI.wrapText(txt, 400, 120, 650, "black", 12, "Arial");
-    app.toggleMode("design");
+    app.setMode("design");
 }
 WFUI.drawCanvas = function(items) {
     WFUI.clearCanvas();
-    if (WF.flow == null || app.isCollectionEmpty(WF.flow.items)) {
+    if (WF.flow == null || (WF.flow.title == "" && app.isCollectionEmpty(WF.flow.items))) {
         WFUI.showInstructions();
         return;
     }
