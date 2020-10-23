@@ -83,7 +83,7 @@ table#tbl_link_codes td {
 }
 div.workDesignMode {
     position:absolute;
-	bottom: 10px;
+	bottom: 2px;
 	right: 280px;
     width: 100px;
     height: 45px;
