@@ -345,7 +345,7 @@ function initWF() {
     document.body.addEventListener("drop", app.blockWindowDrop, false);
     document.body.addEventListener("dragover", function(event) {
         event.preventDefault();
-        event.dataTransfer.dropEffect = 'none'; 
+        event.dataTransfer.dropEffect = 'copy'; 
     });
  
     var json = localStorage.getItem("WF2_FLOWDATA");
