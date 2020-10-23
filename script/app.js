@@ -50,6 +50,25 @@ app.debug = function(msg) {
         console.log(msg);
     }
 }
+app.readFromFile = function(event) {
+    var reader = new FileReader();
+    reader.addEventListener('load', (event) => {
+        var tbox = document.getElementById("locLoadFromClipboard");
+        try {
+            var tmp = JSON.parse(event.target.result);
+            if (tmp == null) {
+                app.toast("Invalid file contents", true);
+            } else {
+                tbox.value = event.target.result;
+                app.loadFromTextbox();
+            }    
+        } catch(e) {
+            app.toast("Invalid file contents", true);
+        }
+    });
+    reader.readAsText(event.target.files[0]);    
+    app.toast("Reading file '" + event.target.files[0] + "'...");
+}
 app.loadFromDroppedFile = function(event) {
     event.stopPropagation();
     event.preventDefault();
@@ -70,8 +89,14 @@ app.loadFromDroppedFile = function(event) {
         //);
         if (e.target.result.substr(0,1) == "{") {
             var tbox = document.getElementById("locLoadFromClipboard");
-            tbox.value = e.target.result;
-            app.toast("Dropped file '" + f.name + "'");
+            var tmp = JSON.parse(e.target.result);
+            if (tmp == null) {
+                app.toast("Invalid file contents", true);
+            } else {
+                tbox.value = e.target.result;
+                app.loadFromTextbox();
+                //app.toast("Dropped file '" + f.name + "'");
+            }
         } else {
             app.toast("This does not appear to be a .flow file", true);
         }
@@ -105,7 +130,7 @@ app.downloadFile = function() {
 
     document.body.appendChild(a);
     a.click();
-
+    app.cancelAction();
 }
 app.resetFlow = function() {
     WF.pushTransaction();
@@ -117,7 +142,8 @@ app.resetFlow = function() {
     WF.popTransaction();
     app.pickNext();
 }
-app.toggleMode = function(mode) {
+app.setMode = function(mode) {
+    var wasMode = app.mode;
     if (mode == undefined) {
         if (app.mode == "work") {
             app.mode = "design";
@@ -127,13 +153,20 @@ app.toggleMode = function(mode) {
     } else {
         app.mode = mode;
     }
-    //document.getElementById("topForm").style.backgroundColor = (app.mode == "work" ? "gainsboro" : "transparent");
-    document.getElementById("locModeName").innerHTML = app.mode;
-    if (WF.pickedItem == null) {
-        app.cancelAction(true);
+    if (app.mode != wasMode) {
+        document.getElementById("locModeName").innerHTML = app.mode;
+        if (WF.pickedItem == null) {
+            app.cancelAction(true);
+        } else {
+            app.cancelAction(false);
+            app.editItem();
+        }
+    }
+    var container = document.getElementById("formContainer");
+    if (app.mode == "work") {
+        container.style.backgroundColor = "honeydew";
     } else {
-        app.cancelAction(false);
-        app.editItem();
+        container.style.backgroundColor = "khaki";
     }
 }
 app.toast = function(msg, isError) {
@@ -181,7 +214,7 @@ app.confirmAddNewItem = function(x, y) {
 }
 
 app.editItem = function() {
-    //app.toggleMode("design");
+    //app.setMode("design");
     app.editing = true;
     app.cancelAction();
     if (app.mode == "design") {
@@ -560,7 +593,7 @@ app.confirmStartNew = function() {
     app.cancelAction();
     document.getElementById("wf_title").value = WF.flow.title;
     WF.drawCanvas();
-    app.toggleMode("design");
+    app.setMode("design");
     app.askToAddNewItem();
 }
 app.askToDeleteItem = function() {
@@ -644,6 +677,7 @@ app.updateInstructions = function(el) {
 }
 app.cycleItemShape = function() {
     if (WF.pickedItem == null) return;
+    if (app.mode == "work") return;
     var sel = document.getElementById("item_shape");
     var lastOption = sel.options.length - 1;
     if (sel.selectedIndex < lastOption) {
@@ -685,15 +719,22 @@ app.askToSaveFlow = function() {
     app.hideEditor();
     app.cancelAction(false);
     document.getElementById("locSaveLocal").style.display = "";
+    var loc = document.getElementById("locDownloadSummary");
+    var h = "<ul><li>File name: " + WF.flow.title + ".flow</li>";
+    h += "<li>Items: " + app.collectionSize(WF.flow.items) + "</li>";
+    h += "</ul>";
+    loc.innerHTML = h;
+
     document.getElementById("locSaveToClipboard").value = JSON.stringify(WF.flow);
 }
-app.askToLoadFlow = function() {
+app.askToLoadFlow = function(clearContents) {
     WF.pickedItem = null;
     WF.drawCanvas();
     app.hideEditor();
     app.cancelAction(false);
     document.getElementById("locLoadLocal").style.display = "";
-    document.getElementById("locLoadFromClipboard").value = "";
+    if (clearContents == undefined) clearContents = true;
+    if (clearContents) document.getElementById("locLoadFromClipboard").value = "";
 }
 app.saveLocal = function() {
     if (WFUI.dragstart != null) return;
@@ -702,7 +743,7 @@ app.saveLocal = function() {
     var optnum = sel.selectedIndex;
     var opt = sel.options[optnum];
     opt.innerHTML = (optnum+1) + ". " + WF.flow.title;
-    if (app.isCollectionEmpty(WF.flow.items)) {
+    if (WF.flow.title == "" && app.isCollectionEmpty(WF.flow.items)) {
         app.localStorage.slots[slot] = null;
     } else {
         app.localStorage.slots[slot] = WF.flow;
@@ -742,17 +783,18 @@ app.loadFromTextbox = function() {
         }
         WF.popTransaction();
         app.toast("Loaded!");
-        app.cancelAction(true);
-        app.repositionCanvas();
+        //app.cancelAction(true);
     } catch(err) {
-        app.loadLocal(); // Restore what was there
+        app.loadLocal(true); // Restore what was there
         app.toast("Error loading contents of text area", true);
         WF.popTransaction(); // Probably failed after push transaction
+        app.askToLoadFlow(false);
     }
     document.getElementById("wf_title").value = WF.flow.title;
     //app.editItem();
 }
-app.loadLocal = function() {
+app.loadLocal = function(remainInCurrentMode) {
+    if (remainInCurrentMode == undefined) remainInCurrentMode = false;
     var sel = document.getElementById("selLoadLocal");
     var spot = parseInt(sel.value,10);
     if (spot == "") return;
@@ -789,7 +831,21 @@ app.loadLocal = function() {
        // WF.popTransaction();
     }
     document.getElementById("wf_title").value = WF.flow.title;
-    if (spot != undefined) app.toast("Loaded #" + spot + ". '" + WF.flow.title + "'");
+    if (spot != undefined) {
+        var count = app.collectionSize(WF.flow.items);
+        if (count == 0) {
+            count = "no items";
+            if (!remainInCurrentMode) app.setMode("design");
+        } else if (count == 1) {
+            count = "1 item";
+            if (!remainInCurrentMode) app.setMode("work");
+        } else {
+            count += " items";
+            if (!remainInCurrentMode) app.setMode("work");
+        }
+
+        app.toast("Loaded #" + spot + ". '" + WF.flow.title + "' with " + count);
+    }
     //app.cancelAction(true);
 
     if (app.isCollectionEmpty(WF.flow.items)) {
@@ -797,7 +853,6 @@ app.loadLocal = function() {
             app.askToLoadFlow();
         }
     }
-    app.repositionCanvas();
     app.cancelAction();
     app.hideEditor();
     app.pickNext();
@@ -909,12 +964,6 @@ app.setFutureItemsIncomplete = function(itm) {
         WF.drawCanvas();
     }
 }
-app.repositionCanvas = function() {
-    //var container = document.getElementById("canvasContainer");
-    //var can = WFUI.canvas;
-    //can.style.left = ((container.offsetWidth / 2) - (can.offsetWidth / 2)) + "px";
-    //can.offsetTop = "0px";
-}
 app.collectionItem = function(col, pos) {
     return Object.keys(col)[pos];
 }
@@ -949,13 +998,14 @@ app.popupWFTitle = function() {
     frm.style.position = "absolute";
     frm.style.top = (canBB.top + 10) + "px";
     frm.style.left = canBB.left + "px";
+    frm.style.zIndex = 50;
     frm.onsubmit = function(event) {
         event.preventDefault;
         testInput();
     }
     frm.id = "BW_WF2_POPUPFORM";
     var tbox = document.createElement("input");
-    tbox.style.width = WFUI.canvas.width + "px";
+    tbox.style.width = (WFUI.canvas.width) + "px";
     tbox.style.fontSize = "20pt";
     tbox.style.textAlign = "center";
     //tbox.style.background = "transparent";
