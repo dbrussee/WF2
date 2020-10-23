@@ -29,7 +29,7 @@
         <span class='anchor' onclick='app.setPageScale("height")'>height</span><br/>
         <input oninput='app.setPageScale()' type="range" min="25" max="200" value="100" step="5" class="slider" id="rngScale">
     </div>
-    <div class='anchor workDesignMode' id='locModeName' onclick='app.toggleMode()'>work</div>
+    <div class='anchor workDesignMode' id='locModeName' onclick='app.setMode()'>work</div>
 
     <div id='canvasContainer'>
 
@@ -39,7 +39,7 @@
             <table id='topForm' class='form' style='width:360px; margin:0 auto;'>
                 <tr><th ondblclick="app.resetFlow()" style='vertical-align:top; width:38px'>&nbsp;Title:</th>
                     <td style='vertical-align:top;'>
-                        <input style='width:220px;border:0; background:transparent' onkeyup='app.updateWFTitle(this)' id='wf_title' name='wf_title'>
+                        <input readonly style='width:220px;border:0; background:transparent' onkeyup='app.updateWFTitle(this)' id='wf_title' name='wf_title'>
                         <button onclick='app.askToLoadFlow()'>&hellip;</button>
                     </td>
                 </tr>
@@ -114,8 +114,9 @@
         </span>
         </form>
         <form class='popForm' onsubmit='return false;' id='locSaveLocal' style='display:none'>
-            Copy from the box below to send to another user:<br/>
-            <textarea id='locSaveToClipboard' readonly style='font-size:5pt;width:100%;height:20em;'></textarea>
+            Save the Work Flow on this page to a file on your computer in your 'donwloads' folder...<br>
+            <span id='locDownloadSummary'></span>
+            <textarea style='display:none' id='locSaveToClipboard' readonly style='font-size:5pt;width:100%;height:20em;'></textarea>
             &nbsp; ... <button onclick='app.downloadFile()'>Save to File</button>
             or <button onclick='app.cancelAction()'>Cancel</button>
         </form>
@@ -133,13 +134,15 @@
                 <option value='9'>9.</option>
                 <option value='10'>10.</option>
             </select> 
-            <br/>
-            <br/>Drag a .flow file into the box below or paste the contents from another browser:<br/>
-            <textarea id='locLoadFromClipboard' style='font-size:5pt;width:100%;height:20em;'></textarea><br/>
-            &nbsp; ... <button onclick='app.loadFromTextbox()'>Load</button>,
-            <button onclick='app.askToStartNew()'>Clear&hellip;</button>,
+            &nbsp; ... <button onclick='app.askToStartNew()'>Clear&hellip;</button>
             <button onclick='app.askToSaveFlow()'>Save&hellip;</button>
-            or <button onclick='app.cancelAction()'>Cancel</button>
+            <br/>
+            <br/><button style='font-size:.7em' onclick='document.getElementById("fileLoadObject").click()'>Select File...</button> or 
+            drag a .flow file into the box below or paste the contents from another browser:<br/>
+            <input type='file' style='display:none' accept=".txt, .json, .flow" id='fileLoadObject' onchange='app.readFromFile(event)'>
+            <textarea id='locLoadFromClipboard' style='display:none;font-size:5pt;width:100%;height:20em;'></textarea>
+            <div id='fileDropZone' style='border: 3px dashed darkgray; border-radius:1em; text-align:center; width:200px; height:80px; margin: .5em auto; padding-top: 25px;'>File Drop Zone</div>
+            &nbsp; ... <button onclick='app.cancelAction()'>Close</button>
         </form>
         <form class='popForm' onsubmit='return false;' id='locConfirmDelete' style='display:none'>
             &nbsp; ... <button onclick='app.cancelAction()'>Cancel</button>
@@ -188,21 +191,48 @@
             or <button onclick='app.cancelAction();'>Cancel</button>
         </form>
         <div id='locInstructionsWorking' style='display:none; padding:.3em'>
-            You are in <b class='anchor' onclick='app.toggleMode()'>work</b> mode. 
+            You are in <b class='anchor' onclick='app.setMode()'>work</b> mode. 
                 To change modes at any time, click on the link
-                at the top right of this screen.
-            <p>In <b>work</b> mode, you can only set items as complete or incomplete. 
-                Click an item in the diagram and then select the status in
-                this area when the choices are displayed.
-            </p>
+                at the bottom of this section.
+            <p>In <b>work</b> mode, you are mainly dealing with setting items as 
+                complete / incomplete to follow through the flow. You do this using
+                the following options:</p>
+            <ul>
+                <li>Click on an item:
+                    <ul>
+                        <li>Click on an option from a list that will show in this area</li>
+                        <li>Press the space bar to cycle through all options</li>
+                    </ul>
+                </li>
+                <li>Click on any of the lines between items (click near the middle of
+                    the area between the items - either on the arrow or on the text if 
+                    any exists)
+                </li>
+            </ul>
+            <table>
+                <tr><th>Key</th><th>What it does</th></tr>
+                <tr><td>N</td><td>Selects the next item that can be updated</td></tr>
+                <tr><td>R</td><td>Resets the enrire flow to initial un-started state</td></tr>
+                <tr><td>/</td><td>Toggles 'work' and 'design' modes</td></tr>
+            </table>
+
         </div>
         <div id='locInstructionsDesign' style='display:none; padding:.3em'>
-            You are in <b class='anchor' onclick='app.toggleMode()'>design</b> mode. 
+            You are in <b class='anchor' onclick='app.setMode()'>design</b> mode. 
                 To change modes at any time, click on the link
-                at the top right of this screen.
+                at bottom of this section.
             <p>In <b>design</b> mode, you edit the items in the workflow and move the items
                 around on the screen for a visually pleasing 'flow'.
             </p>
+            <table style='margin-top:.5em;'>
+                <tr><th>Key</th><th>What it does</th></tr>
+                <tr><td>&lt;bs&gt;&lt;del&gt;<br></td><td>Asks you to confirm deleting the currently selected item</td></tr>
+                <tr><td>A</td><td>Shows prompt to add an item</td></tr>
+                <tr><td>S</td><td>Cycle through the list of item shapes</td></tr>
+                <tr><td>B</td><td>Shows prompt to add a Blocking link</td></tr>
+                <tr><td>Y</td><td>Shows prompt to add a Blocked By link</td></tr>
+                <tr><td>/</td><td>Toggles 'work' and 'design' modes</td></tr>
+            </table>
 
             <button onclick='app.askToAddNewItem()'>Add Item</button>
 
