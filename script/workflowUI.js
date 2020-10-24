@@ -439,7 +439,7 @@ WFUI.drawArrowAtEnd = function(x1, y1, x2, y2, txt, lineColor, lineWidth, arrowC
             clr = "yellow";
         }
         ctx.fillStyle = bclr;
-        ctx.fillRect(txtx - 2, txty + 2, metrics.width + 4, -14);
+        ctx.fillRect(txtx - 2, txty + 3, metrics.width + 4, -13);
         ctx.restore();
 
         ctx.fillStyle = clr;

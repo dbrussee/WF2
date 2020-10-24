@@ -4,7 +4,7 @@ window.app = {
     debugStatus: false,
     colors: {
         halo: "black",
-        doneLine: "forestgreen",
+        doneLine: "black",
         notDoneLine: "saddlebrown",
         doneFill: "springgreen",
         blockedFill: "papayawhip",
