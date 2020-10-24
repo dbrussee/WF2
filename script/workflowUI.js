@@ -27,7 +27,7 @@ WFUI.drawCanvas = function(items) {
         title = "<untitled>";
         clr = "grey";
     }
-    WFUI.addText(title, 400, 40, "20pt Arial", clr);
+    WFUI.addText(title, (app.page.x/2), 40, "20pt Arial", clr);
 
     var ctx = WFUI.ctx;
     for (var id in items) {
