@@ -9,6 +9,7 @@ window.app = {
         doneFill: "springgreen",
         blockedFill: "papayawhip",
         activeFill: "gold",
+        activeArrowFill: "red",
         dragFill: "gainsboro"
     },
     localStorage: {slot:1, slots:[null,null,null,null,null,null,null,null,null,null,null]},
@@ -169,7 +170,7 @@ app.setMode = function(mode) {
         container.style.backgroundColor = "khaki";
     }
 }
-app.toast = function(msg, isError) {
+app.toast = function(msg, isError, timeout) {
     if (isError == undefined) isError = false;
     if (msg == undefined) msg = "";
     var loc = document.getElementById("locToastMessage");
@@ -184,9 +185,10 @@ app.toast = function(msg, isError) {
     } else {
         loc.innerHTML = msg;
         loc.style.display = "block";
+        if (timeout == undefined) timeout = 4000;
         app.toastTimer = window.setTimeout(function() {
             app.toast();
-        }, 4000);
+        }, timeout);
     }
 }
 app.askToAddNewItem = function() {

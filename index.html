@@ -68,11 +68,13 @@
                     <button style='font-size:.7em' onclick='app.askToAddNewItem()'>Add Item</button>
                 </td></tr>
                 <tr><th>Shape:</th><td><select onchange='app.updateItemShape(this)' id='item_shape' name='item_shape'>
-                        <option value='box'>Box</option>
+                        <option value='pill'>Begin/End</option>
+                        <option value='box'>Process</option>
+                        <option value='pgram'>Input/Output</option>
+                        <option value='subr'>Subroutine</option>
                         <option value='circle'>Circle</option>
                         <option value='diamond'>Diamond</option>
                         <option value='stop'>Stop</option>
-                        <option value='pill'>Pill</option>
                     </select>
                     </td>
                 </tr>
@@ -165,11 +167,13 @@
         <form class='popForm' onsubmit='return false;' id='locConfirmAddItem' style='display:none'>
             Name of new item: <input id='txtNewItemName' placeholder=''><br/>
             Pick new item shape: <select id='selNewItemShape'>
-                <option value='box'>Box</option>
+                <option value='pill'>Begin/End</option>
+                <option value='box'>Process</option>
+                <option value='pgram'>Input/Output</option>
+                <option value='subr'>Subroutine</option>
                 <option value='circle'>Circle</option>
                 <option value='diamond'>Diamond</option>
                 <option value='stop'>Stop</option>
-                <option value='pill'>Pill</option>
             </select><br/>
             Click on an open spot to create the new item there<br/>
             &nbsp; ... <button onclick='app.cancelAction();'>Cancel</button>

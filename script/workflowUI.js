@@ -2,7 +2,7 @@ var WFUI = {
     canvas: null,
     ctx: null,
     shapeWidth: 90,
-    shapeHeight: 90,
+    shapeHeight: 80,
     spacing: 10,
     arrowSize: {length:12, width:8},
     textColor: "#191970"
@@ -72,7 +72,22 @@ WFUI.drawCanvas = function(items) {
             ctx.stroke();
             ctx.restore();
 
-            WFUI.drawArrowAtEnd(itm.x, itm.y, bstep.x, bstep.y, txt, arrowDone);
+            var lineColor = (arrowDone ? app.colors.doneLine : app.colors.notDoneLine);
+            var textColor = (arrowDone ? "black" : app.colors.notDoneLine);
+            var arrowColor = "";
+            var lineWidth = (arrowDone ? 3 : 2);
+            if (arrowDone) {
+                arrowColor = app.colors.doneLine;
+            } else if (bstep.isBlocked() || bstep.completed) {
+                arrowColor = app.colors.blockedFill;
+            } else {
+                arrowColor = app.colors.activeArrowFill;
+                lineColor = arrowColor;
+                textColor = arrowColor;
+            }
+        
+
+            WFUI.drawArrowAtEnd(itm.x, itm.y, bstep.x, bstep.y, txt, lineColor, lineWidth, arrowColor, textColor);
         }
     }
 
@@ -97,6 +112,10 @@ WFUI.drawShape = function(itm, draggingItem) {
         WFUI.drawShapePill(itm, draggingItem);
     } else if (itm.shape == "diamond") {
         WFUI.drawShapeDiamond(itm, draggingItem);
+    } else if (itm.shape == "pgram") {
+        WFUI.drawPGram(itm, draggingItem);
+    } else if (itm.shape == "subr") {
+        WFUI.drawShapeBox(itm, draggingItem, true);
     } else if (itm.shape == "circle") {
         WFUI.drawShapeCircle(itm, draggingItem);
     } else if (itm.shape == "stop") {
@@ -117,7 +136,7 @@ WFUI.drawShapeStop = function(itm, draggingItem) {
     //ctx.lineWidth = 2;
     //ctx.strokeStyle = "red";
     WFUI.drawSidedShape(x, y, 8, r);
-    if (itm.completed) WFUI.shadeWith(itm, "firebrick");
+    if (itm.completed) WFUI.shadeWith(itm, "tomato", "maroon");
     ctx.fill();
     ctx.stroke();
     ctx.restore();
@@ -138,8 +157,32 @@ WFUI.drawShapeCircle = function(itm, draggingItem) {
     ctx.restore();
     WFUI.addTextToShape(itm);  
 }
+WFUI.drawPGram = function(itm, draggingItem) {
+    var ctx = WFUI.ctx;
+    var x = itm.x;
+    var y = itm.y;
+    var left = x - (WFUI.shapeWidth / 2);
+    var w = WFUI.shapeWidth;
+    var h = WFUI.shapeHeight * 2 / 3;
+    var top = y - (h / 2);
+    var off = 15;
+    ctx.save();
+    ctx.beginPath();
+    WFUI.setStyle(ctx, itm, draggingItem);
+    ctx.moveTo(left + w, top); // top right
+    ctx.lineTo(left + w - off, top + h);
+    ctx.lineTo(left, top + h);
+    ctx.lineTo(left + off, top);
+    ctx.closePath();
+    if (itm.completed && app.isCollectionEmpty(itm.blocks)) WFUI.shadeWith(itm, app.colors.doneFill);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    WFUI.addTextToShape(itm);  
+}
 
-WFUI.drawShapeBox = function(itm, draggingItem) {
+WFUI.drawShapeBox = function(itm, draggingItem, withSubrLines) {
+    if (withSubrLines == undefined) withSubrLines = false;
     var ctx = WFUI.ctx;
     var x = itm.x;
     var y = itm.y;
@@ -162,6 +205,14 @@ WFUI.drawShapeBox = function(itm, draggingItem) {
     ctx.closePath();
     if (itm.completed && app.isCollectionEmpty(itm.blocks)) WFUI.shadeWith(itm, app.colors.doneFill);
     ctx.fill();
+    if (withSubrLines) {
+        var gap = 8;
+        ctx.moveTo(left + gap, top);
+        ctx.lineTo(left + gap, top + h);
+        ctx.stroke();
+        ctx.moveTo(left + w - gap, top);
+        ctx.lineTo(left + w - gap, top + h);    
+    }
     ctx.stroke();
     ctx.restore();
     WFUI.addTextToShape(itm);  
@@ -237,10 +288,10 @@ WFUI.setStyle = function(ctx, itm, draggingItem) {
         } else {
             ctx.strokeStyle = app.colors.notDoneLine;
             if (itm.isBlocked()) {
-                ctx.strokeStyle = app.colors.doneLine;
+                ctx.strokeStyle = app.colors.notDoneLine;
                 WFUI.shadeWith(itm, app.colors.blockedFill);
             } else {
-                ctx.strokeStyle = app.colors.doneLine;
+                ctx.strokeStyle = app.colors.notDoneLine;
                 WFUI.shadeWith(itm, app.colors.activeFill);
             }
         }
@@ -249,9 +300,9 @@ WFUI.setStyle = function(ctx, itm, draggingItem) {
 }
 WFUI.addTextToShape = function(itm, font, color) {
     if (color == undefined) color = (itm.completed ? "black" : app.colors.notDoneLine);
-    if (font == undefined) font = "9pt Arial";
+    if (font == undefined) font = "8pt Arial";
     //WFUI.addText(itm.title, itm.x, itm.y + 5, font);
-    WFUI.wrapText(itm.title, itm.x, itm.y, (WFUI.shapeWidth * 2 / 3), color, 10, "Arial");
+    WFUI.wrapText(itm.title, itm.x, itm.y, (WFUI.shapeWidth * 2 / 3), color, 8.5, "Arial");
 }
 WFUI.wrapText = function(text, x, y, maxWidth, color, fontSize, fontFace){
     var words = text.split(' ');
@@ -350,7 +401,7 @@ WFUI.drawSidedShape = function(x, y, sides, r) {
     ctx.restore();
 }
 
-WFUI.drawArrowAtEnd = function(x1, y1, x2, y2, txt, completed) {
+WFUI.drawArrowAtEnd = function(x1, y1, x2, y2, txt, lineColor, lineWidth, arrowColor, textColor) {
     if (txt == undefined) txt = "";
     var alen = WFUI.arrowSize.length;
     var awid = WFUI.arrowSize.width;
@@ -365,15 +416,15 @@ WFUI.drawArrowAtEnd = function(x1, y1, x2, y2, txt, completed) {
     ctx.lineTo(0, awid/2);
     ctx.lineTo(0, -awid/2);
     ctx.closePath();
-    ctx.strokeStyle = (completed ? app.colors.doneLine : app.colors.notDoneLine);
-    ctx.lineWidth = (completed ? 3 : 2);
+    ctx.strokeStyle = lineColor;
+    ctx.lineWidth = lineWidth;
     ctx.stroke();
-    ctx.fillStyle = (completed ? app.colors.doneLine : app.colors.blockedFill);
+    ctx.fillStyle = arrowColor;
     ctx.fill();
     ctx.rotate(-angle);
 
     if (txt != "") {
-        ctx.font = "9pt Arial";
+        ctx.font = "8pt Arial";
         var metrics = ctx.measureText(txt);
         var txtx = -(metrics.width / 2);
         var txty = -awid + 2;
@@ -382,7 +433,7 @@ WFUI.drawArrowAtEnd = function(x1, y1, x2, y2, txt, completed) {
         ctx.strokeStyle = "white";
         ctx.fillStyle = "white";
         var bclr = "rgba(255, 255, 255, .9)";
-        var clr = "navy";
+        var clr = textColor;
         if (txt == "??") {
             bclr = "red";
             clr = "yellow";
@@ -415,9 +466,13 @@ WFUI.lineMidpoint = function(x1, y1, x2, y2) {
     return {x:x, y:y}
 }
 
-WFUI.shadeWith = function(itm, clr) {
+WFUI.shadeWith = function(itm, clr, clr2) {
+    if (clr2 == undefined) {
+        clr2 = clr;
+        clr = "snow";
+    }
     var my_gradient = WFUI.ctx.createLinearGradient(itm.x - (WFUI.shapeWidth / 2), itm.y - (WFUI.shapeHeight / 2), itm.x + (WFUI.shapeWidth / 2), itm.y + (WFUI.shapeHeight / 2));
-    my_gradient.addColorStop(0, "snow");
-    my_gradient.addColorStop(1, clr);
+    my_gradient.addColorStop(0, clr);
+    my_gradient.addColorStop(1, clr2);
     WFUI.ctx.fillStyle = my_gradient;
 }

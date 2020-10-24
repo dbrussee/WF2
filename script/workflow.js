@@ -379,7 +379,7 @@ function initWF() {
         var blk = e.detail.blocking;
         if (app.mode == "work") {
             if (itm.isBlocked()) {
-                app.toast("Item '" + itm.title + "' status cannot be changed", true);
+                app.toast("Item '" + itm.title + "' status cannot be set because one or more items before it are not completed.", true, 6000);
             } else {
                 lnk = blk.blockedBy[itm.id];
                 app.toggleComplete(lnk);
