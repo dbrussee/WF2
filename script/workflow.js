@@ -279,15 +279,19 @@ function initWF() {
                 break;
             case 37: // left arrow
                 if (event.shiftKey) app.shiftAll("L");
+                if (event.altKey) app.shiftItem("L");
                 break;
             case 39: // right arrow
                 if (event.shiftKey) app.shiftAll("R");
+                if (event.altKey) app.shiftItem("R");
                 break;
             case 38: // up arrow
                 if (event.shiftKey) app.shiftAll("U");
+                if (event.altKey) app.shiftItem("U");
                 break;
             case 40: // down arrow
                 if (event.shiftKey) app.shiftAll("D");
+                if (event.altKey) app.shiftItem("D");
                 break;
             case 67: // c (Center items)
                 if (event.shiftKey) app.shiftCenter();
@@ -377,8 +381,11 @@ function initWF() {
             if (itm.isBlocked()) {
                 app.toast("Item '" + itm.title + "' status cannot be set because one or more items before it are not completed.", true, 6000);
             } else {
+                WF.pushTransaction();
                 lnk = blk.blockedBy[itm.id];
                 app.toggleComplete(lnk);
+                WF.pickedItem = blk;
+                WF.popTransaction();
             }
         } else {
             app.editLink("blocks",blk.id);

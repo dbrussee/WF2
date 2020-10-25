@@ -1049,6 +1049,33 @@ app.shiftCenter = function() {
     }
     WF.drawCanvas();
 }
+app.shiftItem = function(dir) {
+    if (app.mode == "work") return;
+    if (WF.pickedItem == null) return;
+    // If x and y are null then we are shifting everything
+    var off = WF.gridsize;
+    var xoff = 0;
+    var yoff = 0;
+    if (dir == "L") xoff = -off;
+    if (dir == "R") xoff = off;
+    if (dir == "U") yoff = -off;
+    if (dir == "D") yoff = off;
+    var canShift = true;
+    var itm = WF.pickedItem;
+    var test = itm.x + xoff;
+    if (test < 0 || test > (WFUI.canvas.width / app.scale)) canShift = false;
+    if (canShift) {
+        test = itm.y + yoff;
+        if (test < 0 || test > (WFUI.canvas.height / app.scale)) canShift = false;
+    }
+    if (canShift) {
+        itm.x += xoff;
+        itm.y += yoff;
+        WF.drawCanvas();
+    } else {
+        app.toast("Shifting would make the item go off page. Shift cancelled.", true);
+    }
+}
 app.shiftAll = function (dirs) {
     // If x and y are null then we are shifting everything
     var off = WF.gridsize;

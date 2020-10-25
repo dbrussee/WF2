@@ -42,15 +42,20 @@ WFUI.drawCanvas = function(items) {
                 foundDoneCode = true;
             } else {
                 var lst = bby.allowCodes.split(",");
-                for (var acnum = 0; acnum < lst.length; acnum++) {
-                    if (txt != "") txt += ",";
-                    var code = lst[acnum];
-                    if (code == bstep.doneCode) {
-                        foundDoneCode = true;
-                        txt += "[" + code + "]";
-                    } else {
-                        txt += code;
-                    }
+                if (lst.length == 1) {
+                    txt = bby.allowCodes;
+                    if (txt == bstep.doneCode) foundDoneCode = true;
+                } else {
+                    for (var acnum = 0; acnum < lst.length; acnum++) {
+                        if (txt != "") txt += ",";
+                        var code = lst[acnum];
+                        if (code == bstep.doneCode) {
+                            foundDoneCode = true;
+                            txt += "[" + code + "]";
+                        } else {
+                            txt += code;
+                        }
+                    }    
                 }
                 if (txt == "") txt = "??";    
             }
@@ -68,7 +73,7 @@ WFUI.drawCanvas = function(items) {
             ctx.moveTo(itm.x, itm.y);
             ctx.lineTo(bstep.x, bstep.y);
             ctx.strokeStyle = (arrowDone ? app.colors.doneLine : app.colors.notDoneLine);
-            ctx.lineWidth = (arrowDone ? 3 : 1);
+            ctx.lineWidth = (arrowDone ? 3.5 : 1);
             ctx.stroke();
             ctx.restore();
 
@@ -243,7 +248,7 @@ WFUI.drawShapeDiamond = function(itm, draggingItem) {
     var y = itm.y;
     var left = x - (WFUI.shapeWidth / 2);
     var w = WFUI.shapeWidth;
-    var h = WFUI.shapeWidth * 4 / 5;
+    var h = WFUI.shapeWidth * 7 / 8;
     var top = y - (h / 2);
     ctx.save();
     ctx.beginPath();
@@ -415,7 +420,7 @@ WFUI.drawArrowAtEnd = function(x1, y1, x2, y2, txt, lineColor, lineWidth, arrowC
     ctx.rotate(-angle);
 
     if (txt != "") {
-        ctx.font = "8pt Arial";
+        ctx.font = "8.5pt Arial";
         var metrics = ctx.measureText(txt);
         var txtx = -(metrics.width / 2);
         var txty = -awid + 2;
