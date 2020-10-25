@@ -4,9 +4,9 @@ window.app = {
     debugStatus: false,
     colors: {
         halo: "black",
-        doneLine: "black",
+        doneLine: "darkgreen",
         notDoneLine: "saddlebrown",
-        doneFill: "springgreen",
+        doneFill: "palegreen",
         blockedFill: "papayawhip",
         activeFill: "gold",
         activeArrowFill: "red",
@@ -83,11 +83,6 @@ app.loadFromDroppedFile = function(event) {
     }
     var reader = new FileReader();
     reader.onload = function(e) {
-        //Output(
-        //	"<p><strong>" + file.name + ":</strong></p><pre>" + 
-        //	e.target.result.replace(/</g, "&lt;").replace(/>/g, "&gt;") +
-        //	"</pre>"
-        //);
         if (e.target.result.substr(0,1) == "{") {
             var tbox = document.getElementById("locLoadFromClipboard");
             var tmp = JSON.parse(e.target.result);
@@ -205,18 +200,16 @@ app.askToAddNewItem = function() {
     document.getElementById("locConfirmAddItem").style.display = "";
 }
 app.confirmAddNewItem = function(x, y) {
-    WF.pushTransaction();
     var name = document.getElementById("txtNewItemName").value.trim();
     if (name == "") name = document.getElementById("txtNewItemName").getAttribute("placeholder");
     var type = document.getElementById("selNewItemShape").value;
-    WF.pickedItem = WF.addItem(x, y, type, name);
-    WF.popTransaction();
     app.mode = "design";
+    var itm = WF.addItem(x, y, type, name);
     app.editItem();
+    return itm;
 }
 
 app.editItem = function() {
-    //app.setMode("design");
     app.editing = true;
     app.cancelAction();
     if (app.mode == "design") {
@@ -230,7 +223,6 @@ app.editItem = function() {
         if (app.isCollectionEmpty(WF.flow.items)) {
             document.getElementById("itemEditor").style.display = "none";
             app.editing = false;
-            //app.askToLoadFlow();
         } else {
             document.getElementById("itemEditor").style.display = "";
         }
@@ -310,7 +302,6 @@ app.editItem = function() {
         txt = "<fieldset><legend>Instructions</legend>" + itm.instructions.replace(/\n/g,"<p>") + "</fieldset>";
     }
     document.getElementById("locInstructions").innerHTML = txt;
-    //document.getElementById("locCannotUncompleteMessage").style.display = (itm.canChangeComplete() ? "none" : "");
     if (itm.unblockIfAnyCompleted) {
         document.getElementById("item_block_type_any").checked = true;
     } else {
@@ -419,14 +410,16 @@ app.setDoneCode = function() {
             } else {
                 delete codes[act.code];
                 codes[newCode] = {code:newCode, value:newVal}
-                // Reploace old witth new everywhere it is referenced
+                // Replace old witth new everywhere it is referenced
                 for (var id in WF.pickedItem.blocks) {
                     var blkitm = WF.flow.items[id];
                     var link = blkitm.blockedBy[WF.pickedItem.id];
                     if (link.allowCodes != null) {
                         var curList = link.allowCodes.split(",");
                         if (curList.indexOf(act.code) >= 0) {
-                            var newList = curList.filter(cod != act.code);
+                            var newList = curList.filter(function(cod) {
+                                return cod != act.code
+                            });
                             newList.push(newCode);
                             link.allowCodes = newList.join(",");
                         }
@@ -490,7 +483,7 @@ app.editLink = function(type,toItem) {
         blockingItem = toItem;
     }
     var tbl = document.getElementById("tbl_link_codes");
-    while (tbl.rows.length > 1) tbl.deleteRow(1);
+    while (tbl.rows.length > 0) tbl.deleteRow(0);
     var numCodes = 0;
     for (var key in blockingItem.doneCodes) {
         var oneCode = blockingItem.doneCodes[key];
@@ -503,6 +496,7 @@ app.editLink = function(type,toItem) {
         }
         var tr = tbl.insertRow();
         var td = tr.insertCell();
+        td.style.width = "1.5em";
         var cbox = document.createElement("input");
         cbox.checked = chk;
         cbox.type = "checkbox";
@@ -556,7 +550,6 @@ app.confirmAddLink = function(itm) {
             if (added) {
                 WF.drawCanvas();
                 app.editItem();
-                //app.cancelAction(); 
                 if (hasDoneCodes) {
                     app.editLink(action, itm.id);
                 }
@@ -593,7 +586,7 @@ app.confirmStartNew = function() {
         items: {}
     }
     app.cancelAction();
-    document.getElementById("wf_title").value = WF.flow.title;
+    //document.getElementById("wf_title").value = WF.flow.title;
     WF.drawCanvas();
     app.setMode("design");
     app.askToAddNewItem();
@@ -618,9 +611,6 @@ app.confirmDeleteItem = function() {
     WF.popTransaction();
     app.editItem();
     app.cancelAction();
-    //if (Object.keys(WF.flow.items).length == 0) {
-    //    app.askToLoadFlow();
-    //}
 }
 app.cancelAction = function(showInstructions) {
     app.debug("Cancel Action (instructions: " + showInstructions + ")");
@@ -655,10 +645,6 @@ app.cancelAction = function(showInstructions) {
 }
 app.updateWFTitle = function(el) {
     WF.flow.title = el.value;
-    var tbox = document.getElementById("wf_title");
-    if (tbox.id != el.id) {
-        tbox.value = el.value;
-    }
     var sel = document.getElementById("selLoadLocal");
     sel.options[sel.selectedIndex].innerHTML = el.title;
 
@@ -753,7 +739,6 @@ app.saveLocal = function() {
     app.localStorage.slot = slot;
     var string = JSON.stringify(app.localStorage);
     localStorage.setItem("WF2_FLOWDATA", string);
-    //app.cancelAction();
 }
 app.loadFromTextbox = function() {
     app.saveLocal();
@@ -785,15 +770,12 @@ app.loadFromTextbox = function() {
         }
         WF.popTransaction();
         app.toast("Loaded!");
-        //app.cancelAction(true);
     } catch(err) {
         app.loadLocal(true); // Restore what was there
         app.toast("Error loading contents of text area", true);
         WF.popTransaction(); // Probably failed after push transaction
         app.askToLoadFlow(false);
     }
-    document.getElementById("wf_title").value = WF.flow.title;
-    //app.editItem();
 }
 app.loadLocal = function(remainInCurrentMode) {
     if (remainInCurrentMode == undefined) remainInCurrentMode = false;
@@ -823,16 +805,7 @@ app.loadLocal = function(remainInCurrentMode) {
         WF.popTransaction();
     } catch(err) {
         WF.popTransaction(); // Probably failed after push transaction
-       // WF.pushTransaction();
-       // var itm1 = WF.addItem(260, 200, "pill", "Start");
-       // var itm2 = WF.addItem(400, 200, "box", "Do Something");
-       // itm2.addBlockedBy(itm1);
-       // var itm3 = WF.addItem(540, 200, "pill", "End");
-       // itm3.addBlockedBy(itm2);
-
-       // WF.popTransaction();
     }
-    document.getElementById("wf_title").value = WF.flow.title;
     if (spot != undefined) {
         var count = app.collectionSize(WF.flow.items);
         if (count == 0) {
@@ -848,7 +821,6 @@ app.loadLocal = function(remainInCurrentMode) {
 
         app.toast("Loaded #" + spot + ". '" + WF.flow.title + "' with " + count);
     }
-    //app.cancelAction(true);
 
     if (app.isCollectionEmpty(WF.flow.items)) {
         if (app.mode == "work") {
@@ -864,37 +836,33 @@ app.setFutureItemsIncomplete = function(itm) {
     if (itm == undefined) itm = WF.pickedItem;
     for (var key in itm.blocks) {
         var bby = WF.flow.items[key];
-        //if (bby.completed) {
-            var okToCancel = true;
-            if (bby.unblockIfAnyCompleted) {
-                for (var key2 in bby.blockedBy) {
-                    var backone = WF.flow.items[key2];
-                    if (backone.id != bby.id) {
-                        if (backone.completed) {
-                            var b1Done = backone.doneCode;
-                            var link = bby.blockedBy[backone.id];
-                            if (link.allowCodes != null) {
-                                var lst = link.allowCodes.split(",");
-                                if (lst.indexOf(b1Done) >= 0) {
-                                    okToCancel = false;
-                                    break;    
-                                }
-                            } else {
+        var okToCancel = true;
+        if (bby.unblockIfAnyCompleted) {
+            for (var key2 in bby.blockedBy) {
+                var backone = WF.flow.items[key2];
+                if (backone.id != bby.id) {
+                    if (backone.completed) {
+                        var b1Done = backone.doneCode;
+                        var link = bby.blockedBy[backone.id];
+                        if (link.allowCodes != null) {
+                            var lst = link.allowCodes.split(",");
+                            if (lst.indexOf(b1Done) >= 0) {
                                 okToCancel = false;
-                                break;
+                                break;    
                             }
+                        } else {
+                            okToCancel = false;
+                            break;
                         }
                     }
                 }
             }
-            if (okToCancel) {
-                bby.doneCode = null;
-                bby.completed = false;
-                app.setFutureItemsIncomplete(bby);
-            }
-        //} else {
-        //    if (!app.isCollectionEmpty(bby.blocks)) isLastItem = false;
-        //}
+        }
+        if (okToCancel) {
+            bby.doneCode = null;
+            bby.completed = false;
+            app.setFutureItemsIncomplete(bby);
+        }
     }
     if (!calledWithItem && WF.pickedItem.completed) {
         // If the only item left does not have any blocks
@@ -1010,7 +978,6 @@ app.popupWFTitle = function() {
     tbox.style.width = (WFUI.canvas.width) + "px";
     tbox.style.fontSize = "20pt";
     tbox.style.textAlign = "center";
-    //tbox.style.background = "transparent";
     tbox.value = WF.flow.title;
     tbox.name = "TEST_INPUT";
     frm.appendChild(tbox);

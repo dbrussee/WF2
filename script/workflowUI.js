@@ -94,9 +94,7 @@ WFUI.drawCanvas = function(items) {
     var dragger = WFUI.dragstart == null ? null : WFUI.dragstart.item;
     for (var id in items) {
         var itm = items[id];
-        //if (itm != dragger) {
-            WFUI.drawShape(itm, dragger);
-        //}
+        WFUI.drawShape(itm, dragger);
     }
 }
 
@@ -107,7 +105,6 @@ WFUI.clearCanvas = function() {
 
 WFUI.drawShape = function(itm, draggingItem) {
     if (draggingItem == undefined) draggingItem = null;
-    //return; // DEBUGGING
     if (itm.shape == "pill") {
         WFUI.drawShapePill(itm, draggingItem);
     } else if (itm.shape == "diamond") {
@@ -133,8 +130,6 @@ WFUI.drawShapeStop = function(itm, draggingItem) {
     ctx.save();
     ctx.beginPath();
     WFUI.setStyle(ctx, itm, draggingItem);
-    //ctx.lineWidth = 2;
-    //ctx.strokeStyle = "red";
     WFUI.drawSidedShape(x, y, 8, r);
     if (itm.completed) WFUI.shadeWith(itm, "tomato", "maroon");
     ctx.fill();
@@ -248,7 +243,7 @@ WFUI.drawShapeDiamond = function(itm, draggingItem) {
     var y = itm.y;
     var left = x - (WFUI.shapeWidth / 2);
     var w = WFUI.shapeWidth;
-    var h = WFUI.shapeWidth;
+    var h = WFUI.shapeWidth * 4 / 5;
     var top = y - (h / 2);
     ctx.save();
     ctx.beginPath();
@@ -265,7 +260,6 @@ WFUI.drawShapeDiamond = function(itm, draggingItem) {
     WFUI.addTextToShape(itm);
 }
 WFUI.setStyle = function(ctx, itm, draggingItem) {
-    //ctx.strokeStyle = "black";
     if (itm == undefined) {
         itm = {completed:false, blockedBy:[]}
     }
@@ -301,7 +295,6 @@ WFUI.setStyle = function(ctx, itm, draggingItem) {
 WFUI.addTextToShape = function(itm, font, color) {
     if (color == undefined) color = (itm.completed ? "black" : app.colors.notDoneLine);
     if (font == undefined) font = "8pt Arial";
-    //WFUI.addText(itm.title, itm.x, itm.y + 5, font);
     WFUI.wrapText(itm.title, itm.x, itm.y, (WFUI.shapeWidth * 2 / 3), color, 8.5, "Arial");
 }
 WFUI.wrapText = function(text, x, y, maxWidth, color, fontSize, fontFace){
@@ -318,7 +311,6 @@ WFUI.wrapText = function(text, x, y, maxWidth, color, fontSize, fontFace){
         var testWidth = metrics.width;
         if(testWidth > maxWidth) {
             lines.push(line);
-            //context.fillText(line, x, y);
             line = words[n] + ' ';
         } else {
             line = testLine;
@@ -379,7 +371,6 @@ WFUI.getItemUnderXY = function(x, y) {
         if (x >= (test.x - halfHit) && x <= test.x + halfHit) {
             if (y >= (test.y - halfHit) && y <= test.y + halfHit) {
                 itm = test;
-                //WF.dispatchEvent("itempicked", {item:itm});
                 break;
             }
         }

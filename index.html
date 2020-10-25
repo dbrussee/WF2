@@ -39,7 +39,20 @@
             <table id='topForm' class='form' style='width:360px; margin:0 auto;'>
                 <tr><th ondblclick="app.resetFlow()" style='vertical-align:top; width:38px'>&nbsp;Title:</th>
                     <td style='vertical-align:top;'>
-                        <input readonly style='width:220px;border:0; background:transparent' onkeyup='app.updateWFTitle(this)' id='wf_title' name='wf_title'>
+                        <select onfocus='blur()' style='width:250px' id='selLoadLocal' onchange='app.loadLocal()'>
+                            <option value='1'>1.</option>
+                            <option value='2'>2.</option>
+                            <option value='3'>3.</option>
+                            <option value='4'>4.</option>
+                            <option value='5'>5.</option>
+                            <option value='6'>6.</option>
+                            <option value='7'>7.</option>
+                            <option value='8'>8.</option>
+                            <option value='9'>9.</option>
+                            <option value='10'>10.</option>
+                        </select> 
+                    </td>
+                    <td>
                         <button onclick='app.askToLoadFlow()'>&hellip;</button>
                     </td>
                 </tr>
@@ -47,7 +60,7 @@
             <hr>
             <span id='itemEditor' style='display:none'>
             <table class='form'>
-                <tr><th class='anchor' onclick='app.mode="design";app.editItem()'>Item&nbsp;Title:</th><td>
+                <tr><th class='anchor' onclick='app.mode="design";app.editItem()'>Item:</th><td>
                     <span id='item_title'></span>
                 </td></tr>
                 <tr><th style='vertical-align:top'>Complete:</th><td style='vertical-align:top'>
@@ -61,9 +74,9 @@
             </span>
             <span id='itemDetailEditor' style='display:none;'>
             <table class='form'>
-                <tr><th>&nbsp;
+                <tr><th>
                     <span class='anchor' onclick='app.askToDeleteItem()' style='color:red;font-weight:bold'>&times;</span>
-                    Item&nbsp;Title:</th><td>
+                    Item:</th><td>
                     <input onkeyup='app.updateItemTitle(this)' name='det_item_title'>
                     <button style='font-size:.7em' onclick='app.askToAddNewItem()'>Add Item</button>
                 </td></tr>
@@ -123,20 +136,8 @@
             or <button onclick='app.cancelAction()'>Cancel</button>
         </form>
         <form class='popForm' onsubmit='return false;' id='locLoadLocal' style='display:none'>
-            Select from the list to load it...<br/>
-            <select style='width:100%' id='selLoadLocal' onchange='app.loadLocal()'>
-                <option value='1'>1.</option>
-                <option value='2'>2.</option>
-                <option value='3'>3.</option>
-                <option value='4'>4.</option>
-                <option value='5'>5.</option>
-                <option value='6'>6.</option>
-                <option value='7'>7.</option>
-                <option value='8'>8.</option>
-                <option value='9'>9.</option>
-                <option value='10'>10.</option>
-            </select> 
-            &nbsp; ... <button onclick='app.askToStartNew()'>Clear&hellip;</button>
+            Select from the list above to load it...<br/>
+            &nbsp; or ... <button onclick='app.askToStartNew()'>Clear&hellip;</button>
             <button onclick='app.askToSaveFlow()'>Save&hellip;</button>
             <br/>
             <br/><button style='font-size:.7em' onclick='document.getElementById("fileLoadObject").click()'>Select File...</button> or 
@@ -180,16 +181,14 @@
         </form>
         <form class='popForm' onsubmit='return false;' id='locEditDoneCode' style='display:none'>
             Set code and value for this 'done' option. Setting the code to blank will remove it.<br/>
-            &nbsp; ... Code: <input id='txtEditDoneCode' size='4'><br/>
-            &nbsp; ... Vaue: <input id='txtEditDoneValue' size='20'><br/>
+            &nbsp;Code: <input id='txtEditDoneCode' size='4'>
+            Value: <input id='txtEditDoneValue' size='20'><br/>
             &nbsp; ... <button onclick='app.setDoneCode()'>Save</button>
             or <button onclick='app.cancelAction();'>Cancel</button>
         </form>
         <form class='popForm' onsubmit='return false;' id='locEditLink' style='display:none'>
             <span id='locEditLinkMessage'></span><br/>
             <table style='margin-left:1.5em' id='tbl_link_codes'><tr>
-                <th style='width:1.5em;'>&nbsp;</th>
-                <th>Code: 'Display'</th>
             </tr></table>
             &nbsp; ... <button onclick='app.saveEditedLink()'>Save</button>
             or <button onclick='app.cancelAction();'>Cancel</button>

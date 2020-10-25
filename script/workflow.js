@@ -27,9 +27,6 @@ WF.handleMouseMove = function(event) {
         var newy = parseInt(((origin.y + offset.y) + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
         // How far away is the new possible position from current postion
         var dist = WFUI.lineLength(origin.x, origin.y, x, y);
-        if (dist > 0) {
-            console.log(dist);
-        }
         if (dist > WF.gridsize) {
             // Distance is > gridsize
             WFUI.dragstart.item = WF.pickedItem;
@@ -66,8 +63,6 @@ WF.handleMouseDown = function(event) {
         origin:{x:0,y:0},
         offset:{x:0,y:0}
     };
-    //var x = event.clientX - can.parentElement.offsetLeft + can.parentElement.parentElement.scrollLeft;
-    //var y = event.clientY - can.parentElement.offsetTop + can.parentElement.parentElement.scrollTop;
     var x = (event.clientX - can.parentElement.offsetLeft + can.parentElement.parentElement.scrollLeft) / app.scale;
     var y = (event.clientY - can.parentElement.offsetTop + can.parentElement.parentElement.scrollTop) / app.scale;
 
@@ -80,18 +75,17 @@ WF.handleMouseDown = function(event) {
     if (app.pendingAction != null) {
         if (app.pendingAction.action == "addLink") {
             app.confirmAddLink(itm);
+            return;
         } else if (app.pendingAction.action == "addItem") {
             if (itm == null) {
                 var newx = parseInt((x + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
                 var newy = parseInt((y + (WF.gridsize/2)) / WF.gridsize) * WF.gridsize;
-                app.confirmAddNewItem(newx, newy);
+                itm = app.confirmAddNewItem(newx, newy);
             } else {
                 app.toast("Add item action cancelled because you clicked on an item");
                 app.cancelAction();
             }
         }
-        app.toast("Action cancelled");
-        app.cancelAction();
     }
 
     if (itm == null) {
@@ -240,7 +234,12 @@ WFItem.prototype.removeBlockedBy = function(itm) {
 }
 WF.addItem = function(x, y, shape, title) {
     var itm = new WFItem(x, y, shape, title);
+    if (shape == "diamond") {
+        itm.doneCodes['Yes'] = {code:'Yes',value:'Yes'}
+        itm.doneCodes['No'] = {code:'No',value:'No'}
+    }
     WF.flow.items[itm.id] = itm;
+    WF.pickedItem = itm;
     if (!WF.inTransaction) WF.drawCanvas();
     return itm;
 }
@@ -315,7 +314,6 @@ function initWF() {
                 app.askToAddLink("blocks");
                 break;
             case 69: // e (Edit item)
-                //app.setMode("design");
                 app.editItem();
                 break;
             case 83: // s (item shape)
@@ -360,8 +358,6 @@ function initWF() {
         }
     }
     sel.value = app.localStorage.slot;
-    var frm = document.getElementById("frmWF");
-    frm.elements.namedItem("wf_title").value = WF.flow.title; 
 
     WF.createCanvas();
 
@@ -390,7 +386,6 @@ function initWF() {
     })
     WF.addEventListener("itempicked", function(e) {
         if (e.detail.item == null) {
-            //app.toast("Clicked open area");
             app.pendingAction = null;
         } else {
             //app.toast("Clicked: " + e.detail.item.title);
@@ -422,9 +417,6 @@ WF.createCanvas = function() {
     div.style.cssText = "z-index:1; position:relative; background-color: white; margin: 20px auto";
     div.style.height = (app.page.y * app.scale) + "px";
     div.style.width = (app.page.x * app.scale) + "px";
-    //div.style.border = "10px solid transparent";
-    //div.style.boxSizing = "content-box";
-    //div.style.borderTop = "60px solid transparent";
     container.appendChild(div);
 
     WFUI.canvas = document.createElement("canvas");
@@ -433,20 +425,8 @@ WF.createCanvas = function() {
     can.height = app.page.y * app.scale;
     can.width = app.page.x * app.scale;
     div.appendChild(can);
-    //document.getElementById("canvasContainer").appendChild(can);
-    // Get the device pixel ratio, falling back to 1.
-    //var dpr = window.devicePixelRatio || 1;
-    // Get the size of the canvas in CSS pixels.
-    //var rect = can.getBoundingClientRect();
-    // Give the canvas pixel dimensions of their CSS
-    // size * the device pixel ratio.
-    //can.width = rect.width * dpr;
-    //can.height = rect.height * dpr;
     WFUI.ctx = can.getContext('2d');
     WFUI.ctx.scale(app.scale, app.scale);
-    // Scale all drawing operations by the dpr, so you
-    // don't have to worry about the difference.
-    //WFUI.ctx.scale(dpr, dpr);
 
     can.addEventListener("touchstart", function(event) {
         if (event.touches.length > 1) return; // zoom?
