@@ -136,34 +136,16 @@
             or <button onclick='app.cancelAction()'>Cancel</button>
         </form>
         <form class='popForm' onsubmit='return false;' id='locLoadLocal' style='display:none'>
-            Select from the list above to load it...<br/>
-            &nbsp; or ... <button onclick='app.askToStartNew()'>Clear&hellip;</button>
+            Select from the list above to load it or...<br/>
+            &nbsp; ... <button onclick='app.askToStartNew()'>Clear&hellip;</button>
             <button onclick='app.askToSaveFlow()'>Save&hellip;</button>
             <br/>
-            <br/><button style='font-size:.7em' onclick='document.getElementById("fileLoadObject").click()'>Select File...</button> or 
-            drag a .flow file into the box below to load it into the slot indicated in the dropdown list above:<br/>
+            <br/><button style='font-size:1em' onclick='document.getElementById("fileLoadObject").click()'>Select file to load...</button>
+            <p>or drag a .flow file into the box below to load it into the slot indicated in the dropdown list above:<br/>
             <input type='file' style='display:none' accept=".txt, .json, .flow" id='fileLoadObject' onchange='app.readFromFile(event)'>
             <textarea id='locLoadFromClipboard' style='display:none;font-size:5pt;width:100%;height:20em;'></textarea>
             <div id='fileDropZone' style='border: 3px dashed darkgray; border-radius:1em; text-align:center; width:200px; height:80px; margin: .5em auto; padding-top: 25px;'>File Drop Zone</div>
             &nbsp; ... <button onclick='app.cancelAction()'>Close</button>
-        </form>
-        <form class='popForm' onsubmit='return false;' id='locConfirmDelete' style='display:none'>
-            &nbsp; ... <button onclick='app.cancelAction()'>Cancel</button>
-            or <button onclick='app.confirmDeleteItem()'>Confirm Delete</button>
-        </form>
-        <form class='popForm' onsubmit='return false;' id='locConfirmRemoveLink' style='display:none'>
-            <span id='locConfirmRemoveLinkMessage'></span><br/>
-            &nbsp; ... <button onclick='app.cancelAction();'>Cancel</button>
-            or <button onclick='app.confirmRemoveLink()'>Confirm</button>
-        </form>
-        <form class='popForm' onsubmit='return false;' id='locConfirmStartNew' style='display:none'>
-            Be sure you have saved your work!!<br/>
-            &nbsp; ... <button onclick='app.cancelAction();'>Cancel</button>
-            or <button onclick='app.confirmStartNew()'>Clear and Start New</button>
-        </form>
-        <form class='popForm' onsubmit='return false;' id='locConfirmAddLink' style='display:none'>
-            <span id='locConfirmAddLinkMessage'></span><br/>
-            &nbsp; ... <button onclick='app.cancelAction();'>Cancel</button>
         </form>
         <form class='popForm' onsubmit='return false;' id='locConfirmAddItem' style='display:none'>
             Name of new item: <input id='txtNewItemName' placeholder=''><br/>
@@ -192,6 +174,12 @@
             </tr></table>
             &nbsp; ... <button onclick='app.saveEditedLink()'>Save</button>
             or <button onclick='app.cancelAction();'>Cancel</button>
+        </form>
+        <form class='popForm' onsubmit='return false;' id='locGenericAction' style='display:none'>
+            <div id='locGenericActionMessage'></div>
+            <div id='locGenericActionBody'></div>
+            &nbsp; ... <button id='btnGenericAction'>Do Something</button>
+            <button onclick='app.cancelAction();'>Cancel</button>        
         </form>
         <div id='locInstructionsWorking' style='display:none; padding:.3em'>
             You are in <b class='anchor' onclick='app.setMode()'>work</b> mode. 

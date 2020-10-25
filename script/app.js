@@ -431,16 +431,31 @@ app.setDoneCode = function() {
     }
     WF.drawCanvas();
 }
-app.askToAddLink = function(type) {
-    if (WF.pickedItem == null) return;
-    if (app.mode == "work") return;
+app.askToDoSomething = function(msg, body, actionMethod, btnText, pendingAction, requirePickedItem, requireMode) {
+    if (requirePickedItem && WF.pickedItem == null) return;
+    if (requireMode != "" && app.mode != requireMode) return;
     app.cancelAction(false);
-    app.pendingAction = {action:"addLink", type:type};
-    document.getElementById("locConfirmAddLink").style.display = "";
+    var frm = document.getElementById("locGenericAction");
+    var msgObj = document.getElementById("locGenericActionMessage");
+    msgObj.innerHTML = msg;
+    var bodyObj = document.getElementById("locGenericActionBody");
+    bodyObj.innerHTML = body;
+    var btn = document.getElementById("btnGenericAction");
+    if (actionMethod == null) {
+        btn.style.display = "none";
+    } else {
+        btn.style.display = "";
+        btn.onclick = actionMethod;
+        btn.innerHTML = btnText;
+    }
+    app.pendingAction = pendingAction;
+
+    frm.style.display = "";
+}
+app.askToAddLink = function(type) {
     var msg = "Add " + (type == "blocks" ? "blocking " : "blocked by ") + " link to ";
     msg += "'" + WF.pickedItem.title + "' by clicking on the other item";
-    document.getElementById("locConfirmAddLinkMessage").innerHTML = msg;
-
+    app.askToDoSomething(msg, "", null, "", {action:"addLink", type:type}, true, "design");
 }
 app.saveEditedLink = function() {
     var blockingItem = app.pendingAction.blocking;
@@ -524,13 +539,10 @@ app.editLink = function(type,toItem) {
     }
 }
 app.askToRemoveLink = function(type, id) {
-    app.cancelAction(false);
-    app.pendingAction = {action:"removeLink", type:type, id:id};
-    document.getElementById("locConfirmRemoveLink").style.display = "";
     var msg = "Remove " + (type == "blocks" ? "blocking " : "blocked by ") + " link to ";
     var itm = WF.flow.items[id];
     msg += "'" + itm.title + "'";
-    document.getElementById("locConfirmRemoveLinkMessage").innerHTML = msg;
+    app.askToDoSomething(msg, "", app.confirmRemoveLink, "Remove", {action:"removeLink", type:type, id:id}, true, "design");
 }
 app.confirmAddLink = function(itm) {
     var added = false;
@@ -576,8 +588,8 @@ app.confirmRemoveLink = function() {
     app.cancelAction();
 }
 app.askToStartNew = function() {
-    app.cancelAction(false);
-    document.getElementById("locConfirmStartNew").style.display = "";
+    var msg = "Be sure you have saved your work!!";
+    app.askToDoSomething(msg, "", app.confirmStartNew, "Clear and Start Fresh", null, false, "");
 }
 app.confirmStartNew = function() {
     WF.pickedItem = null;
@@ -592,11 +604,9 @@ app.confirmStartNew = function() {
     app.askToAddNewItem();
 }
 app.askToDeleteItem = function() {
-    if (app.mode == "work") return;
-    if (WF.pickedItem == null) return;
-    app.cancelAction(false);
-    app.pendingAction = {action:"deleteItem"};
-    document.getElementById("locConfirmDelete").style.display = "";
+    var msg = "Confirm deleting item ";
+    if (WF.pickedItem != null) msg += "'" + WF.pickedItem.title + "'";
+    app.askToDoSomething(msg, "", app.confirmDeleteItem, "Delete", {action:"deleteItem"}, true, "design");
 }
 app.confirmDeleteItem = function() {
     WF.pushTransaction();
@@ -617,18 +627,16 @@ app.cancelAction = function(showInstructions) {
     var forceInstructions = (showInstructions != undefined);
     if (showInstructions == undefined) showInstructions = false;
     app.pendingAction = null;
-    document.getElementById("locConfirmDelete").style.display = "none";
-    document.getElementById("locConfirmRemoveLink").style.display = "none";
-    document.getElementById("locConfirmAddLink").style.display = "none";
+    document.getElementById("locGenericAction").style.display = "none";
     document.getElementById("locConfirmAddItem").style.display = "none";
-    document.getElementById("locConfirmAddItem").style.display = "none";
+    document.getElementById("locLoadLocal").style.display = "none";  
     document.getElementById("locEditDoneCode").style.display = "none";
     document.getElementById("locEditLink").style.display = "none";  
-    document.getElementById("locLoadLocal").style.display = "none";  
     document.getElementById("locSaveLocal").style.display = "none"; 
-    document.getElementById("locConfirmStartNew").style.display = "none"; 
+
     document.getElementById("locInstructionsWorking").style.display = "none";
     document.getElementById("locInstructionsDesign").style.display = "none";
+    
     var show = false;
     if (forceInstructions && showInstructions) {
         show = true;
@@ -786,6 +794,7 @@ app.loadLocal = function(remainInCurrentMode) {
     WF.flow = { title: "", items: {} }
     WF.pickedItem = null;
     try {
+        WF.createCanvas();
         tmpFlow.slot = spot;
         WF.pushTransaction();
         WF.flow.title = tmpFlow.title;
