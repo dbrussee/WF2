@@ -250,7 +250,7 @@ WF.drawCanvas = function() {
 function initWF() {
     app.setMode("work");
     window.addEventListener("keydown", function(event) {
-        if (event.srcElement != document.body) return;
+        if (event.target != document.body) return;
         event.preventDefault();
         switch(event.keyCode) {
             case 48: // 0 (10th item)
