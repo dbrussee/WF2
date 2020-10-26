@@ -839,6 +839,7 @@ app.loadLocal = function(remainInCurrentMode) {
     app.cancelAction();
     app.hideEditor();
     app.pickNext();
+    document.activeElement.blur();
 }
 app.setFutureItemsIncomplete = function(itm) {
     var calledWithItem = (!itm == undefined);
