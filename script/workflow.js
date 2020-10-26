@@ -389,7 +389,9 @@ function initWF() {
                 WF.pushTransaction();
                 lnk = blk.blockedBy[itm.id];
                 app.toggleComplete(lnk);
-                WF.pickedItem = blk;
+                if (WF.pickedItem.completed) {
+                    WF.pickedItem = blk;
+                }
                 app.editItem();
                 WF.popTransaction();
             }
