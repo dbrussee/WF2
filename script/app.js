@@ -953,7 +953,7 @@ app.isCollectionEmpty = function(col) {
     return (app.collectionSize(col) == 0);
 }
 app.isOneOf = function(val,opts) {
-    return opts.split(",").indexOf(val) >= 0;
+    return opts.toUpperCase().split(",").indexOf(val.toUpperCase()) >= 0;
 }
 
 app.updateLocalStorage = function() {

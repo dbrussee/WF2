@@ -35,7 +35,7 @@
 
     </div>
     <div id='formContainer'>
-        <form id='frmWF' style='width:100%'><input type='submit' disabled style='display:none'><!-- Caused Enter key to be ignored -->
+        <form id='frmWF' style='width:100%'>
             <table id='topForm' class='form' style='width:360px; margin:0 auto;'>
                 <tr><th ondblclick="app.resetFlow()" style='vertical-align:top; width:38px'>&nbsp;Title:</th>
                     <td style='vertical-align:top;'>
@@ -53,7 +53,7 @@
                         </select> 
                     </td>
                     <td>
-                        <button onclick='app.askToLoadFlow()'>&hellip;</button>
+                        <button onclick='app.askToLoadFlow(); return false;'>&hellip;</button>
                     </td>
                 </tr>
             </table>
