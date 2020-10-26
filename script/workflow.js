@@ -250,7 +250,12 @@ WF.drawCanvas = function() {
 function initWF() {
     app.setMode("work");
     window.addEventListener("keydown", function(event) {
-        if (app.isOneOf(event.target.tagName, "input,select,textarea")) return;
+        if (app.isOneOf(event.target.tagName, "input,select,textarea")) {
+            if (event.keyCode == 13 && event.target.tagName != "TEXTAREA") {
+                event.preventDefault()
+            }
+            return;
+        }
         event.preventDefault();
         switch(event.keyCode) {
             case 48: // 0 (10th item)
