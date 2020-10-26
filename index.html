@@ -35,7 +35,7 @@
 
     </div>
     <div id='formContainer'>
-        <form id='frmWF' style='width:100%' onsubmit='return false;'>
+        <form id='frmWF' style='width:100%'><input type='submit' disabled style='display:none'><!-- Caused Enter key to be ignored -->
             <table id='topForm' class='form' style='width:360px; margin:0 auto;'>
                 <tr><th ondblclick="app.resetFlow()" style='vertical-align:top; width:38px'>&nbsp;Title:</th>
                     <td style='vertical-align:top;'>
@@ -81,12 +81,12 @@
                     <button style='font-size:.7em' onclick='app.askToAddNewItem()'>Add Item</button>
                 </td></tr>
                 <tr><th>Shape:</th><td><select onchange='app.updateItemShape(this)' id='item_shape' name='item_shape'>
-                        <option value='pill'>Begin/End</option>
+                        <option value='pill'>Begin / End</option>
                         <option value='box'>Process</option>
                         <option value='diamond'>Decision</option>
-                        <option value='pgram'>Input/Output</option>
+                        <option value='pgram'>Input / Output</option>
                         <option value='subr'>Subroutine</option>
-                        <option value='circle'>Connector</option>
+                        <option value='circle'>Connector Circle</option>
                         <option value='stop'>Stop</option>
                     </select>
                     </td>
@@ -150,12 +150,12 @@
         <form class='popForm' onsubmit='return false;' id='locConfirmAddItem' style='display:none'>
             Name of new item: <input id='txtNewItemName' placeholder=''><br/>
             Pick new item shape: <select id='selNewItemShape'>
-                <option value='pill'>Begin/End</option>
+                <option value='pill'>Begin / End</option>
                 <option value='box'>Process</option>
                 <option value='diamond'>Decision</option>
-                <option value='pgram'>Input/Output</option>
+                <option value='pgram'>Input / Output</option>
                 <option value='subr'>Subroutine</option>
-                <option value='circle'>Connector</option>
+                <option value='circle'>Connector Circle</option>
                 <option value='stop'>Stop</option>
             </select><br/>
             Click on an open spot to create the new item there<br/>
