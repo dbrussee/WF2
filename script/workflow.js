@@ -286,19 +286,19 @@ function initWF() {
                 break;
             case 37: // left arrow
                 if (event.shiftKey) app.shiftAll("L");
-                if (event.altKey) app.shiftItem("L");
+                if (event.altKey || event.ctrlKey) app.shiftItem("L");
                 break;
             case 39: // right arrow
                 if (event.shiftKey) app.shiftAll("R");
-                if (event.altKey) app.shiftItem("R");
+                if (event.altKey || event.ctrlKey) app.shiftItem("R");
                 break;
             case 38: // up arrow
                 if (event.shiftKey) app.shiftAll("U");
-                if (event.altKey) app.shiftItem("U");
+                if (event.altKey || event.ctrlKey) app.shiftItem("U");
                 break;
             case 40: // down arrow
                 if (event.shiftKey) app.shiftAll("D");
-                if (event.altKey) app.shiftItem("D");
+                if (event.altKey || event.ctrlKey) app.shiftItem("D");
                 break;
             case 67: // c (Center items)
                 if (event.shiftKey) app.shiftCenter();
