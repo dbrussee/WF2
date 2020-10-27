@@ -88,7 +88,7 @@ div.snapshot {
 	height: 50px;
 	width: 50px;
     z-index: 20;
-	background-image: url("camera.png");
+	background-image: url("camera.jpg");
 	background-repeat: no-repeat;
     background-size: contain;
     cursor: pointer;
