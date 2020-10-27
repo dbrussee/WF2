@@ -633,6 +633,8 @@ app.cancelAction = function(showInstructions) {
     document.getElementById("locEditDoneCode").style.display = "none";
     document.getElementById("locEditLink").style.display = "none";  
     document.getElementById("locSaveLocal").style.display = "none"; 
+    document.getElementById("locSnapshot").style.display = "none"; 
+    
 
     document.getElementById("locInstructionsWorking").style.display = "none";
     document.getElementById("locInstructionsDesign").style.display = "none";
@@ -970,6 +972,9 @@ app.popupSaveWFTitle = function() {
     app.closePopup();
 }
 app.popupWFTitle = function() {
+    WF.pickedItem = null;
+    WF.drawCanvas();
+    app.cancelAction(true);
     var frm = document.getElementById("BW_WF2_POPUPFORM");
     if (frm != undefined) document.body.removeChild(frm);
     frm = document.createElement("form");
@@ -1108,8 +1113,14 @@ app.shiftAll = function (dirs) {
     }
 }
 app.showSnapshot = function() {
+    app.cancelAction(false);
+    app.hideEditor();
+    var cbox = document.getElementById("chkSnapshotIncludeTitle");
     // get image data
-    var extents = app.canvasExtents();
+    var itm = WF.pickedItem;
+    WF.pickedItem = null;
+    WF.drawCanvas()
+    var extents = app.canvasExtents(cbox.checked);
     var imgData = WFUI.ctx.getImageData(extents.minX, extents.minY, extents.maxX, extents.maxY);
 
     // create image element
@@ -1118,8 +1129,12 @@ app.showSnapshot = function() {
     var ctx = canvas.getContext('2d');
     canvas.width = extents.maxX - extents.minX;
     canvas.height = extents.maxY - extents.minY;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.putImageData(imgData, 0, 0);
-    snap.src = canvas.toDataURL(); //image URL
+    snap.src = canvas.toDataURL("image/gif"); //image URL
+    WF.pickedItem = itm;
+    WF.drawCanvas()
+    document.getElementById("locSnapshot").style.display = "";
 }
 app.canvasExtents = function(withTitle) {
     if (withTitle == undefined) withTitle = true;
