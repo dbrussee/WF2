@@ -252,7 +252,9 @@ function initWF() {
     window.addEventListener("keydown", function(event) {
         if (app.isOneOf(event.target.tagName, "input,select,textarea")) {
             if (event.keyCode == 13 && event.target.tagName != "TEXTAREA") {
-                event.preventDefault()
+                if (event.target.name != "TEST_INPUT") {
+                    event.preventDefault();
+                }
             }
             return;
         }

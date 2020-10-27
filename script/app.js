@@ -653,9 +653,6 @@ app.cancelAction = function(showInstructions) {
 }
 app.updateWFTitle = function(el) {
     WF.flow.title = el.value;
-    var sel = document.getElementById("selLoadLocal");
-    sel.options[sel.selectedIndex].innerHTML = el.title;
-
     WF.drawCanvas();
 }
 app.updateItemTitle = function(el) {
@@ -738,12 +735,14 @@ app.saveLocal = function() {
     var slot = sel.value;
     var optnum = sel.selectedIndex;
     var opt = sel.options[optnum];
-    opt.innerHTML = (optnum+1) + ". " + WF.flow.title;
+    var title = WF.flow.title;
     if (WF.flow.title == "" && app.isCollectionEmpty(WF.flow.items)) {
         app.localStorage.slots[slot] = null;
+        title = "untitled";
     } else {
         app.localStorage.slots[slot] = WF.flow;
     }
+    opt.innerHTML = (optnum+1) + ". " + title;
     app.localStorage.slot = slot;
     var string = JSON.stringify(app.localStorage);
     localStorage.setItem("WF2_FLOWDATA", string);
@@ -1107,6 +1106,50 @@ app.shiftAll = function (dirs) {
     } else {
         app.toast("Shifting would make items go off page. Shift cancelled.", true);
     }
+}
+app.showSnapshot = function() {
+    // get image data
+    var extents = app.canvasExtents();
+    var imgData = WFUI.ctx.getImageData(extents.minX, extents.minY, extents.maxX, extents.maxY);
+
+    // create image element
+    var snap = document.getElementById("imgSnapshot");
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    canvas.width = extents.maxX - extents.minX;
+    canvas.height = extents.maxY - extents.minY;
+    ctx.putImageData(imgData, 0, 0);
+    snap.src = canvas.toDataURL(); //image URL
+}
+app.canvasExtents = function(withTitle) {
+    if (withTitle == undefined) withTitle = true;
+    var rslt = {
+        minX: 99999, maxX: 0,
+        minY: 99999, maxY: 0
+    }
+    for (var id in WF.flow.items) {
+        var itm = WF.flow.items[id];
+        rslt.minX = Math.min(rslt.minX, itm.x);
+        rslt.maxX = Math.max(rslt.maxX, itm.x);
+        rslt.minY = Math.min(rslt.minY, itm.y);
+        rslt.maxY = Math.max(rslt.maxY, itm.y);
+    }
+    rslt.minX -= (WFUI.shapeWidth / 2) + 10;
+    rslt.maxX += (WFUI.shapeWidth / 2) + 10;
+    rslt.minY -= (WFUI.shapeHeight / 2 + 10);
+    rslt.maxY += (WFUI.shapeHeight / 2 + 10);
+    if (withTitle) {
+        var title = WF.flow.title;
+        if (title == "") title = "<untitled>";
+        var ctx = WFUI.ctx;
+        ctx.save();
+        ctx.font = "20pt Arial";
+        var w = ctx.measureText(title).width;
+        rslt.minX = Math.min(rslt.minX, (app.page.x/2) - (w/2) - 10);
+        rslt.maxX = Math.max(rslt.maxX, (app.page.x/2) + (w/2) + 10);
+        rslt.minY = 0;
+    }
+    return rslt;
 }
 app.toggleComplete = function(link) {
     if (WF.pickedItem == null) return;

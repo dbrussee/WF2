@@ -101,6 +101,7 @@ WFUI.drawCanvas = function(items) {
         var itm = items[id];
         WFUI.drawShape(itm, dragger);
     }
+    app.showSnapshot();
 }
 
 WFUI.clearCanvas = function() {
