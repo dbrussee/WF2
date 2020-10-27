@@ -1149,6 +1149,10 @@ app.canvasExtents = function(withTitle) {
         rslt.maxX = Math.max(rslt.maxX, (app.page.x/2) + (w/2) + 10);
         rslt.minY = 0;
     }
+    rslt.minX = rslt.minX * app.scale;
+    rslt.maxX = rslt.maxX * app.scale;
+    rslt.minY = rslt.minY * app.scale;
+    rslt.maxY = rslt.maxY * app.scale;
     return rslt;
 }
 app.toggleComplete = function(link) {

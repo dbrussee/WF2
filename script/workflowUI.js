@@ -19,6 +19,7 @@ WFUI.drawCanvas = function(items) {
     WFUI.clearCanvas();
     if (WF.flow == null || (WF.flow.title == "" && app.isCollectionEmpty(WF.flow.items))) {
         WFUI.showInstructions();
+        app.showSnapshot();
         return;
     }
     var title = WF.flow.title;
