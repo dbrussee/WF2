@@ -30,7 +30,7 @@
         <input oninput='app.setPageScale()' type="range" min="25" max="200" value="100" step="5" class="slider" id="rngScale">
     </div>
     <div class='anchor workDesignMode' id='locModeName' onclick='app.setMode()'>work</div>
-    <img id='imgSnapshot' width='60px'>
+    <div class='snapshot' title='Show snapshot above' onclick='app.showSnapshot()'></div>
 
     <div id='canvasContainer'>
 
@@ -181,6 +181,15 @@
             <div id='locGenericActionBody'></div>
             &nbsp; ... <button id='btnGenericAction'>Do Something</button>
             <button onclick='app.cancelAction();'>Cancel</button>        
+        </form>
+        <form class='popForm' onsubmit='return false;' id='locSnapshot' style='display:none'>
+            The image below is a snapshot of your flow. Depending on your browser you may
+            be able to right-click on it to get a copy or save it locally.<br>
+            <p>&nbsp; ... <label><input id='chkSnapshotIncludeTitle' type='checkbox' checked onchange='app.showSnapshot()'>Include title</label>
+            <p><div style='background-color: white; text-align:center;'>
+                <img id='imgSnapshot' style='background: whilte; border: 1px dotted black; height:220px; margin:0 auto'>
+            </div>
+            <p>&nbsp; ... <button onclick='app.cancelAction();'>Close</button>        
         </form>
         <div id='locInstructionsWorking' style='display:none; padding:.3em'>
             You are in <b class='anchor' onclick='app.setMode()'>work</b> mode. 
