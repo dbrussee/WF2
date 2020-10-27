@@ -81,13 +81,17 @@ table#tbl_link_codes td {
     border: 1px dotted silver;
     vertical-align:top;
 }
-img#imgSnapshot {
+div.snapshot {
     position:absolute;
-	bottom: 10px;
+	bottom: 0;
 	right: 330px;
+	height: 50px;
+	width: 50px;
     z-index: 20;
-    border: 1px dotted black;
-    background-color: white;;
+	background-image: url("camera.png");
+	background-repeat: no-repeat;
+    background-size: contain;
+    cursor: pointer;
 }
 div.workDesignMode {
     position:absolute;
