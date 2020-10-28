@@ -105,10 +105,11 @@ WF.handleMouseDown = function(event) {
         WFUI.dragstart.offset = {x:itm.x - x, y:itm.y - y}
     }
     var prev = WF.pickedItem;
+
     WF.pickedItem = itm;
     WF.drawCanvas();
     WF.dispatchEvent("itempicked", {item:itm, prev:prev});
-    app.closePopup();
+    app.closePopup();    
 }
 WF.pushTransaction = function() {
     WF.transactionLevel++;
@@ -445,6 +446,10 @@ WF.createCanvas = function() {
     WFUI.ctx = can.getContext('2d');
     WFUI.ctx.scale(app.scale, app.scale);
 
+    can.addEventListener("dblclick", function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+    });
     can.addEventListener("touchstart", function(event) {
         if (event.touches.length > 1) return; // zoom?
         event.preventDefault();
