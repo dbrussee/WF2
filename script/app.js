@@ -12,6 +12,7 @@ window.app = {
         activeArrowFill: "red",
         dragFill: "gainsboro"
     },
+    emptyTitle: 'Better Way Workflow',
     localStorage: {slot:1, slots:[null,null,null,null,null,null,null,null,null,null,null]},
     pendingAction: null,
     editing: false,
@@ -1142,6 +1143,16 @@ app.canvasExtents = function(withTitle) {
         minX: 99999, maxX: 0,
         minY: 99999, maxY: 0
     }
+    var title = WF.flow.title;
+    if (app.isCollectionEmpty(WF.flow.items)) {
+        rslt.minX = app.page.x / 2;
+        rslt.maxX = app.page.x / 2;
+        rslt.minY = 0;
+        rslt.maxY = 0;
+        if (title == "") title = app.emptyTitle;
+    } else {
+        if (title == "") title = "<untitled>";
+    }
     for (var id in WF.flow.items) {
         var itm = WF.flow.items[id];
         rslt.minX = Math.min(rslt.minX, itm.x);
@@ -1154,15 +1165,14 @@ app.canvasExtents = function(withTitle) {
     rslt.minY -= (WFUI.shapeHeight / 2 + 10);
     rslt.maxY += (WFUI.shapeHeight / 2 + 10);
     if (withTitle) {
-        var title = WF.flow.title;
-        if (title == "") title = "<untitled>";
         var ctx = WFUI.ctx;
         ctx.save();
         ctx.font = "20pt Arial";
         var w = ctx.measureText(title).width;
-        rslt.minX = Math.min(rslt.minX, (app.page.x/2) - (w/2) - 10);
-        rslt.maxX = Math.max(rslt.maxX, (app.page.x/2) + (w/2) + 10);
+        rslt.minX = Math.min(rslt.minX, ((app.page.x - w) / 2) - 10);
+        rslt.maxX = Math.max(rslt.maxX, app.page.x - ((app.page.x - w) / 2) + 10);
         rslt.minY = 0;
+        ctx.restore();
     }
     rslt.minX = rslt.minX * app.scale;
     rslt.maxX = rslt.maxX * app.scale;
