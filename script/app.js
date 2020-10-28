@@ -741,6 +741,9 @@ app.saveLocal = function() {
     var title = WF.flow.title;
     if (WF.flow.title == "" && app.isCollectionEmpty(WF.flow.items)) {
         app.localStorage.slots[slot] = null;
+        title = "";
+    } else if (WF.flow.title == "" && !app.isCollectionEmpty(WF.flow.items)) {
+        app.localStorage.slots[slot] = WF.flow;
         title = "untitled";
     } else {
         app.localStorage.slots[slot] = WF.flow;
