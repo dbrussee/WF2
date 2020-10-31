@@ -76,7 +76,7 @@
             <span id='itemDetailEditor' style='display:none;'>
             <table class='form'>
                 <tr><th>
-                    <span class='anchor' onclick='app.askToDeleteItem()' style='color:red;font-weight:bold'>&times;</span>
+                    <span class='anchor x' onclick='app.askToDeleteItem()'>&times;</span>
                     Item:</th><td>
                     <input onkeyup='app.updateItemTitle(this)' name='det_item_title'>
                     <button style='font-size:.7em' onclick='app.askToAddNewItem()'>Add Item</button>
@@ -95,35 +95,34 @@
                 <tr><th style='vertical-align:top'>Instructions:</th>
                     <td><textarea onkeyup='app.updateInstructions(this)' style='font-size:10pt;width:100%;height:5em;' name='item_instructions'></textarea></td>
                 </tr>
-                <tr><td colspan='2' style='padding-left:2em;'>
-                    <table id='tbl_done_codes'>
-                        <tr><th style='border-bottom: 0' colspan='2'>Complete Options</th></tr>
-                        <tr><th style='width:55px'>Code</th>
-                            <th>Value <button style='font-size:.7em;' onclick='app.editDoneCode()'>add</button></th>
+                <tr><td colspan='2' style='padding-left:1em;'>
+                    <table id='tbl_done_codes' class='lists'>
+                        <tr><th style='border-bottom: 0' colspan='3'>Options 
+                                <button style='font-size:.7em;' onclick='app.editDoneCode()'>Add Option</button></th></tr>
+                        <tr><th style='width:25px'>&nbsp;</th>
+                            <th style='width:70px;text-align:center'>Code</th>
+                            <th>Value</th>
                         </tr>
                     </table>
                 </td></tr>
-                <tr><td colspan='2'>
-                    <table style='width:380px'>
-                        <tr>
-                            <td style='vertical-align:top;'>
-                                <span style='color:navy;'>Blocked By...</span>
-                                <button style='font-size:.7em;' onclick='app.askToAddLink("blockby")'>Add</button>
-                                <span id='locBlockedByList'></span>
-                            </td>
-                            <td style='width:50%; vertical-align:top;'>
-                                <span style='color:navy;'>Blocking...</span>
-                                <button style='font-size:.7em;' onclick='app.askToAddLink("blocks")'>Add</button>
-                                <span id='locBlocksList'></span>
-                            </td>
-                        </tr>
-                    </table>
-                </td></tr>
-                <tr><td colspan='2'><hr></td></tr>
+                <tr><th>Links...</th>
+                    <td>
+                        <button style='font-size:.7em;' onclick='app.askToAddLink("blockby")'>Add Blocked By</button>
+                        <button style='font-size:.7em;' onclick='app.askToAddLink("blocks")'>Blocks</button>    
+                    </td></tr>
+                    <tr><td colspan='2' style='padding-left:1em;'>
+                        <table id='tbl_links' class='lists'>
+                            <tr><th style='width:25px'>&nbsp;</th>
+                                <th style='width:70px;text-align:center'>Type</th>
+                                <th>To Item</th>
+                            </tr>
+                        </table>
+                    </td></tr>
+                    <tr><td colspan='2'><hr></td></tr>
                 <tr><th style='vertical-align:top'>Blocked&nbsp;till:</th><td style='vertical-align:top'>
                     <label><input id='item_block_type_any' type='radio' onchange='app.updateBlockType(this)' name='item_block_type' value='any'>Any</label>
                     <label><input id='item_block_type_all' type='radio' checked onchange='app.updateBlockType(this)' name='item_block_type' value='all'>All</label>
-                    &nbsp;Blocked Bys are done
+                    &nbsp;Blk'd Bys are done
                 </td></tr>
             </table>
             <hr>

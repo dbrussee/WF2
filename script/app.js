@@ -268,11 +268,17 @@ app.editItem = function() {
         loc.innerHTML += h;
 
         var tr = tbl.insertRow();
-        tr.onclick = function() {app.editDoneCode(this);}
-        var td = tr.insertCell();
+        var td = tr.insertCell(); // X delete
+        var h = "<span class='anchor x' ";
+        h += "onclick='app.deleteDoneCode(\"" + key + "\")'>&times;</span>";
+        td.innerHTML = h;
+        td = tr.insertCell();
+        td.style.textAlign = "center";
+        td.onclick = function() {app.editDoneCode(this);}
         td.innerHTML = key;
         td.className = "anchor";
         td = tr.insertCell();
+        td.onclick = function() {app.editDoneCode(this);}
         td.innerHTML = oneCode.value;
         td.className = "anchor";
 
@@ -281,8 +287,8 @@ app.editItem = function() {
     if (doneCodeCount == 0) {
         var tr = tbl.insertRow();
         var td = tr.insertCell();
-        td.colSpan = "2";
-        td.innerHTML = "No done codes defined. Options will be Completed or Not Completed";
+        td.colSpan = "3";
+        td.innerHTML = "No custom options defined. Options will be Not Completed or Completed";
         td.style.color = "grey";
 
         var chk = (itm.completed ? " checked" : "");
@@ -310,31 +316,33 @@ app.editItem = function() {
     }
     frm.elements.namedItem("item_shape").value = itm.shape;
     // Blocks / Blocked Bys
-    var loc = document.getElementById("locBlockedByList");
-    loc.innerHTML = "";
+    var tbl = document.getElementById("tbl_links");
+    while(tbl.rows.length > 1) tbl.deleteRow(1);
     for (var id in itm.blockedBy) {
         var other = WF.flow.items[id];
         var title = other.title;
-        var allowCodes = itm.blockedBy[other.id].allowCodes;
-        if (allowCodes != null) title += " (" + allowCodes + ")";
-        var link = "<div style='width:100%; padding-bottom:.2em; margin-bottom:.3em; border-bottom:1px dotted silver;'>";
-        link += "<span class='anchor' onclick='app.askToRemoveLink(\"blockBy\"," + other.id + ")' style='color:red;font-weight:bold'>&times;</span>";
-        link += " <span class='anchor' onclick='app.editLink(\"blockedby\"," + other.id + ")'>" + title + "</span>";
-        link += "</div>";
-        loc.innerHTML += link;
+        //var allowCodes = itm.blockedBy[other.id].allowCodes;
+        //if (allowCodes != null) title += " (" + allowCodes + ")";
+        var tr = tbl.insertRow();
+        var td = tr.insertCell();
+        td.innerHTML = "<span class='anchor x' onclick='app.askToRemoveLink(\"blockBy\"," + other.id + ")'>&times;</span>";
+        td = tr.insertCell(); td.style.textAlign = "center";
+        td.innerHTML = "Blk'd By";
+        td = tr.insertCell();
+        td.innerHTML = "<span class='anchor' onclick='app.editLink(\"blockedby\"," + other.id + ")'>" + title + "</span>";
     }
-    var loc = document.getElementById("locBlocksList");
-    loc.innerHTML = "";
     for (var id in itm.blocks) {
         var other = WF.flow.items[id];
         var title = other.title;
         var allowCodes = other.blockedBy[itm.id].allowCodes;
         if (allowCodes != null) title += " (" + allowCodes + ")";
-        var link = "<div style='width:100%; padding-bottom:.2em; margin-bottom:.3em; border-bottom:1px dotted silver;'>";
-        link += "<span class='anchor' onclick='app.askToRemoveLink(\"blocks\"," + other.id + ")' style='color:red;font-weight:bold'>&times;</span>";
-        link += " <span class='anchor' onclick='app.editLink(\"blocks\"," + other.id + ")'>" + title + "</span>";
-        link += "</div>";
-        loc.innerHTML += link;
+        var tr = tbl.insertRow();
+        var td = tr.insertCell();
+        td.innerHTML = "<span class='anchor x' onclick='app.askToRemoveLink(\"blocks\"," + other.id + ")'>&times;</span>";
+        td = tr.insertCell();
+        td.innerHTML = "Blocks"; td.style.textAlign = "center";
+        td = tr.insertCell();
+        td.innerHTML = "<span class='anchor' onclick='app.editLink(\"blocks\"," + other.id + ")'>" + title + "</span>";
     }
 }
 app.hideEditor = function() {
@@ -342,13 +350,18 @@ app.hideEditor = function() {
     document.getElementById("itemEditor").style.display = "none";
     document.getElementById("itemDetailEditor").style.display = "none";
 }
+app.deleteDoneCode = function(code) {
+    var msg = "Delete option code '" + code + "'?";
+    app.askToDoSomething(msg, "", app.setDoneCode, "Delete", {action:"deleteDone", code:code}, true, "design");
+}
 app.editDoneCode = function(el) {
     app.cancelAction();
     var code = null;
     var val = "";
     if (el != undefined) { // click event is tied to the TR element
-        code = el.cells[0].innerText;
-        val = el.cells[1].innerText;
+        var tr = el.parentElement;
+        code = tr.cells[1].innerText;
+        val = tr.cells[2].innerText;
     }
     document.getElementById("txtEditDoneCode").value = (code == null ? "" : code);
     document.getElementById("txtEditDoneValue").value = val;
@@ -365,7 +378,7 @@ app.setDoneCode = function() {
             app.cancelAction();
         } else {
             if (codes[newCode] != null) {
-                app.toast("That done code is already used on this item", true);
+                app.toast("That option code is already used on this item", true);
             } else {
                 if (app.isCollectionEmpty(codes)) {
                     for (var key in WF.pickedItem.blocks) {
@@ -375,6 +388,8 @@ app.setDoneCode = function() {
                     }
                 }
                 codes[newCode] = {code:newCode, value:newVal}
+                document.getElementById("txtEditDoneCode").value = "";
+                document.getElementById("txtEditDoneValue").value = "";
                 app.editItem();
             }
         }
@@ -382,7 +397,7 @@ app.setDoneCode = function() {
         if (newCode == "") {
             // I the item was completed with this code, throw an error
             if (WF.pickedItem.doneCode == act.code) {
-                app.toast("Done code '" + act.code + "' cannot be deleted because it is set as this items done code", true);
+                app.toast("Option code '" + act.code + "' cannot be deleted because it is the currently selected option.", true);
                 return;
             }
             delete codes[act.code];
@@ -401,13 +416,15 @@ app.setDoneCode = function() {
                     }
                 }
             }
+            document.getElementById("txtEditDoneCode").value = "";
+            document.getElementById("txtEditDoneValue").value = "";
             app.editItem();
         } else {
             if (newCode == act.code) {
                 codes[act.code].value = newVal;
                 app.editItem();
             } else if (codes[newCode] != null) {
-                app.toast("That done code is already used on this item", true);
+                app.toast("That option code is already used on this item", true);
             } else {
                 delete codes[act.code];
                 codes[newCode] = {code:newCode, value:newVal}
@@ -426,6 +443,8 @@ app.setDoneCode = function() {
                         }
                     }
                 }
+                document.getElementById("txtEditDoneCode").value = "";
+                document.getElementById("txtEditDoneValue").value = "";
                 app.editItem();
             }
         }

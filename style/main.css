@@ -9,7 +9,15 @@ body * {
     font-size: 12pt;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-
+.x {
+    font-size: 1.3em !important;
+    color: firebrick !important;
+    font-weight: bold !important;
+}
+.x:hover {
+    color: red !important;
+    text-shadow: 1px 1px yellow;
+}
 #canvasContainer {
     position: absolute;
     background-color: darkolivegreen;
@@ -62,24 +70,22 @@ span.anchor:hover {
     border-radius: .4em;
 }
 
-table#tbl_done_codes,
-table#tbl_link_codes {
-    width: 320px;
+table.lists {
+    width: 360px;
     border-collapse: collapse;
     border-bottom: 1px solid navy;
     margin-bottom: .2em;
 }
-table#tbl_done_codes th,
-table#tbl_link_codes th {
+table.lists th {
     color: navy;
     font-weight: normal;
     border-bottom: 1px solid navy;
     text-align: left;
+    vertical-align:bottom;
 }
-table#tbl_done_codes td,
-table#tbl_link_codes td {
-    border: 1px dotted silver;
-    vertical-align:top;
+table.lists td {
+    border-bottom: 1px dotted silver;
+    vertical-align:bottom;
 }
 div.snapshot {
     position:absolute;
