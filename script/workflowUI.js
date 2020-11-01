@@ -109,6 +109,7 @@ WFUI.clearCanvas = function() {
 }
 
 WFUI.drawShape = function(itm, draggingItem) {
+    WFUI.ctx.beginPath();
     if (draggingItem == undefined) draggingItem = null;
     if (itm.shape == "pill") {
         WFUI.drawShapePill(itm, draggingItem);
@@ -140,7 +141,11 @@ WFUI.drawShapeStop = function(itm, draggingItem) {
     ctx.fill();
     ctx.stroke();
     ctx.restore();
-    WFUI.addTextToShape(itm, "bold 10pt Arial", (itm.completed ? "white" : app.colors.notDoneLine));  
+    if (itm.completed) {
+        WFUI.addTextToShape(itm, "bold 10pt Arial", "white");  
+    } else {
+        WFUI.addTextToShape(itm);
+    }
 }
 WFUI.drawShapeCircle = function(itm, draggingItem) {
     var ctx = WFUI.ctx;
@@ -151,7 +156,7 @@ WFUI.drawShapeCircle = function(itm, draggingItem) {
     ctx.beginPath();
     WFUI.setStyle(ctx, itm, draggingItem);
     ctx.arc(x, y, r, 0, Math.PI * 2);
-    if (itm.completed && app.isCollectionEmpty(itm.blocks)) WFUI.shadeWith(itm, app.colors.doneFill);
+    //if (itm.completed && app.isCollectionEmpty(itm.blocks)) WFUI.shadeWith(itm, app.colors.doneFill);
     ctx.fill();
     ctx.stroke();
     ctx.restore();
@@ -203,7 +208,7 @@ WFUI.drawShapeBox = function(itm, draggingItem, withSubrLines) {
     ctx.lineTo(left, top + r);
     ctx.arcTo(left, top, left + r, top, r);
     ctx.closePath();
-    if (itm.completed && app.isCollectionEmpty(itm.blocks)) WFUI.shadeWith(itm, app.colors.doneFill);
+    //if (itm.completed && app.isCollectionEmpty(itm.blocks)) WFUI.shadeWith(itm, app.colors.doneFill);
     ctx.fill();
     if (withSubrLines) {
         var gap = 8;
@@ -235,7 +240,7 @@ WFUI.drawShapePill = function(itm, draggingItem) {
     ctx.arcTo(pillLeft, pillTop + pillHeight, pillLeft, pillTop + (pillHeight/2), pillHeight/2);
     ctx.arcTo(pillLeft, pillTop, pillLeft + (pillHeight/2), pillTop, pillHeight/2);
     ctx.closePath();
-    if (itm.completed && app.isCollectionEmpty(itm.blocks)) WFUI.shadeWith(itm, app.colors.doneFill);
+    //if (itm.completed && app.isCollectionEmpty(itm.blocks)) WFUI.shadeWith(itm, app.colors.doneFill);
 
     ctx.fill();
     ctx.stroke();
@@ -258,7 +263,7 @@ WFUI.drawShapeDiamond = function(itm, draggingItem) {
     ctx.lineTo(left + (w/2), top + h);
     ctx.lineTo(left, top + (h/2));
     ctx.closePath();
-    if (itm.completed && app.isCollectionEmpty(itm.blocks)) WFUI.shadeWith(itm, app.colors.doneFill);
+    //if (itm.completed && app.isCollectionEmpty(itm.blocks)) WFUI.shadeWith(itm, app.colors.doneFill);
     ctx.fill();
     ctx.stroke();
     ctx.restore();
@@ -281,24 +286,40 @@ WFUI.setStyle = function(ctx, itm, draggingItem) {
             ctx.shadowColor = app.colors.halo;
         }
         ctx.lineWidth = .5;
+        var fill = itm.fill == undefined ? "dflt" : itm.fill;
+        if (app.fills[fill] == undefined) fill = "error";
+        WFUI.shadeWith(itm, app.fills[fill].bg);
         if (itm.completed) {
+            ctx.lineWidth = 4;
             ctx.strokeStyle = app.colors.doneLine;
-            WFUI.shadeWith(itm, app.colors.doneFill);
+            //WFUI.shadeWith(itm, app.colors.doneFill);
         } else {
             ctx.strokeStyle = app.colors.notDoneLine;
-            if (itm.isBlocked()) {
+            if (app.snapshotMode || itm.isBlocked()) {
                 ctx.strokeStyle = app.colors.notDoneLine;
-                WFUI.shadeWith(itm, app.colors.blockedFill);
+                //WFUI.shadeWith(itm, app.colors.blockedFill);
             } else {
-                ctx.strokeStyle = app.colors.notDoneLine;
-                WFUI.shadeWith(itm, app.colors.activeFill);
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = app.colors.activeArrowFill;
+                //WFUI.shadeWith(itm, app.colors.activeFill);
             }
         }
     }
 
 }
 WFUI.addTextToShape = function(itm, font, color) {
-    if (color == undefined) color = (itm.completed ? "black" : app.colors.notDoneLine);
+    if (color == undefined) {
+        if (itm.fill == undefined) {
+            color = app.fills.dflt.fg;
+        } else {
+            if (app.fills[itm.fill] == undefined) {
+                color = "red";
+            } else {
+                color = app.fills[itm.fill].fg;
+            }
+        }
+        //color = (itm.completed ? "black" : app.colors.notDoneLine);
+    }
     if (font == undefined) font = "8pt Arial";
     WFUI.wrapText(itm.title, itm.x, itm.y, (WFUI.shapeWidth * 2 / 3), color, 8.5, "Arial");
 }

@@ -2,6 +2,24 @@ window.app = {
     scale: 1,
     page: {x:850, y:1100},
     debugStatus: false,
+    snapshotMode: false,
+    fills: {
+        dflt:{fg:"black",bg:"gainsboro"},
+        yellow:{fg:"black",bg:"yellow"},
+        green:{fg:"black",bg:"lightgreen"},
+        blue:{fg:"black",bg:"powderblue"},
+        brown:{fg:"black",bg:"tan"},
+        pink:{fg:"black",bg:"mistyrose"},
+        red:{fg:"black",bg:"lightpink"},
+        black:{fg:"white",bg:"dimgray"},
+        Byellow:{fg:"black",bg:"goldenrod"},
+        Bgreen:{fg:"white",bg:"seagreen"},
+        Bblue:{fg:"white",bg:"blue"},
+        Bbrown:{fg:"white",bg:"saddlebrown"},
+        Bpink:{fg:"black",bg:"fuchsia"},
+        Bcoral:{fg:"black",bg:"orangered"},
+        error:{fg:'yellow',bg:"red"}
+    },
     colors: {
         halo: "black",
         doneLine: "darkgreen",
@@ -251,7 +269,7 @@ app.editItem = function() {
     }
     var doneCodeCount = 0;
     var tbl = document.getElementById("tbl_done_codes");
-    while (tbl.rows.length > 2) tbl.deleteRow(2);
+    while (tbl.rows.length > 1) tbl.deleteRow(1);
     for (var key in itm.doneCodes) {
         var oneCode = itm.doneCodes[key];
         var chk = (itm.doneCode == key ? " checked" : "");
@@ -706,6 +724,10 @@ app.updateItemShape = function(el) {
     WF.pickedItem.shape = el.value;
     WF.drawCanvas();
 }
+app.updateItemFill = function(fill) {
+    WF.pickedItem.fill = fill;
+    WF.drawCanvas();
+}
 app.updateBlockType = function(el) {
     WF.pickedItem.unblockIfAnyCompleted = (el.value == "any");
     app.editItem();
@@ -790,6 +812,7 @@ app.loadFromTextbox = function() {
         for (var id in tmpFlow.items) {
             var tmpItm = tmpFlow.items[id];
             var itm = new WFItem(tmpItm.x, tmpItm.y, tmpItm.shape, tmpItm.title);
+            if (tmpItm.fill != undefined) itm.fill = tmpItm.fill;
             WF.flow.items[id] = itm;
             itm.id = id;
             if (tmpItm.instructions != undefined) itm.instructions = tmpItm.instructions;
@@ -825,6 +848,7 @@ app.loadLocal = function(remainInCurrentMode) {
         for (var id in tmpFlow.items) {
             var tmpItm = tmpFlow.items[id];
             var itm = new WFItem(tmpItm.x, tmpItm.y, tmpItm.shape, tmpItm.title);
+            if (tmpItm.fill != undefined) itm.fill = tmpItm.fill;
             WF.flow.items[id] = itm;
             itm.id = id;
             if (tmpItm.instructions != undefined) itm.instructions = tmpItm.instructions;
@@ -1142,7 +1166,9 @@ app.showSnapshot = function() {
     // get image data
     var itm = WF.pickedItem;
     WF.pickedItem = null;
+    app.snapshotMode = true;
     WF.drawCanvas()
+    app.snapshotMode = false;
     var extents = app.canvasExtents(cbox.checked);
     var imgData = WFUI.ctx.getImageData(extents.minX, extents.minY, extents.maxX, extents.maxY);
 

@@ -146,6 +146,14 @@ div.scaleSlider {
     right: 12px;
 }
 
+.swatch {
+    border: 2px solid silver;
+    padding-left: .5em;
+    padding-right: .5em;
+    margin-bottom:.2em;
+    font-size: 10pt;
+    cursor: pointer;
+}
 fieldset {   
     -moz-border-radius:.3em;  
     border-radius:.3em;  

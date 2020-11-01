@@ -371,6 +371,22 @@ function initWF() {
     }
     sel.value = app.localStorage.slot;
 
+    // Color Swatches
+    var loc = document.getElementById("item_color_container");
+    var h = "";
+    for (var key in app.fills) {
+        if (key == "error") continue;
+        if (h != "") h += " ";
+        var fill = app.fills[key];
+        h += "<span class='swatch' ";
+        h += "onclick='app.updateItemFill(\"" + key + "\")' ";
+        h += "style='";
+        h += "background-image: linear-gradient(to bottom right, snow , " + fill.bg + "); ";
+        //h += "style='background-color:" + fill.bg + "; ";
+        h += "color:" + fill.fg + " ";
+        h += "'>XX</span>";
+    }
+    loc.innerHTML = h;
     WF.createCanvas();
 
     WF.eventTarget = document.createTextNode(null); // Dummy target for events
